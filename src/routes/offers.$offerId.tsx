@@ -880,14 +880,11 @@ function OfferDetailPage() {
                           <span className="ms-2 text-xs font-bold text-foreground">{reviewRating}/5</span>
                         </div>
 
-                        <input
-                          type="text"
-                          value={reviewName}
-                          onChange={(e) => setReviewName(e.target.value)}
-                          placeholder="اسمك"
-                          required
-                          className="mb-2 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-                        />
+                        {!isAuthenticated && (
+                          <div className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700">
+                            سجّل دخول أولاً عشان تقدر تضيف تقييم
+                          </div>
+                        )}
                         <textarea
                           value={reviewText}
                           onChange={(e) => setReviewText(e.target.value)}
@@ -898,9 +895,10 @@ function OfferDetailPage() {
                         />
                         <button
                           type="submit"
-                          className="w-full rounded-xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] py-2.5 text-sm font-extrabold text-white shadow transition hover:scale-[1.01]"
+                          disabled={reviewSubmitting}
+                          className="w-full rounded-xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] py-2.5 text-sm font-extrabold text-white shadow transition hover:scale-[1.01] disabled:opacity-60"
                         >
-                          إرسال التقييم
+                          {reviewSubmitting ? "جاري الإرسال…" : "إرسال التقييم"}
                         </button>
                       </form>
 
