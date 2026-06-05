@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, FolderOpen, Tag, FileText, Calendar, Check, Mail, Phone, CreditCard, Receipt, Sparkles, ShieldCheck, Clock, QrCode, MapPin, Store } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -341,6 +341,13 @@ function TrackPage() {
                           <div className="mt-1 text-2xl font-extrabold tracking-widest text-primary" dir="ltr">{result.order.verificationCode}</div>
                         </div>
                       )}
+                      <Link
+                        to="/booking/$bookingId"
+                        params={{ bookingId: result.order.number }}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-primary/10"
+                      >
+                        <FileText className="h-4 w-4" /> عرض تفاصيل الحجز
+                      </Link>
                     </div>
                     {/* Amounts */}
                     <div className="flex flex-col justify-center gap-4">

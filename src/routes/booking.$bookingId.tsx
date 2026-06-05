@@ -1,7 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Check, MapPin, Phone, Calendar, Clock, Download, Printer, Home, Clock3, XCircle, AlertCircle, PlayCircle, Star, UserX } from "lucide-react";
+import { Check, MapPin, Phone, Calendar, Clock, Download, Printer, Home, Clock3, XCircle, AlertCircle, PlayCircle, Star, UserX, CreditCard } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { useOffer } from "@/hooks/useCatalog";
@@ -127,7 +127,6 @@ function fmtMoney(n?: number) {
 function BookingConfirmation() {
   const { bookingId } = Route.useParams();
   const [booking, setBooking] = useState<Booking | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -197,20 +196,9 @@ function BookingConfirmation() {
     booking.paymentStatus === "deposit_paid";
   const hasDeposit = derivedDeposit > 0;
 
-  // Unpaid bookings with a required deposit must be redirected to the
-  // payment page — no peeking at the confirmation/QR until payment is done.
-  if (hasDeposit && !isPaid) {
-    navigate({ to: "/booking/pay/$bookingId", params: { bookingId }, replace: true });
-    return (
-      <div dir="rtl" className="flex min-h-screen flex-col bg-background">
-        <SiteHeader />
-        <main className="flex flex-1 items-center justify-center px-4">
-          <p className="text-sm text-muted-foreground">جارٍ تحويلك إلى صفحة الدفع…</p>
-        </main>
-        <SiteFooter />
-      </div>
-    );
-  }
+  // Unpaid bookings stay on this page so the user can see the status &
+  // details, but we show a clear banner asking them to complete payment.
+  const showPayBanner = hasDeposit && !isPaid;
 
   // Derive effective status: trust explicit booking.status, otherwise infer
   // from payment state (paid → confirmed, otherwise pending).
@@ -250,6 +238,28 @@ function BookingConfirmation() {
               {statusMeta.subtitle}
             </p>
           </div>
+
+          {/* Unpaid banner — keep the user on this page but prompt to pay */}
+          {showPayBanner && (
+            <div className="mb-6 flex flex-col items-stretch gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                <div className="text-sm">
+                  <div className="font-extrabold">لم يتم دفع العربون بعد</div>
+                  <div className="text-xs text-amber-800/80">
+                    حجزك غير مؤكد حتى تتم عملية الدفع. اضغط على "ادفع الآن" لإتمام الحجز.
+                  </div>
+                </div>
+              </div>
+              <Link
+                to="/booking/pay/$bookingId"
+                params={{ bookingId }}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-amber-700"
+              >
+                <CreditCard className="h-4 w-4" /> ادفع الآن
+              </Link>
+            </div>
+          )}
 
           {/* Ticket card */}
           <div className="overflow-hidden rounded-3xl border border-border bg-white shadow-xl">
