@@ -159,7 +159,14 @@ function bookingTotalValue(b: any): number {
 }
 
 function bookingCommissionValue(b: any): number {
-  return safeAmount(b?.commission ?? b?.commissionAmount ?? b?.commission_amount);
+  return safeAmount(
+    b?.depositAmount ??
+      b?.deposit_amount ??
+      b?.deposit ??
+      b?.commission ??
+      b?.commissionAmount ??
+      b?.commission_amount,
+  );
 }
 
 function mapApiPartner(raw: ApiPartnerProfile | null | undefined): Profile | null {
@@ -2473,6 +2480,18 @@ function AnalyticsTab() {
   const [stats, setStats] = useState<any>(null);
   const [topOffers, setTopOffers] = useState<{ name: string; bookings: number; revenue: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [commissionPct, setCommissionPct] = useState<number | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const r: any = await partnerApi.getProfile();
+        const p = r?.partner || r?.profile || r;
+        const pct = p?.commissionPct ?? p?.commission_pct ?? p?.depositPct ?? p?.deposit_pct;
+        if (pct != null) setCommissionPct(Number(pct));
+      } catch {}
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -2530,12 +2549,14 @@ function AnalyticsTab() {
   const totalRevenue = safeAmount(stats?.calculatedRevenue || stats?.totalRevenue || dailyRevenue);
   const totalCommission = safeAmount(stats?.calculatedCommission || stats?.totalCommission || dailyCommission);
   const totalBookings = safeAmount(stats?.calculatedBookings || stats?.totalBookings || daily.reduce((sum, d) => sum + safeAmount(d.bookings), 0));
-  const netRevenue = totalRevenue - totalCommission;
   const avgValue = totalBookings > 0 ? (totalRevenue / totalBookings) : 0;
+  const displayPct = commissionPct != null
+    ? commissionPct
+    : (totalRevenue > 0 ? Math.round((totalCommission / totalRevenue) * 1000) / 10 : 0);
 
   const kpis = [
     { label: "إجمالي الإيرادات", value: `${totalRevenue.toLocaleString()} ر.س`, icon: TrendingUp, color: "from-violet-500 to-purple-600" },
-    { label: "صافي بعد العمولة", value: `${netRevenue.toLocaleString()} ر.س`, icon: DollarSign, color: "from-emerald-500 to-teal-600" },
+    { label: "نسبة العمولة", value: `${displayPct}%`, icon: Percent, color: "from-emerald-500 to-teal-600" },
     { label: "عمولة المنصة", value: `${totalCommission.toLocaleString()} ر.س`, icon: Zap, color: "from-pink-500 to-rose-600" },
     { label: "متوسط قيمة الحجز", value: `${avgValue.toFixed(0)} ر.س`, icon: Users, color: "from-amber-500 to-orange-600" },
   ];
