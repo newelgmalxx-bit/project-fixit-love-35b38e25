@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useLang } from "@/i18n/LanguageProvider";
 import { adminBookingsApi, type AdminBooking } from "@/lib/api/adminBookings";
 import { adminCategoriesApi, type AdminCategory } from "@/lib/api/adminContent";
+import { adminPartnersApi } from "@/lib/api/adminPartners";
 import { PartnerSelect } from "@/components/admin/PartnerSelect";
 
 export const Route = createFileRoute("/admin/bookings")({
@@ -91,6 +92,12 @@ function pickServicesValue(b: any): number | undefined {
 }
 function pickPartnerName(b: any): string | undefined {
   return b?.partnerName || b?.partner_name || b?.partner?.name || b?.partner?.nameAr || b?.centerName || b?.center_name || b?.center?.name;
+}
+function pickCity(b: any): string | undefined {
+  return b?.city || b?.partnerCity || b?.partner_city || b?.partner?.city || b?.center?.city || b?.cityName || b?.city_name;
+}
+function pickMapsUrl(b: any): string | undefined {
+  return b?.mapsUrl || b?.maps_url || b?.partner?.mapsUrl || b?.partner?.maps_url || b?.center?.mapsUrl || b?.center?.maps_url;
 }
 function pickOfferTitle(b: any): string | undefined {
   return b?.offerTitle || b?.offer_title || b?.offer?.title || b?.offer?.titleAr || b?.offerName || b?.offer_name;
@@ -188,7 +195,19 @@ function BookingsPage() {
     setViewing(b);
     try {
       const fresh = await adminBookingsApi.get(b.id);
-      setViewing(fresh);
+      let merged: any = fresh;
+      // Backfill city + mapsUrl from partner if missing on booking
+      if ((!pickCity(fresh) || !pickMapsUrl(fresh)) && (fresh as any).partnerId) {
+        try {
+          const p: any = await adminPartnersApi.get((fresh as any).partnerId);
+          merged = {
+            ...fresh,
+            city: pickCity(fresh) || p?.city || p?.address || "",
+            mapsUrl: pickMapsUrl(fresh) || p?.mapsUrl || p?.maps_url || "",
+          };
+        } catch { /* ignore */ }
+      }
+      setViewing(merged);
     } catch { /* keep list snapshot */ }
   }
 
