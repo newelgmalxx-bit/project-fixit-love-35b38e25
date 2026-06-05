@@ -104,11 +104,15 @@ function pickOfferTitle(b: any): string | undefined {
 }
 
 function pickRef(b: any): string | undefined {
-  return b?.qrCode || b?.qr_code || b?.reference || b?.referenceCode || b?.reference_code || b?.confirmationCode || b?.confirmation_code || b?.code;
+  return b?.qrCode || b?.qr_code || b?.bookingNumber || b?.booking_number || b?.bookingNo || b?.booking_no || b?.reference || b?.referenceCode || b?.reference_code || b?.confirmationCode || b?.confirmation_code || b?.code;
 }
 
 function pickVerifyCode(b: any): string | undefined {
   return b?.verifyCode || b?.verify_code || b?.confirmCode || b?.confirm_code || b?.pin || b?.otp;
+}
+
+function cleanCheckValue(v: string): string {
+  return v.replace(/\s+/g, "").trim().toUpperCase();
 }
 
 const PAGE_SIZE = 20;
@@ -143,43 +147,40 @@ function BookingsPage() {
 
   async function handleConfirmByCode(e: React.FormEvent) {
     e.preventDefault();
-    const bId = confirmBookingId.trim();
-    const code = confirmCode.replace(/\s+/g, "").trim();
+    const bId = cleanCheckValue(confirmBookingId);
+    const code = cleanCheckValue(confirmCode);
     if (!bId || !code) { toast.error(L("أدخل رقم الحجز ورمز التأكيد", "Enter booking # and confirmation code")); return; }
-    if (!/^\d{6}$/.test(code)) { toast.error(L("رمز التأكيد 6 أرقام", "Code must be 6 digits")); return; }
+    if (!/^[A-Z0-9-]{4,32}$/.test(code)) { toast.error(L("رمز التأكيد غير صحيح", "Invalid confirmation code")); return; }
     setConfirming(true);
     try {
-      // Try searching by the booking number as entered, and a normalized variant (strip BK- prefix)
       const normalized = bId.replace(/^bk[-_ ]?/i, "").toUpperCase();
+      const localMatches = items.filter((b: any) => {
+        const ref = cleanCheckValue(String(pickRef(b) || ""));
+        const refNormalized = ref.replace(/^BK[-_ ]?/i, "");
+        const v = cleanCheckValue(String(pickVerifyCode(b) || ""));
+        return (ref === bId || refNormalized === normalized) && v === code;
+      });
       const [r1, r2, r3] = await Promise.all([
         adminBookingsApi.list({ q: bId, limit: 50 }).catch(() => ({ items: [] as any[] })),
-        normalized && normalized !== bId.toUpperCase()
+        normalized && normalized !== bId
           ? adminBookingsApi.list({ q: normalized, limit: 50 }).catch(() => ({ items: [] as any[] }))
           : Promise.resolve({ items: [] as any[] }),
         adminBookingsApi.list({ q: code, limit: 50 }).catch(() => ({ items: [] as any[] })),
       ]);
-      const pool: any[] = [...(r1.items || []), ...(r2.items || []), ...(r3.items || [])];
-      const matchByBoth = pool.find((b: any) => {
-        const ref = String(pickRef(b) || "").toUpperCase();
-        const id = String(b.id || "").toUpperCase();
-        const tail = id.slice(-6);
-        const c = bId.toUpperCase();
-        const cn = normalized;
-        const v = String(pickVerifyCode(b) || "").trim();
-        const bookingMatches = ref === c || ref === cn || ref.endsWith(cn) || id === c || tail === c || tail === cn || id.endsWith(c);
-        return bookingMatches && (v ? v === code : true);
+      const pool: any[] = [...localMatches, ...(r1.items || []), ...(r2.items || []), ...(r3.items || [])];
+      const match = pool.find((b: any) => {
+        const ref = cleanCheckValue(String(pickRef(b) || ""));
+        const refNormalized = ref.replace(/^BK[-_ ]?/i, "");
+        const v = cleanCheckValue(String(pickVerifyCode(b) || ""));
+        return (ref === bId || refNormalized === normalized) && v === code;
       });
-      const match = matchByBoth || pool.find((b: any) => {
-        const v = String(pickVerifyCode(b) || "").trim();
-        return v && v === code;
-      });
-      if (!match) { toast.error(L("لا يوجد حجز بهذا الرقم", "No booking found")); return; }
+      if (!match) { toast.error(L("لا يوجد حجز مطابق لرقم الحجز ورمز التأكيد", "No booking matches both booking # and confirmation code")); return; }
       const st = String(match.status || "").toLowerCase();
       if (st === "cancelled" || st === "refunded") { toast.error(L("هذا الحجز ملغي/مسترجع", "Booking is cancelled/refunded")); return; }
       if (st === "completed" || st === "redeemed") { toast.warning(L("الحجز مستخدم من قبل", "Booking already redeemed")); return; }
       // Verify code locally when present on the booking object
-      const expected = String(pickVerifyCode(match) || "").trim();
-      if (expected && expected !== code) {
+      const expected = cleanCheckValue(String(pickVerifyCode(match) || ""));
+      if (expected !== code) {
         toast.error(L("رمز التأكيد غير صحيح", "Invalid confirmation code"));
         return;
       }
@@ -301,7 +302,7 @@ function BookingsPage() {
           </div>
           <div>
             <div className="text-sm font-extrabold">{L("التحقق من حجز العميل", "Verify customer booking")}</div>
-            <div className="text-[11px] text-muted-foreground">{L("أدخل رقم الحجز + رمز التأكيد المكوّن من 6 أرقام", "Enter booking # + 6-digit confirmation code")}</div>
+            <div className="text-[11px] text-muted-foreground">{L("أدخل رقم الحجز + رمز التأكيد كما يظهران للعميل", "Enter booking # + confirmation code exactly as shown")}</div>
           </div>
         </div>
         <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
@@ -317,13 +318,13 @@ function BookingsPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold text-muted-foreground block mb-1">{L("رمز التأكيد (6 أرقام)", "Confirmation code (6 digits)")}</label>
+            <label className="text-[10px] font-bold text-muted-foreground block mb-1">{L("رمز التأكيد", "Confirmation code")}</label>
             <input
               value={confirmCode}
-              onChange={(e) => setConfirmCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              placeholder="000000"
-              maxLength={6}
-              inputMode="numeric"
+              onChange={(e) => setConfirmCode(e.target.value.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase().slice(0, 32))}
+              placeholder="VERIFY_CODE"
+              maxLength={32}
+              inputMode="text"
               className="h-11 w-full rounded-xl border border-border bg-background px-3 text-center text-base font-black tracking-[0.3em]"
               dir="ltr"
             />
