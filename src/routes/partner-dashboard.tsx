@@ -159,7 +159,14 @@ function bookingTotalValue(b: any): number {
 }
 
 function bookingCommissionValue(b: any): number {
-  return safeAmount(b?.commission ?? b?.commissionAmount ?? b?.commission_amount);
+  return safeAmount(
+    b?.depositAmount ??
+      b?.deposit_amount ??
+      b?.deposit ??
+      b?.commission ??
+      b?.commissionAmount ??
+      b?.commission_amount,
+  );
 }
 
 function mapApiPartner(raw: ApiPartnerProfile | null | undefined): Profile | null {
