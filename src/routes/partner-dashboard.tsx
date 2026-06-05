@@ -144,6 +144,24 @@ const PAY_METHOD_LABEL: Record<string, string> = { mada: "مدى", visa: "فيز
 const PAY_STATUS_LABEL: Record<string, string> = { paid: "مدفوع بالكامل", deposit_paid: "عربون مدفوع", unpaid: "غير مدفوع", refunded: "مسترجع" };
 const SOURCE_LABEL: Record<string, string> = { app: "التطبيق", web: "الويب", partner: "من المركز" };
 
+function safeAmount(v: any): number {
+  const n = Number(v ?? 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function isCountedBooking(b: any): boolean {
+  const status = String(b?.status || "").toLowerCase();
+  return !["cancelled", "canceled", "refunded"].includes(status);
+}
+
+function bookingTotalValue(b: any): number {
+  return safeAmount(b?.amount ?? b?.totalAmount ?? b?.total_amount ?? b?.total ?? b?.servicesValue ?? b?.services_value);
+}
+
+function bookingCommissionValue(b: any): number {
+  return safeAmount(b?.commission ?? b?.commissionAmount ?? b?.commission_amount);
+}
+
 function mapApiPartner(raw: ApiPartnerProfile | null | undefined): Profile | null {
   if (!raw?.id) return null;
   const p: any = raw;
