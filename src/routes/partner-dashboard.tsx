@@ -1887,11 +1887,11 @@ function WalletTab() {
           <div className="col-span-2 text-end">قبضته عند الخدمة</div>
           <div className="col-span-1 text-end">الإجمالي</div>
         </div>
-        {completed.length === 0 && !loading ? (
+        {counted.length === 0 && !loading ? (
           <div className="p-8 text-center text-sm text-muted-foreground">لا توجد مبيعات بعد</div>
-        ) : completed.map((t: any) => {
-          const dep = Number(t.deposit_amount || 0);
-          const total = Number(t.amount || 0);
+        ) : counted.map((t: any) => {
+          const dep = bookingCommissionValue(t);
+          const total = bookingTotalValue(t);
           const cash = Math.max(0, total - dep);
           return (
             <div key={t.id} className="grid grid-cols-1 gap-2 border-b border-border p-4 last:border-b-0 sm:grid-cols-12 sm:items-center">
