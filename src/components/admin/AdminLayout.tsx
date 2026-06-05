@@ -5,7 +5,7 @@ import {
   BarChart3, FileSpreadsheet, Building2, Search, Target, CreditCard, Link2,
   UserCheck, Settings, ChevronDown, Bell, LogOut, Menu, User, Palette, Plug, Tag,
   Users2, BellRing, CheckCircle2, AlertCircle, ShoppingBag, LifeBuoy, Ticket, ExternalLink, Star, ScrollText, Store, MessageSquare,
-  ClipboardCheck, Wallet, MapPin, Clock, Megaphone, Heart, Webhook,
+  ClipboardCheck, Wallet, MapPin, Clock, Megaphone, Heart, Webhook, ShieldCheck,
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
