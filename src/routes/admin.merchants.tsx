@@ -964,6 +964,28 @@ function AddCenterDialog({
               <option value="suspended">موقوف</option>
             </select>
           </div>
+
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold flex items-center gap-2">
+              <Tag className="h-3.5 w-3.5" />
+              اشتراك المركز (الباقة)
+            </label>
+            <select
+              value={f.packageId || ""}
+              onChange={(e) => up("packageId", e.target.value)}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="">— بدون اشتراك —</option>
+              {(packages || []).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {(p.nameAr || p.name || p.nameEn)} {p.price ? `· ${p.price.toLocaleString()} ر.س` : ""}
+                </option>
+              ))}
+            </select>
+            {(packages || []).length === 0 && (
+              <p className="mt-1 text-[11px] text-muted-foreground">لا توجد باقات — أضفها من صفحة باقات الشركاء أولاً.</p>
+            )}
+          </div>
           <DialogFooter className="sm:col-span-2">
             <button type="button" onClick={() => { reset(); onClose(); }} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">إلغاء</button>
             <button type="submit" className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground">حفظ المركز</button>
