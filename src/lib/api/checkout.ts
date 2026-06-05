@@ -112,6 +112,20 @@ export const checkout = {
       method: 'POST', body: JSON.stringify({ orderId }),
     }),
 
+  // POST /bookings/:bookingId/pay — re-initiate MyFatoorah payment for an EXISTING booking.
+  // See docs/BACKEND_PAY_EXISTING_BOOKING.md
+  payExistingBooking: (bookingId: string, paymentMethodId?: number) =>
+    request<ApiResponse<{
+      bookingId: string;
+      bookingNumber: string;
+      depositAmount: number;
+      paymentUrl: string;
+      invoiceId?: string;
+    }>>(`/bookings/${encodeURIComponent(bookingId)}/pay`, {
+      method: 'POST',
+      body: JSON.stringify(paymentMethodId ? { paymentMethodId } : {}),
+    }),
+
   // GET /checkout/verify?paymentId=xxx — MyFatoorah return verification.
   verify: (paymentId: string) =>
     request<ApiResponse<{
