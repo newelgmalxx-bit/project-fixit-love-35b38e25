@@ -1359,7 +1359,6 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
       <Input label="رقم الجوال" value={f.phone} onChange={(v) => upd("phone", v)} />
       <Input label="البريد الإلكتروني" value={f.email || ""} onChange={(v) => upd("email", v)} />
       <Input label="السجل التجاري" value={f.commercial_number || ""} onChange={(v) => upd("commercial_number", v)} />
-      <Input label="العنوان التفصيلي" value={f.address || ""} onChange={(v) => upd("address", v)} className="sm:col-span-2" />
       <Input label="رابط الموقع على خرائط جوجل" value={f.maps_url || ""} onChange={(v) => upd("maps_url", v)} placeholder="https://maps.app.goo.gl/..." className="sm:col-span-2" />
           <div className="sm:col-span-2">
             <ImageUpload
