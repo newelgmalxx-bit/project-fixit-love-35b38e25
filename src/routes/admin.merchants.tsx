@@ -135,7 +135,7 @@ function pickAssignedCategoryIds(p: any, opts?: { treatPlainCategoriesAsAssigned
     if (opts?.treatPlainCategoriesAsAssigned) {
       const ids = p.categories.map(normalizeCategoryId).filter((id: CategoryId | null): id is CategoryId => id !== null);
       const masterKeys = new Set((opts.masterCategories || []).map(categoryKey).filter(Boolean));
-      const isWholeMasterList = masterKeys.size > 0 && ids.length === masterKeys.size && ids.every((id) => masterKeys.has(categoryKey(id)));
+      const isWholeMasterList = masterKeys.size > 0 && ids.length === masterKeys.size && ids.every((id: CategoryId) => masterKeys.has(categoryKey(id)));
       return isWholeMasterList ? [] : ids;
     }
     // Backend returned the master list with no assignment marker — treat as none.
