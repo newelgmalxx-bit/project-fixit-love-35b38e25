@@ -83,13 +83,10 @@ function computeStageIndex(order: { status?: string; paymentStatus?: string }): 
   return 0;
 }
 
-type Method = "email" | "phone";
-
 function TrackPage() {
   const { t, lang, dir } = useLang();
-  const [method, setMethod] = useState<Method>("phone");
-  const [contact, setContact] = useState("");
-  const [orderNumber, setOrderNumber] = useState("");
+  const [qrCode, setQrCode] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -118,8 +115,14 @@ function TrackPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!contact.trim() || !orderNumber.trim()) {
-      toast.error(method === "email" ? t("track.err.fillEmail") : t("track.err.fillPhone"));
+    const qr = qrCode.trim().toUpperCase();
+    const code = verifyCode.trim();
+    if (!qr || !code) {
+      toast.error("ادخل رقم الحجز ورمز التأكيد");
+      return;
+    }
+    if (!/^\d{4,8}$/.test(code)) {
+      toast.error("رمز التأكيد يجب أن يكون أرقاماً (4–8 خانات)");
       return;
     }
     setLoading(true);
@@ -127,9 +130,8 @@ function TrackPage() {
     setResult(null);
     try {
       const res: any = await publicApi.lookupOrder({
-        orderNumber: orderNumber.trim(),
-        email: method === "email" ? contact.trim() : undefined,
-        phone: method === "phone" ? contact.trim() : undefined,
+        qrCode: qr,
+        verifyCode: code,
       });
       const data: any = res?.data ?? res ?? {};
       const o: any = data.order ?? data;
