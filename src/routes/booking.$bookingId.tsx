@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Check, MapPin, Phone, Calendar, Clock, Download, Printer, Home, Clock3, XCircle, AlertCircle, PlayCircle, Star, UserX, CreditCard } from "lucide-react";
@@ -127,7 +127,6 @@ function fmtMoney(n?: number) {
 function BookingConfirmation() {
   const { bookingId } = Route.useParams();
   const [booking, setBooking] = useState<Booking | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     try {
