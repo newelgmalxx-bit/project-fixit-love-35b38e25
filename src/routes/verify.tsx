@@ -29,7 +29,23 @@ type StoredBooking = {
   depositAmount?: number;
   remainingAmount?: number;
   redeemedAt?: string;
+  paymentStatus?: "paid" | "deposit_paid" | "unpaid";
 };
+
+function getPaymentStatus(b: StoredBooking): { key: "paid" | "deposit_paid" | "unpaid"; label: string; cls: string } {
+  let key: "paid" | "deposit_paid" | "unpaid" = b.paymentStatus ?? "unpaid";
+  if (!b.paymentStatus) {
+    const total = Number(b.total ?? 0);
+    const deposit = Number(b.depositAmount ?? 0);
+    const remaining = Number(b.remainingAmount ?? 0);
+    if (total > 0 && remaining === 0 && (deposit > 0 || total > 0)) key = "paid";
+    else if (deposit > 0) key = "deposit_paid";
+    else key = "unpaid";
+  }
+  if (key === "paid") return { key, label: "مدفوع بالكامل", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" };
+  if (key === "deposit_paid") return { key, label: "عربون مدفوع", cls: "bg-amber-100 text-amber-800 border-amber-300" };
+  return { key, label: "غير مدفوع", cls: "bg-rose-100 text-rose-800 border-rose-300" };
+}
 
 function loadAll(): StoredBooking[] {
   try {
