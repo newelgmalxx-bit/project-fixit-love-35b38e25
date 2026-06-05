@@ -344,6 +344,7 @@ function OfferDetailPage() {
   // Do not fall back to a fixed 10% because every center has its own rate.
   const rawDepositPct = offer.vendor.depositPct ?? offer.vendor.commissionPct;
   const depositPct = typeof rawDepositPct === "number" && rawDepositPct > 0 ? rawDepositPct : null;
+  const depositPctLabel = depositPct != null ? `${depositPct}%` : "غير محددة";
   const depositAmount = depositPct != null ? +((total * depositPct) / 100).toFixed(2) : 0;
   const remainingAmount = depositPct != null ? +(total - depositAmount).toFixed(2) : total;
   const { add: addToCartHook } = useCart();
@@ -381,6 +382,7 @@ function OfferDetailPage() {
     const phoneOk = customerPhone.replace(/\D/g, "").length >= 9;
     const nameOk = customerName.trim().length >= 2;
     if (!date || !time || !nameOk || !emailOk || !phoneOk) return;
+    if (depositPct == null) return;
     const t = setTimeout(() => {
       const item = {
         offerId: offer.id,
@@ -470,6 +472,12 @@ function OfferDetailPage() {
     }
     if (blockedSlots.includes(time)) {
       toast.error("هذا الموعد غير متاح", { description: "تم تعطيل هذا الوقت من قِبَل المركز — يرجى اختيار وقت آخر." });
+      return;
+    }
+    if (depositPct == null) {
+      toast.error("نسبة عربون المركز غير متاحة", {
+        description: "لا يمكن إضافة الحجز للسلة قبل ضبط نسبة هذا المركز من الإدارة.",
+      });
       return;
     }
 
