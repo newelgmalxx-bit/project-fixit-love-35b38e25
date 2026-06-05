@@ -124,9 +124,9 @@ function ClientsPage() {
           byName.get(normName(c.name ?? u.name)) ||
           { orders: 0, spent: 0 };
         const resolvedCity =
-          c.city ?? u.city ??
-          (c.id && cityByUserId.get(String(c.id))) ||
-          (c.userId && cityByUserId.get(String(c.userId))) ||
+          (c.city ?? u.city) ||
+          (c.id ? cityByUserId.get(String(c.id)) : undefined) ||
+          (c.userId ? cityByUserId.get(String(c.userId)) : undefined) ||
           cityByEmail.get(normEmail(c.email ?? u.email)) ||
           cityByName.get(normName(c.name ?? u.name)) ||
           undefined;
