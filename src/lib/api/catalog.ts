@@ -122,7 +122,10 @@ function toNum(v: number | string | undefined | null): number {
 
 function defaultVendor(api: ApiOffer): Vendor {
   const o: any = api;
-  const commission = Number(o.commissionPct ?? o.commission_pct ?? 10);
+  const commission = Number(
+    o.commissionPctOverride ?? o.commission_pct_override ??
+    o.commissionPct ?? o.commission_pct ?? 10,
+  );
   const deposit = Number(o.depositPct ?? o.deposit_pct ?? commission);
   return {
     id: api.partnerId || "—",
@@ -158,6 +161,7 @@ export function normalizeOffer(
         const o: any = api;
         // Per-offer override wins, then partner value, then fallback.
         const commission = Number(
+          o.commissionPctOverride ?? o.commission_pct_override ??
           o.commissionPct ?? o.commission_pct ??
           p.commissionPct ?? p.commission_pct ?? 10,
         );
