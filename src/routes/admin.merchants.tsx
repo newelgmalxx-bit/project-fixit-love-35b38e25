@@ -97,6 +97,30 @@ function normalizeStatus(s: any): Status {
   return "pending";
 }
 
+// Only treat a category as assigned if backend explicitly marks it via
+// `categoryIds` or via items in `categories` that carry a pivot/assigned flag.
+// Some backends return the full master category list under `categories` —
+// we must NOT treat that as "all selected".
+function pickAssignedCategoryIds(p: any): number[] {
+  if (Array.isArray(p?.categoryIds)) {
+    return p.categoryIds.map((x: any) => Number(x)).filter((n: number) => !isNaN(n));
+  }
+  if (Array.isArray(p?.category_ids)) {
+    return p.category_ids.map((x: any) => Number(x)).filter((n: number) => !isNaN(n));
+  }
+  if (Array.isArray(p?.categories)) {
+    const assigned = p.categories.filter((c: any) =>
+      c && (c.pivot || c.assigned === true || c.selected === true || c.isAssigned === true || c.partner_id != null || c.partnerId != null)
+    );
+    if (assigned.length) {
+      return assigned.map((c: any) => Number(c?.id ?? c)).filter((n: number) => !isNaN(n));
+    }
+    // Backend returned the master list with no assignment marker — treat as none.
+    return [];
+  }
+  return [];
+}
+
 function mapPartner(p: AdminPartner): Merchant {
   return {
     id: String(p.id),
