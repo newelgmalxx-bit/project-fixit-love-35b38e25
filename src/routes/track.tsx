@@ -83,13 +83,10 @@ function computeStageIndex(order: { status?: string; paymentStatus?: string }): 
   return 0;
 }
 
-type Method = "email" | "phone";
-
 function TrackPage() {
   const { t, lang, dir } = useLang();
-  const [method, setMethod] = useState<Method>("phone");
-  const [contact, setContact] = useState("");
-  const [orderNumber, setOrderNumber] = useState("");
+  const [qrCode, setQrCode] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -118,8 +115,14 @@ function TrackPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!contact.trim() || !orderNumber.trim()) {
-      toast.error(method === "email" ? t("track.err.fillEmail") : t("track.err.fillPhone"));
+    const qr = qrCode.trim().toUpperCase();
+    const code = verifyCode.trim();
+    if (!qr || !code) {
+      toast.error("ادخل رقم الحجز ورمز التأكيد");
+      return;
+    }
+    if (!/^\d{4,8}$/.test(code)) {
+      toast.error("رمز التأكيد يجب أن يكون أرقاماً (4–8 خانات)");
       return;
     }
     setLoading(true);
@@ -127,9 +130,8 @@ function TrackPage() {
     setResult(null);
     try {
       const res: any = await publicApi.lookupOrder({
-        orderNumber: orderNumber.trim(),
-        email: method === "email" ? contact.trim() : undefined,
-        phone: method === "phone" ? contact.trim() : undefined,
+        qrCode: qr,
+        verifyCode: code,
       });
       const data: any = res?.data ?? res ?? {};
       const o: any = data.order ?? data;
@@ -222,26 +224,9 @@ function TrackPage() {
         {/* Search card */}
         <section className="relative z-10 mx-auto -mt-10 max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-border bg-white p-6 pt-8 shadow-xl sm:p-8 sm:pt-10">
-            {/* Method tabs */}
-            <div className="mx-auto flex max-w-md items-center justify-center gap-2 rounded-full border border-border bg-muted/40 p-1">
-              <button
-                type="button"
-                onClick={() => { setMethod("phone"); setContact(""); }}
-                className={["inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition",
-                  method === "phone" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"].join(" ")}
-              >
-                <Phone className="h-4 w-4" /> {t("track.tab.phone")}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setMethod("email"); setContact(""); }}
-                className={["inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition",
-                  method === "email" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"].join(" ")}
-              >
-                <Mail className="h-4 w-4" /> {t("track.tab.email")}
-              </button>
-            </div>
-
+            <p className="mx-auto mb-4 max-w-md text-center text-xs text-muted-foreground">
+              ادخل رقم الحجز (BK-XXXXXX) ورمز التأكيد المكوّن من 6 أرقام الموجود في تذكرتك.
+            </p>
             {/* Form */}
             <form
               onSubmit={onSubmit}
@@ -249,25 +234,26 @@ function TrackPage() {
             >
               <div className="relative flex-1">
                 <span className="pointer-events-none absolute inset-y-0 end-4 flex items-center text-muted-foreground">
-                  {method === "email" ? <Mail className="h-4 w-4" /> : <Phone className="h-4 w-4" />}
+                  <FileText className="h-4 w-4" />
                 </span>
                 <input
-                  type={method === "email" ? "email" : "tel"}
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  placeholder={method === "email" ? t("track.placeholder.email") : t("track.placeholder.phone")}
+                  type="text"
+                  value={qrCode}
+                  onChange={(e) => setQrCode(e.target.value)}
+                  placeholder="رقم الحجز مثال BK-DXECMR"
                   className={`h-12 w-full rounded-full border border-border bg-background ps-5 pe-11 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${textEnd}`}
                 />
               </div>
               <div className="relative flex-1">
                 <span className="pointer-events-none absolute inset-y-0 end-4 flex items-center text-muted-foreground">
-                  <FileText className="h-4 w-4" />
+                  <ShieldCheck className="h-4 w-4" />
                 </span>
                 <input
                   type="text"
-                  value={orderNumber}
-                  onChange={(e) => setOrderNumber(e.target.value)}
-                  placeholder={t("track.placeholder.order")}
+                  inputMode="numeric"
+                  value={verifyCode}
+                  onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ""))}
+                  placeholder="رمز التأكيد (6 أرقام)"
                   className={`h-12 w-full rounded-full border border-border bg-background ps-5 pe-11 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${textEnd}`}
                 />
               </div>
@@ -302,7 +288,7 @@ function TrackPage() {
         <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
           {notFound && (
             <p className="mx-auto max-w-3xl rounded-2xl border border-border bg-muted/40 p-4 text-center text-sm text-muted-foreground">
-              {method === "email" ? t("track.notFound.email") : t("track.notFound.phone")}
+              لم نجد حجزاً مطابقاً. تحقق من رقم الحجز ورمز التأكيد ثم حاول مرة أخرى.
             </p>
           )}
 
