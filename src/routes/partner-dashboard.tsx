@@ -1809,7 +1809,7 @@ function WalletTab() {
       try {
         const [s, b]: any[] = await Promise.all([
           partnerApi.stats("30d").catch(() => ({})),
-          partnerApi.listBookings({ limit: 100 }).catch(() => ({ items: [] })),
+          partnerApi.listBookings({ limit: 1000 }).catch(() => ({ items: [] })),
         ]);
         setStats(s || {});
         setBookings((b?.items || []) as Booking[]);
@@ -1820,13 +1820,19 @@ function WalletTab() {
     })();
   }, []);
 
-  const completed = bookings.filter((x) => x.status === "completed");
-  const totalSales = completed.reduce((s, b: any) => s + Number(b.partner_amount ?? b.amount ?? 0), 0);
-  const monthSales = Number(stats?.totalRevenue ?? 0);
-  const completedCount = completed.length;
-  const platformCommission = Number(stats?.totalCommission ?? 0);
-  const depositsForwarded = completed.reduce((s, b: any) => s + Number(b.deposit_amount || 0), 0);
-  const cashAtService = Math.max(0, totalSales - depositsForwarded);
+  const counted = bookings.filter(isCountedBooking);
+  const totalSales = counted.reduce((s, b: any) => s + bookingTotalValue(b), 0);
+  const platformCommission = counted.reduce((s, b: any) => s + bookingCommissionValue(b), 0);
+  const now = new Date();
+  const cutoff30 = new Date(now); cutoff30.setHours(0,0,0,0); cutoff30.setDate(cutoff30.getDate() - 29);
+  const monthSales = counted.filter((b: any) => {
+    const raw = b.created_at || b.createdAt || b.booking_date || b.date || b.scheduled_at || b.scheduledAt;
+    if (!raw) return true;
+    const dt = new Date(String(raw).replace(" ", "T"));
+    return Number.isNaN(dt.getTime()) ? true : dt >= cutoff30;
+  }).reduce((s, b: any) => s + bookingTotalValue(b), 0);
+  const completedCount = counted.length;
+  const cashAtService = Math.max(0, totalSales - platformCommission);
 
   const cards = [
     { label: "إجمالي المبيعات", value: `${totalSales.toLocaleString()} ر.س`, icon: TrendingUp, color: "from-violet-500 to-purple-600" },
@@ -1881,11 +1887,11 @@ function WalletTab() {
           <div className="col-span-2 text-end">قبضته عند الخدمة</div>
           <div className="col-span-1 text-end">الإجمالي</div>
         </div>
-        {completed.length === 0 && !loading ? (
+        {counted.length === 0 && !loading ? (
           <div className="p-8 text-center text-sm text-muted-foreground">لا توجد مبيعات بعد</div>
-        ) : completed.map((t: any) => {
-          const dep = Number(t.deposit_amount || 0);
-          const total = Number(t.amount || 0);
+        ) : counted.map((t: any) => {
+          const dep = bookingCommissionValue(t);
+          const total = bookingTotalValue(t);
           const cash = Math.max(0, total - dep);
           return (
             <div key={t.id} className="grid grid-cols-1 gap-2 border-b border-border p-4 last:border-b-0 sm:grid-cols-12 sm:items-center">
