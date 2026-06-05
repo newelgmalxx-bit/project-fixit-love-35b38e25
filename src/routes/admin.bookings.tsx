@@ -371,7 +371,16 @@ function BookingsPage() {
                 <Info label={L("العميل", "Customer")}>{viewing.customerName || "—"}</Info>
                 <Info label={L("الهاتف", "Phone")}><span dir="ltr">{viewing.customerPhone || "—"}</span></Info>
                 <Info label={L("البريد", "Email")}><span dir="ltr">{viewing.customerEmail || "—"}</span></Info>
-                <Info label={L("المدينة", "City")}>{viewing.city || "—"}</Info>
+                <Info label={L("المدينة", "City")}>
+                  {pickMapsUrl(viewing) ? (
+                    <a href={pickMapsUrl(viewing)} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline">
+                      {pickCity(viewing) || L("فتح الموقع", "Open location")}
+                    </a>
+                  ) : (
+                    pickCity(viewing) || "—"
+                  )}
+                </Info>
                 <Info label={L("المركز", "Center")}>{pickPartnerName(viewing) || "—"}</Info>
                 <Info label={L("العرض", "Offer")}>{pickOfferTitle(viewing) || "—"}</Info>
                 <Info label={L("الموعد", "Schedule")}>
