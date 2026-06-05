@@ -15,6 +15,7 @@ export const Route = createFileRoute("/admin/merchants")({
 
 type Status = "active" | "pending" | "suspended" | "rejected";
 type WorkingHour = { day: string; open: string; close: string; closed?: boolean };
+type CategoryId = string | number;
 type Merchant = {
   id: string;
   name: string;
@@ -32,7 +33,7 @@ type Merchant = {
   revenue: number;
   joined: string;
   mapsUrl?: string;
-  categoryIds?: number[];
+  categoryIds?: CategoryId[];
   description?: string;
   descriptionEn?: string;
   terms?: string;
@@ -101,19 +102,35 @@ function normalizeStatus(s: any): Status {
 // `categoryIds` or via items in `categories` that carry a pivot/assigned flag.
 // Some backends return the full master category list under `categories` —
 // we must NOT treat that as "all selected".
-function pickAssignedCategoryIds(p: any): number[] {
+function normalizeCategoryId(value: any): CategoryId | null {
+  const raw = typeof value === "object" && value !== null
+    ? value.id ?? value.categoryId ?? value.category_id
+    : value;
+  if (raw === undefined || raw === null) return null;
+  const text = String(raw).trim();
+  if (!text) return null;
+  const numeric = Number(text);
+  return /^\d+$/.test(text) && Number.isFinite(numeric) ? numeric : text;
+}
+
+function categoryKey(value: any): string {
+  const normalized = normalizeCategoryId(value);
+  return normalized === null ? "" : String(normalized);
+}
+
+function pickAssignedCategoryIds(p: any): CategoryId[] {
   if (Array.isArray(p?.categoryIds)) {
-    return p.categoryIds.map((x: any) => Number(x)).filter((n: number) => !isNaN(n));
+    return p.categoryIds.map(normalizeCategoryId).filter((id): id is CategoryId => id !== null);
   }
   if (Array.isArray(p?.category_ids)) {
-    return p.category_ids.map((x: any) => Number(x)).filter((n: number) => !isNaN(n));
+    return p.category_ids.map(normalizeCategoryId).filter((id): id is CategoryId => id !== null);
   }
   if (Array.isArray(p?.categories)) {
     const assigned = p.categories.filter((c: any) =>
       c && (c.pivot || c.assigned === true || c.selected === true || c.isAssigned === true || c.partner_id != null || c.partnerId != null)
     );
     if (assigned.length) {
-      return assigned.map((c: any) => Number(c?.id ?? c)).filter((n: number) => !isNaN(n));
+      return assigned.map(normalizeCategoryId).filter((id): id is CategoryId => id !== null);
     }
     // Backend returned the master list with no assignment marker — treat as none.
     return [];
