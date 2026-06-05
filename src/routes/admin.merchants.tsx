@@ -176,8 +176,8 @@ function MerchantsPage() {
   }, []);
 
   const categoryNameById = useMemo(() => {
-    const m = new Map<number, string>();
-    categories.forEach((c) => m.set(Number(c.id), c.nameAr));
+    const m = new Map<string, string>();
+    categories.forEach((c) => m.set(categoryKey(c.id), c.nameAr));
     return m;
   }, [categories]);
 
@@ -297,6 +297,7 @@ function MerchantsPage() {
           workingHours: data.workingHours || [],
           password: data.password || undefined,
           categoryIds: data.categoryIds || [],
+          category_ids: data.categoryIds || [],
         } as any),
       });
       const tempPwd = res?.data?.partner?.tempPassword || res?.partner?.tempPassword;
@@ -341,6 +342,7 @@ function MerchantsPage() {
           workingHours: data.workingHours || [],
           ...(data.password ? { password: data.password } : {}),
           categoryIds: data.categoryIds || [],
+          category_ids: data.categoryIds || [],
         } as any),
       });
       if (data.password) {
