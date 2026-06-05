@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { adminPartnersApi, partnerLabel, type AdminPartner } from "@/lib/api/adminPartners";
+import { adminCategoriesApi, type AdminCategory } from "@/lib/api/adminContent";
 
 export const Route = createFileRoute("/admin/merchants")({
   head: () => ({ meta: [{ title: "إدارة المراكز | Admin" }] }),
@@ -114,6 +115,11 @@ function mapPartner(p: AdminPartner): Merchant {
     joined: (p.createdAt || (p as any).created_at || "").slice(0, 10),
     mapsUrl: (p as any).mapsUrl || (p as any).maps_url || "",
     packageName: p.package?.name || (p as any).package_name || (p as any).packageName || "—",
+    categoryIds: Array.isArray((p as any).categoryIds)
+      ? (p as any).categoryIds.map((x: any) => Number(x)).filter((n: number) => !isNaN(n))
+      : Array.isArray((p as any).categories)
+        ? (p as any).categories.map((c: any) => Number(c?.id ?? c)).filter((n: number) => !isNaN(n))
+        : [],
   };
 }
 
@@ -125,6 +131,17 @@ function MerchantsPage() {
   const [viewing, setViewing] = useState<Merchant | null>(null);
   const [editing, setEditing] = useState<Merchant | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [categories, setCategories] = useState<AdminCategory[]>([]);
+
+  useEffect(() => {
+    adminCategoriesApi.list().then((d) => setCategories(d.items || [])).catch(() => {});
+  }, []);
+
+  const categoryNameById = useMemo(() => {
+    const m = new Map<number, string>();
+    categories.forEach((c) => m.set(Number(c.id), c.nameAr));
+    return m;
+  }, [categories]);
 
   async function load() {
     setLoading(true);
@@ -241,6 +258,7 @@ function MerchantsPage() {
           nameEn: data.nameEn || "",
           workingHours: data.workingHours || [],
           password: data.password || undefined,
+          categoryIds: data.categoryIds || [],
         } as any),
       });
       const tempPwd = res?.data?.partner?.tempPassword || res?.partner?.tempPassword;
@@ -284,6 +302,7 @@ function MerchantsPage() {
           nameEn: data.nameEn || "",
           workingHours: data.workingHours || [],
           ...(data.password ? { password: data.password } : {}),
+          categoryIds: data.categoryIds || [],
         } as any),
       });
       if (data.password) {
@@ -407,8 +426,21 @@ function MerchantsPage() {
                       <div className="text-sm font-bold text-foreground" dir="ltr">{m.phone}</div>
                     </td>
                     <td className="p-3 text-sm">
-                      <div className="font-bold text-foreground">{m.category}</div>
-                      <div className="text-xs text-muted-foreground">{m.city}</div>
+                      <div className="font-bold text-foreground">
+                        {(m.categoryIds && m.categoryIds.length)
+                          ? m.categoryIds.map((id) => categoryNameById.get(Number(id))).filter(Boolean).join("، ")
+                          : (m.category && m.category !== "—" ? m.category : "—")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {m.mapsUrl ? (
+                          <a href={m.mapsUrl} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-primary hover:underline">
+                            <MapPin className="h-3 w-3" /> {m.city}
+                          </a>
+                        ) : (
+                          m.city
+                        )}
+                      </div>
                     </td>
                     <td className="p-3 text-sm font-bold text-foreground">
                       {m.packageName && m.packageName !== "—" ? (
@@ -595,24 +627,26 @@ function MerchantsPage() {
         </DialogContent>
       </Dialog>
 
-      <AddCenterDialog open={addOpen} onClose={() => setAddOpen(false)} onSave={addCenter} />
+      <AddCenterDialog open={addOpen} onClose={() => setAddOpen(false)} onSave={addCenter} categories={categories} />
       <AddCenterDialog
         open={!!editing}
         onClose={() => setEditing(null)}
         initial={editing || undefined}
         onSave={(data) => editing && updateCenter(editing.id, data)}
+        categories={categories}
       />
     </AdminLayout>
   );
 }
 
 function AddCenterDialog({
-  open, onClose, onSave, initial,
+  open, onClose, onSave, initial, categories,
 }: {
   open: boolean;
   onClose: () => void;
   onSave: (m: Omit<Merchant, "id" | "rating" | "offers" | "bookings" | "revenue" | "joined">) => void;
   initial?: Merchant;
+  categories?: AdminCategory[];
 }) {
   const empty = {
     name: "", nameEn: "", owner: "", city: "", phone: "", email: "",
@@ -621,6 +655,7 @@ function AddCenterDialog({
     about: "", aboutEn: "",
     workingHours: defaultWorkingHours(),
     password: "",
+    categoryIds: [] as number[],
   };
   const [f, setF] = useState(empty);
 
@@ -639,6 +674,7 @@ function AddCenterDialog({
       aboutEn: initial.aboutEn || "",
       workingHours: initial.workingHours && initial.workingHours.length ? initial.workingHours : defaultWorkingHours(),
       password: "",
+      categoryIds: initial.categoryIds || [],
     } : empty);
   }, [open, initial]);
 
@@ -696,6 +732,35 @@ function AddCenterDialog({
           <div className="sm:col-span-2">
             <label className="text-xs font-bold">رابط الموقع على خرائط جوجل</label>
             <input dir="ltr" value={f.mapsUrl} onChange={(e) => up("mapsUrl", e.target.value)} placeholder="https://maps.app.goo.gl/..." className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold">تصنيفات المركز</label>
+            <div className="mt-1 flex flex-wrap gap-2 rounded-xl border border-border bg-background p-2">
+              {(categories || []).length === 0 && (
+                <span className="text-xs text-muted-foreground">لا توجد تصنيفات — أضفها من صفحة التصنيفات أولاً.</span>
+              )}
+              {(categories || []).map((c) => {
+                const selected = (f.categoryIds || []).includes(Number(c.id));
+                return (
+                  <button
+                    type="button"
+                    key={c.id}
+                    onClick={() => {
+                      const cur = new Set<number>((f.categoryIds || []).map((n) => Number(n)));
+                      if (selected) cur.delete(Number(c.id)); else cur.add(Number(c.id));
+                      up("categoryIds", Array.from(cur));
+                    }}
+                    className={[
+                      "rounded-full border px-3 py-1 text-xs font-bold transition",
+                      selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-muted",
+                    ].join(" ")}
+                  >
+                    {c.nameAr}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Description AR/EN */}
