@@ -226,6 +226,7 @@ function AdminDashboard() {
         const platformRevenue = booked.reduce((sum, o) => sum + depositOf(o), 0);
         // Partner earnings = sum of partnerAmount
         const partnerEarnings = booked.reduce((sum, o) => sum + partnerAmountOf(o), 0);
+        const avgOrderFromBookings = booked.length ? totalBookingsValue / booked.length : 0;
 
         const nowD = new Date();
         const curY = nowD.getFullYear();
@@ -248,6 +249,7 @@ function AdminDashboard() {
           totalBookings: all.length,
           paidThisMonthCount: paidThisMonth.length,
           pendingCount,
+          avgOrderValue: s.avgOrderValue && s.avgOrderValue > 0 ? s.avgOrderValue : avgOrderFromBookings,
         }));
         setStats((s: any) => ({ ...s, totalServices: s.totalServices || 0, activeServices: s.activeServices || 0 }));
 
