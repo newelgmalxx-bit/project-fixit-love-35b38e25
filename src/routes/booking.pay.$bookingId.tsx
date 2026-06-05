@@ -154,7 +154,7 @@ function BookingPayPage() {
       // Re-pay existing booking via dedicated backend endpoint.
       // See docs/BACKEND_PAY_EXISTING_BOOKING.md
       const res: any = await checkout.payExistingBooking(
-        booking.bookingNumber || booking.serverBookingId || bookingId,
+        (booking as any).bookingNumber || (booking as any).serverBookingId || bookingId,
         paymentMethodId,
       );
 
@@ -163,7 +163,7 @@ function BookingPayPage() {
       const bookingNumber: string | undefined = data.bookingNumber;
 
       try {
-        const merged = { ...booking, paymentMethod: method, bookingNumber: bookingNumber ?? booking.bookingNumber };
+        const merged = { ...booking, paymentMethod: method, bookingNumber: bookingNumber ?? (booking as any).bookingNumber };
         sessionStorage.setItem(`booking:${bookingId}`, JSON.stringify(merged));
       } catch {}
 
