@@ -121,6 +121,9 @@ function toNum(v: number | string | undefined | null): number {
 }
 
 function defaultVendor(api: ApiOffer): Vendor {
+  const o: any = api;
+  const commission = Number(o.commissionPct ?? o.commission_pct ?? 10);
+  const deposit = Number(o.depositPct ?? o.deposit_pct ?? commission);
   return {
     id: api.partnerId || "—",
     name: "",
@@ -129,8 +132,8 @@ function defaultVendor(api: ApiOffer): Vendor {
     rating: 0,
     reviewsCount: 0,
     verified: true,
-    commissionPct: 10,
-    depositPct: 25,
+    commissionPct: commission,
+    depositPct: deposit,
   };
 }
 
@@ -150,19 +153,32 @@ export function normalizeOffer(
     (api.categoryId && categoryIdToSlug.get(api.categoryId)) || ("women-salons" as CategorySlug);
 
   const vendor: Vendor = partner
-    ? {
-        id: partner.id,
-        name: partner.vendorNameAr || partner.vendorNameEn || "",
-        city: partner.city || "",
-        address: partner.addressAr || "",
-        rating: Number(partner.rating || 0),
-        reviewsCount: Number(partner.reviewsCount || 0),
-        verified: true,
-        commissionPct: 10,
-        depositPct: 25,
-        // optional fields used by some pages
-        ...(partner as any),
-      }
+    ? (() => {
+        const p: any = partner;
+        const o: any = api;
+        // Per-offer override wins, then partner value, then fallback.
+        const commission = Number(
+          o.commissionPct ?? o.commission_pct ??
+          p.commissionPct ?? p.commission_pct ?? 10,
+        );
+        const deposit = Number(
+          o.depositPct ?? o.deposit_pct ??
+          p.depositPct ?? p.deposit_pct ?? commission,
+        );
+        return {
+          // optional partner fields used by some pages
+          ...p,
+          id: partner.id,
+          name: partner.vendorNameAr || partner.vendorNameEn || "",
+          city: partner.city || "",
+          address: partner.addressAr || "",
+          rating: Number(partner.rating || 0),
+          reviewsCount: Number(partner.reviewsCount || 0),
+          verified: true,
+          commissionPct: commission,
+          depositPct: deposit,
+        };
+      })()
     : defaultVendor(api);
 
   // overview / terms can be JSON arrays or strings from the backend
