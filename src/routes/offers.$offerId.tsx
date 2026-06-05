@@ -845,34 +845,44 @@ function OfferDetailPage() {
 
                   {tab === "reviews" && (
                     <div className="space-y-4">
-                      <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/20 p-5">
-                        <div className="text-center">
-                          <div className="text-4xl font-black text-foreground">{offer.vendor.reviewsCount > 0 ? offer.vendor.rating : "—"}</div>
-                          <div className="mt-1 flex justify-center text-amber-500">
-                            {Array.from({ length: 5 }).map((_, i) => {
-                              const filled = offer.vendor.reviewsCount > 0 && i < Math.round(offer.vendor.rating);
+                      {(() => {
+                        const displayCount = reviewStats.count || offer.vendor.reviewsCount || 0;
+                        const displayAvg = reviewStats.count ? reviewStats.avg : offer.vendor.rating;
+                        return (
+                        <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/20 p-5">
+                          <div className="text-center">
+                            <div className="text-4xl font-black text-foreground">{displayCount > 0 ? displayAvg : "—"}</div>
+                            <div className="mt-1 flex justify-center text-amber-500">
+                              {Array.from({ length: 5 }).map((_, i) => {
+                                const filled = displayCount > 0 && i < Math.round(displayAvg);
+                                return (
+                                  <Star key={i} className={`h-4 w-4 ${filled ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                                );
+                              })}
+                            </div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {displayCount > 0 ? `${displayCount} تقييم` : "لا توجد تقييمات"}
+                            </div>
+                          </div>
+                          <div className="flex-1 space-y-1.5">
+                            {[5, 4, 3, 2, 1].map((l) => {
+                              const c = reviewStats.dist[l] || 0;
+                              const pct = reviewStats.count ? Math.round((c / reviewStats.count) * 100) : 0;
                               return (
-                                <Star key={i} className={`h-4 w-4 ${filled ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                                <div key={l} className="flex items-center gap-2 text-xs">
+                                  <span className="w-3 font-bold text-foreground">{l}</span>
+                                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                    <div className="h-full rounded-full bg-amber-400" style={{ width: `${pct}%` }} />
+                                  </div>
+                                  <span className="w-8 text-end text-muted-foreground">{pct}%</span>
+                                </div>
                               );
                             })}
                           </div>
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            {offer.vendor.reviewsCount > 0 ? `${offer.vendor.reviewsCount} تقييم` : "لا توجد تقييمات"}
-                          </div>
                         </div>
-                        <div className="flex-1 space-y-1.5">
-                          {[5, 4, 3, 2, 1].map((l) => (
-                            <div key={l} className="flex items-center gap-2 text-xs">
-                              <span className="w-3 font-bold text-foreground">{l}</span>
-                              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                                <div className="h-full rounded-full bg-amber-400" style={{ width: "0%" }} />
-                              </div>
-                              <span className="w-8 text-end text-muted-foreground">0%</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                        );
+                      })()}
 
                       {/* Write a review */}
                       <form
