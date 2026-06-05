@@ -165,6 +165,20 @@ function mapApiPartner(raw: ApiPartnerProfile | null | undefined): Profile | nul
     notes: p.notes ?? null,
     commission_pct: p.commissionPct ?? p.commission_pct ?? null,
     deposit_pct: p.depositPct ?? p.deposit_pct ?? null,
+    vendor_name_en: p.vendorNameEn ?? p.vendor_name_en ?? p.nameEn ?? p.name_en ?? null,
+    description: p.description ?? p.descriptionAr ?? null,
+    description_en: p.descriptionEn ?? p.description_en ?? null,
+    terms: p.terms ?? p.termsAr ?? null,
+    terms_en: p.termsEn ?? p.terms_en ?? null,
+    about_en: p.aboutEn ?? p.about_en ?? null,
+    category_ids: (() => {
+      const src = p.categoryIds ?? p.category_ids ?? p.partner_categories ?? p.categories;
+      if (!Array.isArray(src)) return [];
+      return src
+        .map((c: any) => (typeof c === "object" ? (c.id ?? c.categoryId ?? c.category_id) : c))
+        .filter((v: any) => v != null);
+    })(),
+    working_hours_struct: parseWorkingHoursStruct(p.workingHours ?? p.working_hours),
   };
 }
 
