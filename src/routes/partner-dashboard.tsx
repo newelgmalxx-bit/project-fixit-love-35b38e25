@@ -2480,7 +2480,7 @@ function AnalyticsTab() {
       try {
         const [s, b]: any[] = await Promise.all([
           partnerApi.stats(range).catch(() => ({})),
-          partnerApi.listBookings({ limit: 200 }).catch(() => ({ items: [] })),
+          partnerApi.listBookings({ limit: 1000 }).catch(() => ({ items: [] })),
         ]);
         const bookings = (b?.items || []) as any[];
         const days = range === "7d" ? 7 : range === "90d" ? 90 : 30;
