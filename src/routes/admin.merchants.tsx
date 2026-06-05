@@ -543,7 +543,7 @@ function MerchantsPage() {
                             <DropdownMenuItem onClick={async () => {
                               try {
                                 const full: any = await adminPartnersApi.get(m.id);
-                                const catIds = pickAssignedCategoryIds(full);
+                                const catIds = pickAssignedCategoryIds(full, { treatPlainCategoriesAsAssigned: true, masterCategories: categories });
                                 setEditing({
                                   ...m,
                                   name: full?.vendorName || full?.nameAr || full?.name || m.name,
