@@ -340,10 +340,13 @@ function OfferDetailPage() {
 
   const savings = offer.priceBefore - offer.priceAfter;
   const total = offer.priceAfter * qty;
-  // Online deposit = platform commission (admin's share). Center collects rest.
-  const depositPct = offer.vendor.commissionPct ?? offer.vendor.depositPct ?? 10;
-  const depositAmount = +((total * depositPct) / 100).toFixed(2);
-  const remainingAmount = +(total - depositAmount).toFixed(2);
+  // Online deposit = the center's configured booking/deposit percentage.
+  // Do not fall back to a fixed 10% because every center has its own rate.
+  const rawDepositPct = offer.vendor.depositPct ?? offer.vendor.commissionPct;
+  const depositPct = typeof rawDepositPct === "number" && rawDepositPct > 0 ? rawDepositPct : null;
+  const depositPctLabel = depositPct != null ? `${depositPct}%` : "غير محددة";
+  const depositAmount = depositPct != null ? +((total * depositPct) / 100).toFixed(2) : 0;
+  const remainingAmount = depositPct != null ? +(total - depositAmount).toFixed(2) : total;
   const { add: addToCartHook } = useCart();
   const { lang: _lang } = useLang();
 
@@ -379,6 +382,7 @@ function OfferDetailPage() {
     const phoneOk = customerPhone.replace(/\D/g, "").length >= 9;
     const nameOk = customerName.trim().length >= 2;
     if (!date || !time || !nameOk || !emailOk || !phoneOk) return;
+    if (depositPct == null) return;
     const t = setTimeout(() => {
       const item = {
         offerId: offer.id,
@@ -392,7 +396,7 @@ function OfferDetailPage() {
         lineTotal: total,
         depositAmount,
         remainingAmount,
-        depositPct,
+        depositPct: depositPct ?? undefined,
       };
       // Persist to backend (database). Fall back silently to legacy local
       // store so the admin demo page still has something to show if the
@@ -470,6 +474,12 @@ function OfferDetailPage() {
       toast.error("هذا الموعد غير متاح", { description: "تم تعطيل هذا الوقت من قِبَل المركز — يرجى اختيار وقت آخر." });
       return;
     }
+    if (depositPct == null) {
+      toast.error("نسبة عربون المركز غير متاحة", {
+        description: "لا يمكن إضافة الحجز للسلة قبل ضبط نسبة هذا المركز من الإدارة.",
+      });
+      return;
+    }
 
     addToCartHook({
       serviceSlug: `offer:${offer.id}`,
@@ -482,7 +492,7 @@ function OfferDetailPage() {
       partnerId: null,
       bookingDate: date,
       bookingTime: time,
-      commissionPct: depositPct,
+      commissionPct: depositPct ?? undefined,
     });
     toast.success("تمت إضافة الحجز للسلة", {
       description: `${offer.title} — ${date} ${time}`,
@@ -535,12 +545,23 @@ function OfferDetailPage() {
       return;
     }
 
+    if (depositPct == null) {
+      toast.error("نسبة عربون المركز غير متاحة", {
+        description: "لا يمكن عرض أو دفع عربون ثابت لأن نسبة هذا المركز لم تصل من النظام.",
+      });
+      return;
+    }
+
     setStep("review");
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function confirmBooking() {
     if (!agreed) return;
+    if (depositPct == null) {
+      toast.error("نسبة عربون المركز غير متاحة");
+      return;
+    }
     setLoading(true);
     const bookingId = "BK-" + Math.random().toString(36).slice(2, 8).toUpperCase();
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -1248,7 +1269,7 @@ function OfferDetailPage() {
                         <span className="font-bold text-foreground" dir="ltr">{formatMoney(total)} ر.س</span>
                       </div>
                       <div className="mt-1.5 flex items-center justify-between">
-                        <span className="font-bold text-foreground">عربون الحجز ({depositPct}%)</span>
+                        <span className="font-bold text-foreground">عربون الحجز ({depositPctLabel})</span>
                         <span className="font-extrabold text-primary" dir="ltr">{formatMoney(depositAmount)} ر.س</span>
                       </div>
                       <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
@@ -1334,7 +1355,7 @@ function OfferDetailPage() {
                           <span dir="ltr">{formatMoney(total)} ر.س</span>
                         </div>
                         <div className="flex items-center justify-between rounded-lg bg-primary/10 px-3 py-2 text-base font-extrabold text-primary">
-                          <span>عربون الآن ({depositPct}%)</span>
+                          <span>عربون الآن ({depositPctLabel})</span>
                           <span dir="ltr">{formatMoney(depositAmount)} ر.س</span>
                         </div>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -1379,7 +1400,7 @@ function OfferDetailPage() {
                         disabled={loading || !agreed}
                         className="flex-[2] rounded-xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] py-3.5 text-base font-extrabold text-white shadow-lg shadow-primary/30 transition hover:scale-[1.01] disabled:opacity-60 disabled:hover:scale-100"
                       >
-                        {loading ? "جاري تأكيد الحجز…" : `تأكيد ودفع العربون — ${formatMoney(depositAmount)} ر.س`}
+                        {loading ? "جاري تأكيد الحجز…" : depositPct == null ? "نسبة العربون غير محددة" : `تأكيد ودفع العربون — ${formatMoney(depositAmount)} ر.س`}
                       </button>
                     </div>
                   </div>

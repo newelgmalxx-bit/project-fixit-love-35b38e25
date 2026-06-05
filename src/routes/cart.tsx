@@ -21,11 +21,12 @@ function CartPage() {
 
   // Compute online deposit (= sum of commission for offer bookings).
   // Non-booking items are paid in full online.
+  const hasInvalidBookingPct = items.some((it) => isOfferBooking(it) && (it.commissionPct == null || it.commissionPct <= 0));
   const depositTotal = items.reduce((s, it) => {
     if (isOfferBooking(it) && it.commissionPct != null) {
       return s + (it.price * it.qty * it.commissionPct) / 100;
     }
-    return s + it.price * it.qty;
+    return isOfferBooking(it) ? s : s + it.price * it.qty;
   }, 0);
   const remainingAtCenter = items.reduce((s, it) => {
     if (isOfferBooking(it) && it.commissionPct != null) {
@@ -114,10 +115,12 @@ function CartPage() {
                                       <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 font-bold text-primary">
                                         <Clock className="h-3 w-3" /> {it.bookingTime}
                                       </span>
-                                      {it.commissionPct != null && (
+                                      {it.commissionPct != null && it.commissionPct > 0 ? (
                                         <span className="text-[11px] text-muted-foreground">
                                           عربون الآن: <b className="text-primary" data-ltr-number>{formatCurrency((it.price * it.qty * it.commissionPct) / 100)}</b> · الباقي عند الزيارة: <span data-ltr-number>{formatCurrency(it.price * it.qty * (1 - it.commissionPct / 100))}</span>
                                         </span>
+                                      ) : (
+                                        <span className="text-[11px] font-bold text-rose-600">نسبة عربون هذا المركز غير محددة</span>
                                       )}
                                     </div>
                                   )}
@@ -191,14 +194,26 @@ function CartPage() {
                         </div>
                       </div>
                     )}
+                    {hasInvalidBookingPct && (
+                      <div className="mt-3 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-700">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>يوجد حجز بنسبة عربون غير محددة. احذفه وأعد إضافته بعد ضبط نسبة المركز.</span>
+                      </div>
+                    )}
                   </div>
 
-                  <Link
-                    to={"/checkout" as any}
-                    className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary text-base font-bold text-primary-foreground shadow-[0_10px_30px_-10px_rgba(0,174,198,0.6)] hover:bg-primary-dark transition"
-                  >
-                    {hasBookings ? `إتمام الدفع — عربون ${formatCurrency(depositTotal)}` : t("cart.checkout")}
-                  </Link>
+                  {hasInvalidBookingPct ? (
+                    <button disabled className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-muted text-base font-bold text-muted-foreground">
+                      لا يمكن الدفع قبل ضبط النسبة
+                    </button>
+                  ) : (
+                    <Link
+                      to={"/checkout" as any}
+                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary text-base font-bold text-primary-foreground shadow-[0_10px_30px_-10px_rgba(0,174,198,0.6)] hover:bg-primary-dark transition"
+                    >
+                      {hasBookings ? `إتمام الدفع — عربون ${formatCurrency(depositTotal)}` : t("cart.checkout")}
+                    </Link>
+                  )}
                   <p className="mt-3 text-center text-[11px] text-muted-foreground">
                     {hasBookings ? "العربون يساوي عمولة المنصة، والمركز يستلم الباقي عند زيارتك." : t("cart.summarySubtitle")}
                   </p>
