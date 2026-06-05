@@ -1147,6 +1147,9 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
   const [saving, setSaving] = useState(false);
   const upd = <K extends keyof Profile>(k: K, v: Profile[K]) => setF((p) => ({ ...p, [k]: v }));
 
+  // Re-sync form when the partner prop changes (e.g. after /auth/partner/me hydration)
+  useEffect(() => { setF(partner); }, [partner.id, partner.updatedAt as any]);
+
   async function save() {
     setSaving(true);
     try {
@@ -1155,8 +1158,13 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
         city: f.city, phone: f.phone, email: f.email, commercialNumber: f.commercial_number,
         logoUrl: f.logo_url, about: f.about, workingHours: f.working_hours, address: f.address, mapsUrl: f.maps_url || null,
       } as any);
+      // The API returns the raw partner shape (camelCase). Normalize before storing.
+      const raw = r?.partner || r;
+      const mapped = mapApiPartner(raw) || f;
+      setStoredPartner(raw?.id ? raw : { ...getStoredPartner(), ...raw });
+      setF(mapped);
+      onUpdate(mapped);
       setSaving(false);
-      onUpdate((r?.partner || r || f) as Profile);
       toast.success("تم حفظ الملف");
     } catch (e: any) {
       setSaving(false);
@@ -1171,13 +1179,16 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
       <div>
         <label className="mb-1.5 block text-xs font-bold">التصنيف</label>
         <select value={f.category} onChange={(e) => upd("category", e.target.value)} className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm">
+          <option value="">اختر التصنيف</option>
           {categories.map((c: any) => <option key={c.id || c.slug} value={c.id || c.slug}>{c.nameAr}</option>)}
         </select>
       </div>
-      <Input label="المدينة" value={f.address || ""} onChange={(v) => { upd("address", v); upd("city", v); }} />
+      <Input label="المدينة" value={f.city || ""} onChange={(v) => upd("city", v)} />
       <Input label="رقم الجوال" value={f.phone} onChange={(v) => upd("phone", v)} />
       <Input label="البريد الإلكتروني" value={f.email || ""} onChange={(v) => upd("email", v)} />
       <Input label="السجل التجاري" value={f.commercial_number || ""} onChange={(v) => upd("commercial_number", v)} />
+      <Input label="العنوان التفصيلي" value={f.address || ""} onChange={(v) => upd("address", v)} className="sm:col-span-2" />
+      <Input label="ساعات العمل" value={f.working_hours || ""} onChange={(v) => upd("working_hours", v)} placeholder="السبت - الخميس · 10ص - 10م" className="sm:col-span-2" />
       <div className="sm:col-span-2">
         <ImageUpload
           label="شعار المركز"
