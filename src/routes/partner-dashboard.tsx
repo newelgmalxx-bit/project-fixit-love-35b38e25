@@ -8,7 +8,7 @@ import {
   Sparkles, ChevronLeft, ChevronRight, Zap, Menu, ExternalLink, Percent, FileText, Eye,
 } from "lucide-react";
 import { toast } from "sonner";
-import { partnerApi, partnerAuth, getStoredPartner, type PartnerProfile as ApiPartnerProfile } from "@/lib/api/partner";
+import { partnerApi, partnerAuth, getStoredPartner, setStoredPartner, type PartnerProfile as ApiPartnerProfile } from "@/lib/api/partner";
 import { useCategories } from "@/hooks/useCatalog";
 import logoImg from "@/assets/booking-logo.png";
 import { generateTimeSlots } from "@/lib/timeSlots";
@@ -1148,7 +1148,7 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
   const upd = <K extends keyof Profile>(k: K, v: Profile[K]) => setF((p) => ({ ...p, [k]: v }));
 
   // Re-sync form when the partner prop changes (e.g. after /auth/partner/me hydration)
-  useEffect(() => { setF(partner); }, [partner.id, partner.updatedAt as any]);
+  useEffect(() => { setF(partner); }, [partner]);
 
   async function save() {
     setSaving(true);
@@ -1159,9 +1159,9 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
         logoUrl: f.logo_url, about: f.about, workingHours: f.working_hours, address: f.address, mapsUrl: f.maps_url || null,
       } as any);
       // The API returns the raw partner shape (camelCase). Normalize before storing.
-      const raw = r?.partner || r;
+      const raw = (r?.partner || r) as any;
       const mapped = mapApiPartner(raw) || f;
-      setStoredPartner(raw?.id ? raw : { ...getStoredPartner(), ...raw });
+      if (raw?.id) setStoredPartner(raw);
       setF(mapped);
       onUpdate(mapped);
       setSaving(false);
