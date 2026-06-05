@@ -1978,9 +1978,13 @@ function ReviewsTab() {
           <div key={rv.id} className="rounded-3xl border border-border bg-card p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                  {rv.name.charAt(0)}
-                </div>
+                {rv.avatar ? (
+                  <img src={rv.avatar} alt={rv.name} className="h-10 w-10 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                    {rv.name.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <div className="text-sm font-bold text-foreground">{rv.name}</div>
                   <div className="text-xs text-muted-foreground">{rv.offer} · {rv.date}</div>
