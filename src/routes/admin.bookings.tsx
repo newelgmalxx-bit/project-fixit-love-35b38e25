@@ -151,20 +151,27 @@ function BookingsPage() {
     try {
       // Try searching by the booking number as entered, and a normalized variant (strip BK- prefix)
       const normalized = bId.replace(/^bk[-_ ]?/i, "").toUpperCase();
-      const [r1, r2] = await Promise.all([
-        adminBookingsApi.list({ q: bId, limit: 25 }).catch(() => ({ items: [] as any[] })),
+      const [r1, r2, r3] = await Promise.all([
+        adminBookingsApi.list({ q: bId, limit: 50 }).catch(() => ({ items: [] as any[] })),
         normalized && normalized !== bId.toUpperCase()
-          ? adminBookingsApi.list({ q: normalized, limit: 25 }).catch(() => ({ items: [] as any[] }))
+          ? adminBookingsApi.list({ q: normalized, limit: 50 }).catch(() => ({ items: [] as any[] }))
           : Promise.resolve({ items: [] as any[] }),
+        adminBookingsApi.list({ q: code, limit: 50 }).catch(() => ({ items: [] as any[] })),
       ]);
-      const pool: any[] = [...(r1.items || []), ...(r2.items || [])];
-      const match = pool.find((b: any) => {
+      const pool: any[] = [...(r1.items || []), ...(r2.items || []), ...(r3.items || [])];
+      const matchByBoth = pool.find((b: any) => {
         const ref = String(pickRef(b) || "").toUpperCase();
         const id = String(b.id || "").toUpperCase();
         const tail = id.slice(-6);
         const c = bId.toUpperCase();
         const cn = normalized;
-        return ref === c || ref === cn || ref.endsWith(cn) || id === c || tail === c || tail === cn || id.endsWith(c);
+        const v = String(pickVerifyCode(b) || "").trim();
+        const bookingMatches = ref === c || ref === cn || ref.endsWith(cn) || id === c || tail === c || tail === cn || id.endsWith(c);
+        return bookingMatches && (v ? v === code : true);
+      });
+      const match = matchByBoth || pool.find((b: any) => {
+        const v = String(pickVerifyCode(b) || "").trim();
+        return v && v === code;
       });
       if (!match) { toast.error(L("لا يوجد حجز بهذا الرقم", "No booking found")); return; }
       const st = String(match.status || "").toLowerCase();
