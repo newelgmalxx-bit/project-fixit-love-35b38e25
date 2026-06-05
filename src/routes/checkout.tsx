@@ -83,6 +83,7 @@ function CheckoutPage() {
   const submitBookings = submitBookingsLocal;
   const bookingItems = items.filter(isOfferBooking);
   const hasBookings = bookingItems.length > 0;
+  const hasInvalidBookingPct = bookingItems.some((it) => it.commissionPct == null || it.commissionPct <= 0);
   const depositTotal = bookingItems.reduce(
     (s, it) => s + (it.price * it.qty * (it.commissionPct ?? 0)) / 100,
     0,
@@ -206,6 +207,11 @@ function CheckoutPage() {
           : "Phone must start with 05 (e.g. 0512345678) or +9665.",
       );
       setStep(0);
+      return;
+    }
+    if (hasInvalidBookingPct) {
+      setError(lang === "ar" ? "يوجد حجز بنسبة عربون غير محددة. احذفه وأعد إضافته بعد ضبط نسبة المركز." : "A booking is missing its deposit percentage.");
+      setStep(2);
       return;
     }
     setSubmitting(true);
