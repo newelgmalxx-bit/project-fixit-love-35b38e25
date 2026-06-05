@@ -786,7 +786,7 @@ function AddCenterDialog({
                     onClick={() => {
                       const cur = new Map<string, CategoryId>((f.categoryIds || []).map((id) => [categoryKey(id), id]));
                       if (selected) cur.delete(idKey); else cur.set(idKey, normalizeCategoryId(c.id)!);
-                      up("categoryIds", Array.from(cur));
+                      up("categoryIds", Array.from(cur.values()));
                     }}
                     className={[
                       "rounded-full border px-3 py-1 text-xs font-bold transition",
