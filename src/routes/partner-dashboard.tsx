@@ -449,7 +449,6 @@ function OverviewTab({ partner, onNavigate }: { partner: Profile; onNavigate: (t
         const bookingsList = (ball?.items || []) as { amount: number | null; partner_amount?: number | null; status: string }[];
         const offersList = (oall?.items || []) as Offer[];
         const revenueFromList = bookingsList
-          .filter((x) => x.status === "completed")
           .reduce((acc, x) => acc + Number(x.partner_amount ?? x.amount ?? 0), 0);
         const pendingFromList = bookingsList.filter((x) => x.status === "pending").length;
         setStats({
