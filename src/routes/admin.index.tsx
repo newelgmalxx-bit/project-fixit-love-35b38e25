@@ -20,6 +20,40 @@ export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
 });
 
+const isMonthKey = (m: unknown) => typeof m === "string" && /^\d{4}-\d{2}$/.test(m);
+const revenueSum = (points: any[]) => points.reduce((sum: number, point: any) => sum + (Number(point.v) || 0), 0);
+
+function padMonthlyRevenue(points: any[], minMonths = 3) {
+  const monthly = points.filter((p) => isMonthKey(p.m));
+  if (monthly.length !== points.length || monthly.length >= minMonths || monthly.length === 0) return points;
+
+  const last = monthly[monthly.length - 1].m as string;
+  const [year, month] = last.split("-").map(Number);
+  const byMonth = new Map(monthly.map((p) => [p.m, p]));
+  const padded: any[] = [];
+  for (let i = minMonths - 1; i >= 0; i -= 1) {
+    const d = new Date(year, month - 1 - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    padded.push(byMonth.get(key) || { m: key, v: 0, total: 0 });
+  }
+  return padded;
+}
+
+function mergeMonthlyRevenue(base: any[], overlay: any[]) {
+  const map = new Map<string, any>();
+  for (const p of base) if (isMonthKey(p.m)) map.set(p.m, { ...p });
+  for (const p of overlay) {
+    if (!isMonthKey(p.m)) continue;
+    const current = map.get(p.m) || { m: p.m, v: 0, total: 0 };
+    map.set(p.m, {
+      ...current,
+      v: Number(p.v) || Number(current.v) || 0,
+      total: Number(p.total) || Number(current.total) || 0,
+    });
+  }
+  return padMonthlyRevenue(Array.from(map.values()).sort((a, b) => String(a.m).localeCompare(String(b.m))));
+}
+
 function AdminDashboard() {
   const { lang, dir } = useLang();
   const { user } = useAuth();
@@ -102,11 +136,12 @@ function AdminDashboard() {
         }));
         // salesChart يومي (آخر 7 أيام) — استخدمه كاحتياطي للرسم
         if (Array.isArray(data.salesChart) && data.salesChart.length) {
-          setRevenue((cur) => cur.length ? cur : data.salesChart.map((p: any) => ({
+          const salesRevenue = data.salesChart.map((p: any) => ({
             m: (p.date || "").slice(5),
-            v: Number(p.revenue ?? 0) || 0,
+            v: Number(p.revenue ?? 0) || Number(p.bookingsValue ?? 0) || 0,
             total: Number(p.bookingsValue ?? 0) || 0,
-          })));
+          }));
+          if (revenueSum(salesRevenue) > 0) setRevenue((cur) => cur.length ? cur : salesRevenue);
         }
       })
       .catch((e) => { if (!(e instanceof ApiError) || e.status !== 401) console.warn("[admin.stats]", e); });
@@ -126,13 +161,12 @@ function AdminDashboard() {
         if (Array.isArray(data.monthlyRevenue) && data.monthlyRevenue.length) {
           const analyticsRevenue = data.monthlyRevenue.map((m: any) => ({
             m: m.m ?? m.month,
-            v: Number(m.v ?? m.commission ?? m.revenue ?? 0) || 0,
+            v: Number(m.v ?? m.commission ?? m.revenue ?? 0) || Number(m.bookingsValue ?? m.total ?? 0) || 0,
             total: Number(m.bookingsValue ?? m.total ?? 0) || 0,
           }));
           setRevenue((current) => {
-            const currentSum = current.reduce((sum: number, point: any) => sum + (Number(point.v) || 0), 0);
-            const analyticsSum = analyticsRevenue.reduce((sum: number, point: any) => sum + (Number(point.v) || 0), 0);
-            return currentSum > analyticsSum ? current : analyticsRevenue;
+            const currentMonthly = current.filter((point: any) => isMonthKey(point.m));
+            return currentMonthly.length ? mergeMonthlyRevenue(analyticsRevenue, currentMonthly) : analyticsRevenue;
           });
         }
       })
@@ -237,7 +271,12 @@ function AdminDashboard() {
         const normalized = sumDeposit > 0
           ? monthly
           : monthly.map((x) => ({ ...x, v: x.total }));
-        if (normalized.length) setRevenue(normalized);
+        if (normalized.length) {
+          setRevenue((current) => {
+            const currentMonthly = current.filter((point: any) => isMonthKey(point.m));
+            return currentMonthly.length ? mergeMonthlyRevenue(currentMonthly, normalized) : padMonthlyRevenue(normalized);
+          });
+        }
 
         // Sales by category — using offer.category if available
         const offerCategoryById = new Map<string, string>();
