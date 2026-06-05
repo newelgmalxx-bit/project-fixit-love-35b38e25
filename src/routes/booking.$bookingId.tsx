@@ -197,20 +197,9 @@ function BookingConfirmation() {
     booking.paymentStatus === "deposit_paid";
   const hasDeposit = derivedDeposit > 0;
 
-  // Unpaid bookings with a required deposit must be redirected to the
-  // payment page — no peeking at the confirmation/QR until payment is done.
-  if (hasDeposit && !isPaid) {
-    navigate({ to: "/booking/pay/$bookingId", params: { bookingId }, replace: true });
-    return (
-      <div dir="rtl" className="flex min-h-screen flex-col bg-background">
-        <SiteHeader />
-        <main className="flex flex-1 items-center justify-center px-4">
-          <p className="text-sm text-muted-foreground">جارٍ تحويلك إلى صفحة الدفع…</p>
-        </main>
-        <SiteFooter />
-      </div>
-    );
-  }
+  // Unpaid bookings stay on this page so the user can see the status &
+  // details, but we show a clear banner asking them to complete payment.
+  const showPayBanner = hasDeposit && !isPaid;
 
   // Derive effective status: trust explicit booking.status, otherwise infer
   // from payment state (paid → confirmed, otherwise pending).
