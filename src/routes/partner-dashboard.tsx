@@ -32,6 +32,42 @@ export const Route = createFileRoute("/partner-dashboard")({
 
 type Tab = "overview" | "profile" | "offers" | "bookings" | "schedule" | "wallet" | "reviews" | "messages" | "analytics" | "agreement" | "notifications" | "support";
 
+type WorkingHour = { day: string; open: string; close: string; closed?: boolean };
+const WEEK_DAYS: { key: string; ar: string }[] = [
+  { key: "saturday", ar: "السبت" },
+  { key: "sunday", ar: "الأحد" },
+  { key: "monday", ar: "الاثنين" },
+  { key: "tuesday", ar: "الثلاثاء" },
+  { key: "wednesday", ar: "الأربعاء" },
+  { key: "thursday", ar: "الخميس" },
+  { key: "friday", ar: "الجمعة" },
+];
+function defaultWorkingHours(): WorkingHour[] {
+  return WEEK_DAYS.map((d) => ({
+    day: d.key,
+    open: d.key === "friday" ? "00:00" : "09:00",
+    close: d.key === "friday" ? "00:00" : "22:00",
+    closed: d.key === "friday",
+  }));
+}
+function parseWorkingHoursStruct(raw: any): WorkingHour[] {
+  if (!raw) return defaultWorkingHours();
+  try {
+    const arr = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (Array.isArray(arr) && arr.length) {
+      return WEEK_DAYS.map((d) => {
+        const found = arr.find((x: any) => String(x?.day || "").toLowerCase() === d.key);
+        if (!found) return { day: d.key, open: "09:00", close: "22:00", closed: false };
+        const open = String(found.open || "09:00");
+        const close = String(found.close || "22:00");
+        const closed = !!found.closed || (open === "00:00" && close === "00:00");
+        return { day: d.key, open, close, closed };
+      });
+    }
+  } catch {}
+  return defaultWorkingHours();
+}
+
 type Profile = {
   id: string; user_id: string; vendor_name: string; owner_name: string;
   category: string; city: string; phone: string; email: string | null;
@@ -40,6 +76,14 @@ type Profile = {
   maps_url?: string | null;
   status: string; notes: string | null;
   commission_pct?: number | null; deposit_pct?: number | null;
+  vendor_name_en?: string | null;
+  description?: string | null;
+  description_en?: string | null;
+  terms?: string | null;
+  terms_en?: string | null;
+  about_en?: string | null;
+  category_ids?: (string | number)[];
+  working_hours_struct?: WorkingHour[];
 };
 
 const DEMO_PROFILE: Profile = {
