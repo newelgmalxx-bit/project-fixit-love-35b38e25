@@ -1328,7 +1328,22 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
   }
 
   const catKey = (c: any) => String(c?.id ?? c?.slug ?? c?.categoryId ?? c?.category_id ?? "");
-  const selectedIds = (f.category_ids || []).map((x) => String(x));
+  const derivedFromCategory = useMemo(() => {
+    if ((f.category_ids || []).length > 0) return [] as string[];
+    const name = String(f.category || "").trim();
+    if (!name) return [];
+    const parts = name.split(/[,،/|]+/).map((s) => s.trim()).filter(Boolean);
+    const ids: string[] = [];
+    for (const p of parts) {
+      const match = (categories || []).find((c: any) => {
+        const names = [c.nameAr, c.name_ar, c.name, c.nameEn, c.slug].filter(Boolean).map((x: any) => String(x).trim());
+        return names.some((n) => n === p);
+      });
+      if (match) ids.push(catKey(match));
+    }
+    return ids;
+  }, [f.category, f.category_ids, categories]);
+  const selectedIds = ((f.category_ids || []).length > 0 ? (f.category_ids || []) : derivedFromCategory).map((x) => String(x));
   function toggleCat(c: any) {
     const k = catKey(c);
     if (!k) return;
@@ -1355,7 +1370,7 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
             />
           </div>
       <Input label="اسم المسؤول" value={f.owner_name} onChange={(v) => upd("owner_name", v)} />
-      <Input label="المدينة" value={f.city || ""} onChange={(v) => upd("city", v)} />
+      <Input label="المدينة" value={f.city || f.address || ""} onChange={(v) => { upd("city", v); upd("address", v); }} />
       <Input label="رقم الجوال" value={f.phone} onChange={(v) => upd("phone", v)} />
       <Input label="البريد الإلكتروني" value={f.email || ""} onChange={(v) => upd("email", v)} />
       <Input label="السجل التجاري" value={f.commercial_number || ""} onChange={(v) => upd("commercial_number", v)} />
