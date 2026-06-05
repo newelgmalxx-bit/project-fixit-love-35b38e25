@@ -177,7 +177,7 @@ function MerchantsPage() {
 
   const categoryNameById = useMemo(() => {
     const m = new Map<string, string>();
-    categories.forEach((c) => m.set(categoryKey(c.id), c.nameAr));
+    categories.forEach((c: any) => m.set(categoryKey(c), c.nameAr || c.name_ar || c.name || c.nameEn || c.name_en || "—"));
     return m;
   }, [categories]);
 
@@ -777,7 +777,7 @@ function AddCenterDialog({
                 <span className="text-xs text-muted-foreground">لا توجد تصنيفات — أضفها من صفحة التصنيفات أولاً.</span>
               )}
               {(categories || []).map((c) => {
-                const idKey = categoryKey(c.id);
+                const idKey = categoryKey(c);
                 const selected = (f.categoryIds || []).some((id) => categoryKey(id) === idKey);
                 return (
                   <button
@@ -785,7 +785,9 @@ function AddCenterDialog({
                     key={c.id}
                     onClick={() => {
                       const cur = new Map<string, CategoryId>((f.categoryIds || []).map((id) => [categoryKey(id), id]));
-                      if (selected) cur.delete(idKey); else cur.set(idKey, normalizeCategoryId(c.id)!);
+                      const normalizedId = normalizeCategoryId(c);
+                      if (!normalizedId) return;
+                      if (selected) cur.delete(idKey); else cur.set(idKey, normalizedId);
                       up("categoryIds", Array.from(cur.values()));
                     }}
                     className={[
@@ -793,7 +795,7 @@ function AddCenterDialog({
                       selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-muted",
                     ].join(" ")}
                   >
-                    {c.nameAr}
+                    {(c as any).nameAr || (c as any).name_ar || (c as any).name || c.nameEn}
                   </button>
                 );
               })}
