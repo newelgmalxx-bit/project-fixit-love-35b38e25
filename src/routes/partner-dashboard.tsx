@@ -1778,6 +1778,7 @@ function VerifyTab({ partner }: { partner: Profile }) {
             </div>
             <div className="space-y-2 p-4 text-sm">
               <VRow icon={UserIcon} label="العميل" value={b.customer_name || "—"} />
+              <VRow icon={Tag} label="العرض" value={(b as any).offer_title || (b as any).offerTitle || "—"} />
               <VRow icon={Phone} label="الجوال" value={b.customer_phone || "—"} ltr />
               <VRow icon={Calendar} label="التاريخ" value={b.booking_date || "—"} ltr />
               <VRow icon={Clock} label="الوقت" value={b.booking_time || "—"} ltr />
