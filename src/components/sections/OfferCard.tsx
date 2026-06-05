@@ -4,6 +4,8 @@ import type { Offer } from "@/data/offers";
 import { useCategories, usePartner } from "@/hooks/useCatalog";
 import { SarIcon } from "@/components/ui/SarIcon";
 import { useFavorite } from "@/hooks/useFavorite";
+import { useEffect, useState } from "react";
+import { reviews as reviewsApi } from "@/lib/api/services";
 
 export function OfferCard({ offer }: { offer: Offer }) {
   const { fav: saved, toggle } = useFavorite(String(offer.id));
@@ -16,8 +18,23 @@ export function OfferCard({ offer }: { offer: Offer }) {
   const { data: partner } = usePartner(needsPartner ? offer.vendor.id : undefined);
   const vendorName = offer.vendor?.name || (partner as any)?.vendorNameAr || (partner as any)?.vendorNameEn || "";
   const vendorCity = offer.vendor?.city || (partner as any)?.city || (partner as any)?.addressAr || (partner as any)?.address || "";
-  const vendorRating = offer.vendor?.rating || Number((partner as any)?.rating || 0);
-  const vendorReviews = offer.vendor?.reviewsCount || Number((partner as any)?.reviewsCount || 0);
+  const baseRating = offer.vendor?.rating || Number((partner as any)?.rating || 0);
+  const baseReviews = offer.vendor?.reviewsCount || Number((partner as any)?.reviewsCount || 0);
+  const [liveStats, setLiveStats] = useState<{ avg: number; count: number } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    if (!offer.id || baseReviews > 0) return;
+    reviewsApi.list({ offerId: String(offer.id), limit: 1 }).then((res: any) => {
+      if (!alive) return;
+      const data = res?.data ?? res;
+      const total = Number(data?.total ?? (Array.isArray(data?.items) ? data.items.length : 0)) || 0;
+      const avg = Number(data?.average ?? 0) || 0;
+      if (total > 0) setLiveStats({ avg: Math.round(avg * 10) / 10, count: total });
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [offer.id, baseReviews]);
+  const vendorRating = liveStats?.avg ?? baseRating;
+  const vendorReviews = liveStats?.count ?? baseReviews;
 
   return (
     <Link
