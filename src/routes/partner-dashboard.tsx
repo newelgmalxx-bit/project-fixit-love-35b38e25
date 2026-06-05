@@ -246,6 +246,7 @@ function PartnerDashboard() {
     { id: "overview", label: "نظرة عامة", icon: BarChart3 },
     { id: "offers", label: "العروض", icon: Tag },
     { id: "bookings", label: "الحجوزات", icon: Calendar },
+    { id: "verify", label: "التحقق من الحجز", icon: ShieldCheck },
     { id: "schedule", label: "الجدول", icon: CalendarDays },
     { id: "messages", label: "الرسائل", icon: MessageSquare },
     { id: "analytics", label: "التحليلات", icon: LineChart },
@@ -389,6 +390,7 @@ function PartnerDashboard() {
                 {tab === "overview" && <OverviewTab partner={profile} onNavigate={setTab} />}
                 {tab === "offers" && <OffersTab partner={profile} />}
                 {tab === "bookings" && <BookingsTab partner={profile} />}
+                {tab === "verify" && <VerifyTab partner={profile} />}
                 {tab === "schedule" && <ScheduleTab partner={profile} />}
                 {tab === "messages" && <MessagesTab />}
                 {tab === "analytics" && <AnalyticsTab />}
