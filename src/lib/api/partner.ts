@@ -296,7 +296,7 @@ function denormalizeOfferPayload(b: any): any {
 function normalizeBooking(b: any): any {
   if (!b) return b;
   const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const rawTitle = b.offerTitle ?? b.offer?.title ?? b.offer?.titleAr ?? b.offer_title ?? null;
+  const rawTitle = b.offerTitleAr ?? b.offerTitle ?? b.offer?.title ?? b.offer?.titleAr ?? b.offer_title ?? null;
   const offer_title = rawTitle && !uuidRe.test(String(rawTitle).trim()) ? rawTitle : null;
   const booking_number = b.qrCode ?? b.qr_code ?? b.bookingNumber ?? b.booking_number ?? b.reference ?? b.referenceCode ?? b.reference_code ?? null;
   const verify_code = b.verifyCode ?? b.verify_code ?? b.confirmCode ?? b.confirm_code ?? b.pin ?? b.otp ?? null;
@@ -304,9 +304,16 @@ function normalizeBooking(b: any): any {
     id: b.id,
     partner_id: b.partnerId ?? null,
     offer_id: b.offerId ?? null,
+    service_id: b.serviceId ?? b.service_id ?? null,
+    order_id: b.orderId ?? b.order_id ?? null,
+    user_id: b.userId ?? b.user_id ?? null,
+    invoice_id: b.invoiceId ?? b.invoice_id ?? null,
     offer_title,
+    offer_title_en: b.offerTitleEn ?? b.offer_title_en ?? null,
+    offer_image: b.offerImage ?? b.offer_image ?? b.offer?.image ?? null,
     booking_number,
     qr_code: booking_number,
+    scheduled_at: b.scheduledAt ?? b.scheduled_at ?? null,
     customer_name: b.customerName ?? "",
     customer_phone: b.customerPhone ?? "",
     customer_email: b.customerEmail ?? null,
@@ -314,6 +321,7 @@ function normalizeBooking(b: any): any {
     booking_time: b.time ?? null,
     amount: b.totalAmount != null ? Number(b.totalAmount) : null,
     deposit_amount: b.depositAmount != null ? Number(b.depositAmount) : null,
+    deposit_pct: b.depositPct != null ? Number(b.depositPct) : null,
     commission: b.commissionAmount != null ? Number(b.commissionAmount) : null,
     commission_pct: b.commissionPct != null ? Number(b.commissionPct) : null,
     partner_amount: b.partnerAmount != null ? Number(b.partnerAmount) : null,
@@ -323,6 +331,7 @@ function normalizeBooking(b: any): any {
     qty: b.qty ?? 1,
     payment_method: b.paymentMethod ?? null,
     payment_status: b.paymentStatus ?? null,
+    paid_at: b.paidAt ?? b.paid_at ?? null,
     source: b.source ?? null,
     confirmed_at: b.confirmedAt ?? b.confirmed_at ?? null,
     redeemed_at: b.redeemedAt ?? b.redeemed_at ?? null,
@@ -333,23 +342,27 @@ function normalizeBooking(b: any): any {
 
 function normalizeCommissionRequest(r: any): any {
   if (!r) return r;
-  const requested = r.requestedPct ?? r.requested_pct ?? r.requestedCommissionPct ?? null;
-  const current = r.currentPct ?? r.current_pct ?? r.currentCommissionPct ?? null;
-  const reqNum = requested != null ? Number(requested) : 0;
-  const curNum = current != null ? Number(current) : null;
+  const requestedCom = r.requestedPct ?? r.requested_pct ?? r.requestedCommissionPct ?? null;
+  const currentCom = r.currentPct ?? r.current_pct ?? r.currentCommissionPct ?? null;
+  const requestedDep = r.requestedDepositPct ?? r.requested_deposit_pct ?? null;
+  const currentDep = r.currentDepositPct ?? r.current_deposit_pct ?? null;
+  const reqCom = requestedCom != null ? Number(requestedCom) : 0;
+  const curCom = currentCom != null ? Number(currentCom) : null;
+  const reqDep = requestedDep != null ? Number(requestedDep) : 0;
+  const curDep = currentDep != null ? Number(currentDep) : null;
   const adminNote = r.adminNote ?? r.admin_note ?? r.adminNotes ?? null;
   const createdAt = r.createdAt ?? r.created_at ?? null;
   return {
     id: r.id,
     partnerId: r.partnerId ?? r.partner_id,
-    requestedCommissionPct: reqNum,
-    requestedDepositPct: reqNum,
-    currentCommissionPct: curNum,
-    currentDepositPct: curNum,
-    requested_commission_pct: reqNum,
-    requested_deposit_pct: reqNum,
-    current_commission_pct: curNum,
-    current_deposit_pct: curNum,
+    requestedCommissionPct: reqCom,
+    requestedDepositPct: reqDep,
+    currentCommissionPct: curCom,
+    currentDepositPct: curDep,
+    requested_commission_pct: reqCom,
+    requested_deposit_pct: reqDep,
+    current_commission_pct: curCom,
+    current_deposit_pct: curDep,
     reason: r.reason ?? null,
     status: r.status ?? "pending",
     adminNotes: adminNote,
@@ -365,6 +378,21 @@ function normalizeCommissionRequest(r: any): any {
 // =========================================
 export const partnerApi = {
   // Profile
+  getProfile: () =>
+    unwrap<{ partner: PartnerProfile; agreement?: PartnerAgreement | null }>(
+      request(`/partner/profile`),
+    ),
+
+  // Upload (shortcut — uploadFile from adminContent.ts already targets this URL)
+  uploadFile: async (file: File, bucket?: "offer-images" | "partner-logos" | "partner-covers" | "partner-general") => {
+    const fd = new FormData();
+    fd.append("file", file);
+    if (bucket) fd.append("bucket", bucket);
+    return unwrap<{ url: string }>(
+      request(`/partner/upload`, { method: "POST", body: fd as any }),
+    );
+  },
+
   updateProfile: (body: Partial<PartnerProfile>) => {
     const b: any = body;
     const payload: any = {};
@@ -378,7 +406,11 @@ export const partnerApi = {
     if (b.category !== undefined) payload.category = b.category;
     if (b.address !== undefined) payload.address = b.address;
     if (b.mapsUrl !== undefined) payload.mapsUrl = b.mapsUrl;
-    if (b.logoUrl !== undefined || b.logo !== undefined) payload.logoUrl = b.logoUrl ?? b.logo;
+    if (b.logoUrl !== undefined || b.logo !== undefined) {
+      const v = b.logoUrl ?? b.logo;
+      payload.logo = v;
+      payload.logoUrl = v;
+    }
     if (b.coverUrl !== undefined) payload.coverUrl = b.coverUrl;
     if (b.about !== undefined) payload.about = b.about;
     if (b.workingHours !== undefined) payload.workingHours = b.workingHours;
@@ -392,6 +424,7 @@ export const partnerApi = {
     if (b.terms !== undefined) payload.terms = b.terms;
     if (b.termsEn !== undefined) payload.termsEn = b.termsEn;
     if (b.aboutEn !== undefined) payload.aboutEn = b.aboutEn;
+    if (b.highlights !== undefined) payload.highlights = b.highlights;
     if (b.categoryIds !== undefined) {
       payload.categoryIds = b.categoryIds;
       payload.category_ids = b.categoryIds;
@@ -419,15 +452,35 @@ export const partnerApi = {
   payoutsSummary: () => unwrap<any>(request(`/partner/payouts/summary`)),
 
   // Reviews
-  listReviews: async (params?: { page?: number; pageSize?: number }) => {
+  listReviews: async (params?: { page?: number; pageSize?: number; status?: "pending" | "published" | "rejected"; offerId?: string; search?: string }) => {
     const sp = new URLSearchParams();
     if (params?.page) sp.set("page", String(params.page));
     if (params?.pageSize) sp.set("pageSize", String(params.pageSize));
+    if (params?.status) sp.set("status", params.status);
+    if (params?.offerId) sp.set("offerId", params.offerId);
+    if (params?.search) sp.set("search", params.search);
     const qs = sp.toString();
-    return unwrap<{ items: any[]; total?: number; avgRating?: number; breakdown?: Record<string, number> }>(
+    return unwrap<{
+      items: any[];
+      total?: number;
+      page?: number;
+      pageSize?: number;
+      totalPages?: number;
+      counts?: { pending: number; published: number; rejected: number };
+      avgRating?: number;
+      breakdown?: Record<string, number>;
+    }>(
       request(`/partner/reviews${qs ? "?" + qs : ""}`),
     );
   },
+  getReview: (id: string) =>
+    unwrap<{ review: any }>(request(`/partner/reviews/${id}`)),
+  approveReview: (id: string) =>
+    unwrap<any>(request(`/partner/reviews/${id}/approve`, { method: "PUT" })),
+  rejectReview: (id: string) =>
+    unwrap<any>(request(`/partner/reviews/${id}/reject`, { method: "PUT" })),
+  deleteReview: (id: string) =>
+    request<ApiResponse<any>>(`/partner/reviews/${id}`, { method: "DELETE" }),
   replyReview: (id: string, reply: string) =>
     unwrap<{ review: any }>(
       request(`/partner/reviews/${id}/reply`, {
@@ -479,6 +532,8 @@ export const partnerApi = {
       request(`/partner/agreements/${id}/sign`, {
         method: "POST",
         body: JSON.stringify({
+          signedName: body.signedName,
+          signatureImage: body.signatureImage,
           signed_name: body.signedName,
           signature_image: body.signatureImage,
         }),
@@ -534,11 +589,13 @@ export const partnerApi = {
     request<ApiResponse<any>>(`/partner/offers/${id}`, { method: "DELETE" }),
 
   // Bookings
-  listBookings: async (params?: { status?: string; page?: number; limit?: number }) => {
+  listBookings: async (params?: { status?: string; page?: number; limit?: number; offerId?: string; search?: string }) => {
     const sp = new URLSearchParams();
     if (params?.status && params.status !== "all") sp.set("status", params.status);
     if (params?.page) sp.set("page", String(params.page));
     if (params?.limit) sp.set("pageSize", String(params.limit));
+    if (params?.offerId) sp.set("offerId", params.offerId);
+    if (params?.search) sp.set("search", params.search);
     const qs = sp.toString();
     const r: any = await unwrap<{ items: any[]; total?: number }>(
       request(`/partner/bookings${qs ? "?" + qs : ""}`),
@@ -547,6 +604,10 @@ export const partnerApi = {
       items: ((r?.items || []) as any[]).map(normalizeBooking) as PartnerBooking[],
       total: r?.total,
     };
+  },
+  getBooking: async (id: string) => {
+    const r: any = await unwrap<{ booking: any }>(request(`/partner/bookings/${id}`));
+    return { booking: normalizeBooking(r?.booking) as PartnerBooking };
   },
   updateBooking: async (id: string, body: Partial<PartnerBooking> & { status?: string }) => {
     const b: any = body;
