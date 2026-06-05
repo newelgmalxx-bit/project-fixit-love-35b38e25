@@ -424,8 +424,21 @@ function MerchantsPage() {
                       <div className="text-sm font-bold text-foreground" dir="ltr">{m.phone}</div>
                     </td>
                     <td className="p-3 text-sm">
-                      <div className="font-bold text-foreground">{m.category}</div>
-                      <div className="text-xs text-muted-foreground">{m.city}</div>
+                      <div className="font-bold text-foreground">
+                        {(m.categoryIds && m.categoryIds.length)
+                          ? m.categoryIds.map((id) => categoryNameById.get(Number(id))).filter(Boolean).join("، ")
+                          : (m.category && m.category !== "—" ? m.category : "—")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {m.mapsUrl ? (
+                          <a href={m.mapsUrl} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-primary hover:underline">
+                            <MapPin className="h-3 w-3" /> {m.city}
+                          </a>
+                        ) : (
+                          m.city
+                        )}
+                      </div>
                     </td>
                     <td className="p-3 text-sm font-bold text-foreground">
                       {m.packageName && m.packageName !== "—" ? (
