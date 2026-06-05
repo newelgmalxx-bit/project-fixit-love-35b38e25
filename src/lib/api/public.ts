@@ -129,11 +129,19 @@ export const publicApi = {
 
 
   /* ───── Misc public ───── */
-  lookupOrder: (params: { orderNumber: string; email?: string; phone?: string }) => {
+  /**
+   * Look up a booking by its QR code (booking number, e.g. BK-DXECMR) and
+   * the short verify code printed on the ticket.
+   *
+   * Backend (GET /lookup-booking) is expected to validate using
+   *   bookings.qr_code      = qr_code
+   *   bookings.verify_code  = verify_code
+   * and to return a unified 404 on any mismatch (no enumeration).
+   */
+  lookupOrder: (params: { qrCode: string; verifyCode: string }) => {
     const sp = new URLSearchParams();
-    sp.set('orderNumber', params.orderNumber);
-    if (params.email) sp.set('email', params.email);
-    if (params.phone) sp.set('phone', params.phone);
+    sp.set('qr_code', params.qrCode);
+    sp.set('verify_code', params.verifyCode);
     return request<ApiResponse<{ order: any; items?: any[]; timeline?: any[]; partner?: any }>>(
       `/lookup-booking?${sp.toString()}`
     );
