@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Check, MapPin, Phone, Calendar, Clock, Download, Printer, Home, Clock3, XCircle, AlertCircle, PlayCircle, Star, UserX } from "lucide-react";
@@ -127,6 +127,7 @@ function fmtMoney(n?: number) {
 function BookingConfirmation() {
   const { bookingId } = Route.useParams();
   const [booking, setBooking] = useState<Booking | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -195,6 +196,21 @@ function BookingConfirmation() {
     booking.paymentStatus === "paid" ||
     booking.paymentStatus === "deposit_paid";
   const hasDeposit = derivedDeposit > 0;
+
+  // Unpaid bookings with a required deposit must be redirected to the
+  // payment page — no peeking at the confirmation/QR until payment is done.
+  if (hasDeposit && !isPaid) {
+    navigate({ to: "/booking/pay/$bookingId", params: { bookingId }, replace: true });
+    return (
+      <div dir="rtl" className="flex min-h-screen flex-col bg-background">
+        <SiteHeader />
+        <main className="flex flex-1 items-center justify-center px-4">
+          <p className="text-sm text-muted-foreground">جارٍ تحويلك إلى صفحة الدفع…</p>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
 
   // Derive effective status: trust explicit booking.status, otherwise infer
   // from payment state (paid → confirmed, otherwise pending).
