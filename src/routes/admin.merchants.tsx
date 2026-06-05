@@ -640,12 +640,13 @@ function MerchantsPage() {
 }
 
 function AddCenterDialog({
-  open, onClose, onSave, initial,
+  open, onClose, onSave, initial, categories,
 }: {
   open: boolean;
   onClose: () => void;
   onSave: (m: Omit<Merchant, "id" | "rating" | "offers" | "bookings" | "revenue" | "joined">) => void;
   initial?: Merchant;
+  categories?: AdminCategory[];
 }) {
   const empty = {
     name: "", nameEn: "", owner: "", city: "", phone: "", email: "",
@@ -654,6 +655,7 @@ function AddCenterDialog({
     about: "", aboutEn: "",
     workingHours: defaultWorkingHours(),
     password: "",
+    categoryIds: [] as number[],
   };
   const [f, setF] = useState(empty);
 
@@ -672,6 +674,7 @@ function AddCenterDialog({
       aboutEn: initial.aboutEn || "",
       workingHours: initial.workingHours && initial.workingHours.length ? initial.workingHours : defaultWorkingHours(),
       password: "",
+      categoryIds: initial.categoryIds || [],
     } : empty);
   }, [open, initial]);
 
