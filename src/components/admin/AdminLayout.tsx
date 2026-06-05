@@ -28,6 +28,7 @@ type NavItem = { to: string; ar: string; en: string; icon: any; children?: { to:
 const navGroups: (NavItem | "sep")[] = [
   { to: "/admin", ar: "لوحة التحكم", en: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/bookings", ar: "الحجوزات", en: "Bookings", icon: CalendarCheck },
+  { to: "/admin/verify", ar: "التحقق من الحجز", en: "Verify booking", icon: ShieldCheck } as any,
   { to: "/admin/schedule", ar: "إدارة المواعيد", en: "Schedule", icon: Clock },
   { to: "/admin/abandoned-carts", ar: "السلات المتروكة", en: "Abandoned carts", icon: ShoppingBag },
   
