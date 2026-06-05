@@ -15,6 +15,7 @@ export const Route = createFileRoute("/admin/merchants")({
 
 type Status = "active" | "pending" | "suspended" | "rejected";
 type WorkingHour = { day: string; open: string; close: string; closed?: boolean };
+type CategoryId = string | number;
 type Merchant = {
   id: string;
   name: string;
@@ -32,7 +33,7 @@ type Merchant = {
   revenue: number;
   joined: string;
   mapsUrl?: string;
-  categoryIds?: number[];
+  categoryIds?: CategoryId[];
   description?: string;
   descriptionEn?: string;
   terms?: string;
@@ -101,19 +102,50 @@ function normalizeStatus(s: any): Status {
 // `categoryIds` or via items in `categories` that carry a pivot/assigned flag.
 // Some backends return the full master category list under `categories` —
 // we must NOT treat that as "all selected".
-function pickAssignedCategoryIds(p: any): number[] {
+function normalizeCategoryId(value: any): CategoryId | null {
+  const raw = typeof value === "object" && value !== null
+    ? value.id ?? value.categoryId ?? value.category_id ?? value.catId ?? value.cat_id ?? value.value ?? value.slug
+    : value;
+  if (raw === undefined || raw === null) return null;
+  const text = String(raw).trim();
+  if (!text) return null;
+  const numeric = Number(text);
+  return /^\d+$/.test(text) && Number.isFinite(numeric) ? numeric : text;
+}
+
+function categoryKey(value: any): string {
+  const normalized = normalizeCategoryId(value);
+  return normalized === null ? "" : String(normalized);
+}
+
+function pickAssignedCategoryIds(p: any, opts?: { treatPlainCategoriesAsAssigned?: boolean; masterCategories?: any[] }): CategoryId[] {
+  const fromArray = (arr: any[]) => arr.map(normalizeCategoryId).filter((id: CategoryId | null): id is CategoryId => id !== null);
+  const singular = normalizeCategoryId(p?.categoryId ?? p?.category_id);
+  if (singular !== null) return [singular];
   if (Array.isArray(p?.categoryIds)) {
-    return p.categoryIds.map((x: any) => Number(x)).filter((n: number) => !isNaN(n));
+    return fromArray(p.categoryIds);
   }
   if (Array.isArray(p?.category_ids)) {
-    return p.category_ids.map((x: any) => Number(x)).filter((n: number) => !isNaN(n));
+    return fromArray(p.category_ids);
+  }
+  if (Array.isArray(p?.partnerCategories)) {
+    return fromArray(p.partnerCategories);
+  }
+  if (Array.isArray(p?.partner_categories)) {
+    return fromArray(p.partner_categories);
   }
   if (Array.isArray(p?.categories)) {
     const assigned = p.categories.filter((c: any) =>
       c && (c.pivot || c.assigned === true || c.selected === true || c.isAssigned === true || c.partner_id != null || c.partnerId != null)
     );
     if (assigned.length) {
-      return assigned.map((c: any) => Number(c?.id ?? c)).filter((n: number) => !isNaN(n));
+      return fromArray(assigned);
+    }
+    if (opts?.treatPlainCategoriesAsAssigned) {
+      const ids = fromArray(p.categories);
+      const masterKeys = new Set((opts.masterCategories || []).map(categoryKey).filter(Boolean));
+      const isWholeMasterList = masterKeys.size > 0 && ids.length === masterKeys.size && ids.every((id: CategoryId) => masterKeys.has(categoryKey(id)));
+      return isWholeMasterList ? [] : ids;
     }
     // Backend returned the master list with no assignment marker — treat as none.
     return [];
@@ -159,8 +191,8 @@ function MerchantsPage() {
   }, []);
 
   const categoryNameById = useMemo(() => {
-    const m = new Map<number, string>();
-    categories.forEach((c) => m.set(Number(c.id), c.nameAr));
+    const m = new Map<string, string>();
+    categories.forEach((c: any) => m.set(categoryKey(c), c.nameAr || c.name_ar || c.name || c.nameEn || c.name_en || "—"));
     return m;
   }, [categories]);
 
@@ -280,6 +312,7 @@ function MerchantsPage() {
           workingHours: data.workingHours || [],
           password: data.password || undefined,
           categoryIds: data.categoryIds || [],
+          category_ids: data.categoryIds || [],
         } as any),
       });
       const tempPwd = res?.data?.partner?.tempPassword || res?.partner?.tempPassword;
@@ -324,6 +357,7 @@ function MerchantsPage() {
           workingHours: data.workingHours || [],
           ...(data.password ? { password: data.password } : {}),
           categoryIds: data.categoryIds || [],
+          category_ids: data.categoryIds || [],
         } as any),
       });
       if (data.password) {
@@ -449,7 +483,7 @@ function MerchantsPage() {
                     <td className="p-3 text-sm">
                       <div className="font-bold text-foreground">
                         {(m.categoryIds && m.categoryIds.length)
-                          ? m.categoryIds.map((id) => categoryNameById.get(Number(id))).filter(Boolean).join("، ")
+                          ? m.categoryIds.map((id) => categoryNameById.get(categoryKey(id))).filter(Boolean).join("، ")
                           : (m.category && m.category !== "—" ? m.category : "—")}
                       </div>
                       <div className="text-xs text-muted-foreground">
@@ -518,7 +552,7 @@ function MerchantsPage() {
                             <DropdownMenuItem onClick={async () => {
                               try {
                                 const full: any = await adminPartnersApi.get(m.id);
-                                const catIds: number[] = pickAssignedCategoryIds(full);
+                                const catIds = pickAssignedCategoryIds(full, { treatPlainCategoriesAsAssigned: true, masterCategories: categories });
                                 setEditing({
                                   ...m,
                                   name: full?.vendorName || full?.nameAr || full?.name || m.name,
@@ -672,7 +706,7 @@ function AddCenterDialog({
     about: "", aboutEn: "",
     workingHours: defaultWorkingHours(),
     password: "",
-    categoryIds: [] as number[],
+    categoryIds: [] as CategoryId[],
   };
   const [f, setF] = useState(empty);
 
@@ -758,22 +792,26 @@ function AddCenterDialog({
                 <span className="text-xs text-muted-foreground">لا توجد تصنيفات — أضفها من صفحة التصنيفات أولاً.</span>
               )}
               {(categories || []).map((c) => {
-                const selected = (f.categoryIds || []).includes(Number(c.id));
+                const idKey = categoryKey(c);
+                const selected = (f.categoryIds || []).some((id) => categoryKey(id) === idKey);
                 return (
                   <button
                     type="button"
-                    key={c.id}
+                    key={idKey || ((c as any).nameAr || (c as any).name_ar || (c as any).name || c.nameEn)}
+                    disabled={!idKey}
                     onClick={() => {
-                      const cur = new Set<number>((f.categoryIds || []).map((n) => Number(n)));
-                      if (selected) cur.delete(Number(c.id)); else cur.add(Number(c.id));
-                      up("categoryIds", Array.from(cur));
+                      const cur = new Map<string, CategoryId>((f.categoryIds || []).map((id) => [categoryKey(id), id]));
+                      const normalizedId = normalizeCategoryId(c);
+                      if (!normalizedId) return;
+                      if (selected) cur.delete(idKey); else cur.set(idKey, normalizedId);
+                      up("categoryIds", Array.from(cur.values()));
                     }}
                     className={[
                       "rounded-full border px-3 py-1 text-xs font-bold transition",
                       selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-muted",
                     ].join(" ")}
                   >
-                    {c.nameAr}
+                    {(c as any).nameAr || (c as any).name_ar || (c as any).name || c.nameEn}
                   </button>
                 );
               })}
