@@ -2614,13 +2614,21 @@ function AnalyticsTab() {
         ) : chart.length === 0 ? (
           <div className="py-12 text-center text-sm text-muted-foreground">لا توجد بيانات بعد لعرضها</div>
         ) : (
-          <div className="flex h-48 items-end gap-1.5 overflow-x-auto">
-            {chart.map((v, i) => (
-              <div key={i} className="flex min-w-[20px] flex-1 flex-col items-center gap-1" title={`${daily[i]?.day}: ${v} ر.س`}>
-                <div className="w-full rounded-t-lg bg-gradient-to-t from-[#3F2A6B] to-[#E0254D]" style={{ height: `${(v / max) * 100}%`, minHeight: v > 0 ? "4px" : "0" }} />
-                <div className="text-[9px] text-muted-foreground">{(daily[i]?.day || "").slice(-2)}</div>
-              </div>
-            ))}
+          <div className="flex h-64 items-stretch gap-2 overflow-x-auto pb-1">
+            {chart.map((v, i) => {
+              const heightPct = v > 0 ? Math.max(14, (v / max) * 100) : 0;
+              return (
+                <div key={i} className="flex h-full min-w-[28px] flex-1 flex-col items-center gap-1.5" title={`${daily[i]?.day}: ${v.toLocaleString()} ر.س`}>
+                  <div className="flex w-full min-h-0 flex-1 items-end">
+                    <div
+                      className="w-full rounded-t-xl bg-gradient-to-t from-[#3F2A6B] to-[#E0254D] shadow-sm transition-all"
+                      style={{ height: `${heightPct}%`, minHeight: v > 0 ? "18px" : "0" }}
+                    />
+                  </div>
+                  <div className="h-4 text-[10px] font-bold text-muted-foreground">{(daily[i]?.day || "").slice(-2)}</div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
