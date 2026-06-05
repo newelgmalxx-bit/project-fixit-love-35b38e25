@@ -1355,7 +1355,7 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
             />
           </div>
       <Input label="اسم المسؤول" value={f.owner_name} onChange={(v) => upd("owner_name", v)} />
-      <Input label="المدينة" value={f.city || ""} onChange={(v) => upd("city", v)} />
+      <Input label="المدينة" value={f.city || f.address || ""} onChange={(v) => { upd("city", v); upd("address", v); }} />
       <Input label="رقم الجوال" value={f.phone} onChange={(v) => upd("phone", v)} />
       <Input label="البريد الإلكتروني" value={f.email || ""} onChange={(v) => upd("email", v)} />
       <Input label="السجل التجاري" value={f.commercial_number || ""} onChange={(v) => upd("commercial_number", v)} />
