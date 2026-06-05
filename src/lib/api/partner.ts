@@ -532,6 +532,8 @@ export const partnerApi = {
       request(`/partner/agreements/${id}/sign`, {
         method: "POST",
         body: JSON.stringify({
+          signedName: body.signedName,
+          signatureImage: body.signatureImage,
           signed_name: body.signedName,
           signature_image: body.signatureImage,
         }),
