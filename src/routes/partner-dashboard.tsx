@@ -75,6 +75,8 @@ type Offer = {
   terms_en?: string[] | null;
   overview_bullets?: string[] | null;
   overview_bullets_en?: string[] | null;
+  valid_from?: string | null;
+  valid_to?: string | null;
 };
 
 type Booking = {
@@ -593,6 +595,8 @@ function OffersTab({ partner }: { partner: Profile }) {
       terms_en: toArr((editing as any).terms_text_en ?? editing.terms_en),
       overview_bullets: toArr((editing as any).bullets_text ?? editing.overview_bullets),
       overview_bullets_en: toArr((editing as any).bullets_text_en ?? editing.overview_bullets_en),
+      valid_from: editing.valid_from || null,
+      valid_to: editing.valid_to || null,
     };
     try {
       if (editing.id) {
@@ -694,8 +698,29 @@ function OffersTab({ partner }: { partner: Profile }) {
               <div className="space-y-3">
                 <Input label="العنوان (عربي) *" value={editing.title || ""} onChange={(v) => setEditing({ ...editing, title: v })} />
                 <Input label="Title (English) — optional" value={(editing as any).title_en || ""} onChange={(v) => setEditing({ ...editing, title_en: v } as any)} />
-                <Input label="الوصف (عربي)" value={editing.description || ""} onChange={(v) => setEditing({ ...editing, description: v })} />
-                <Input label="Description (English) — optional" value={(editing as any).description_en || ""} onChange={(v) => setEditing({ ...editing, description_en: v } as any)} />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold">الوصف (عربي)</label>
+                    <textarea
+                      rows={3}
+                      value={editing.description || ""}
+                      onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                      placeholder="نبذة مفصّلة عن العرض وما يشمله…"
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold">Description (English) — optional</label>
+                    <textarea
+                      rows={3}
+                      dir="ltr"
+                      value={(editing as any).description_en || ""}
+                      onChange={(e) => setEditing({ ...editing, description_en: e.target.value } as any)}
+                      placeholder="Detailed description of the offer…"
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Input label="السعر (ر.س) *" type="number" value={String(editing.price ?? "")} onChange={(v) => setEditing({ ...editing, price: Number(v) })} />
                   <Input label="السعر قبل الخصم" type="number" value={String(editing.original_price ?? "")} onChange={(v) => setEditing({ ...editing, original_price: v ? Number(v) : null as any })} />
@@ -732,12 +757,35 @@ function OffersTab({ partner }: { partner: Profile }) {
                       <option value="draft">مسودة</option>
                       <option value="active">نشط</option>
                       <option value="paused">متوقف</option>
+                      <option value="archived">مؤرشف</option>
                     </select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Input label="مدة الجلسة (دقيقة)" type="number" value={String((editing.duration_minutes as any) ?? "")} onChange={(v) => setEditing({ ...editing, duration_minutes: v === "" ? null : Number(v) })} />
                   <Input label="نسبة الخصم %" type="number" value={String((editing.discount_percent as any) ?? "")} onChange={(v) => setEditing({ ...editing, discount_percent: v === "" ? null : Number(v) })} />
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold">تاريخ بداية العرض (اختياري)</label>
+                    <input
+                      type="date"
+                      dir="ltr"
+                      value={(editing.valid_from || "").slice(0, 10)}
+                      onChange={(e) => setEditing({ ...editing, valid_from: e.target.value || null })}
+                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold">تاريخ نهاية العرض (اختياري)</label>
+                    <input
+                      type="date"
+                      dir="ltr"
+                      value={(editing.valid_to || "").slice(0, 10)}
+                      onChange={(e) => setEditing({ ...editing, valid_to: e.target.value || null })}
+                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-bold">نقاط نظرة عامة (عربي — كل نقطة في سطر)</label>
