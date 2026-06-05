@@ -1269,7 +1269,7 @@ function OfferDetailPage() {
                         <span className="font-bold text-foreground" dir="ltr">{formatMoney(total)} ر.س</span>
                       </div>
                       <div className="mt-1.5 flex items-center justify-between">
-                        <span className="font-bold text-foreground">عربون الحجز ({depositPct}%)</span>
+                        <span className="font-bold text-foreground">عربون الحجز ({depositPctLabel})</span>
                         <span className="font-extrabold text-primary" dir="ltr">{formatMoney(depositAmount)} ر.س</span>
                       </div>
                       <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
@@ -1355,7 +1355,7 @@ function OfferDetailPage() {
                           <span dir="ltr">{formatMoney(total)} ر.س</span>
                         </div>
                         <div className="flex items-center justify-between rounded-lg bg-primary/10 px-3 py-2 text-base font-extrabold text-primary">
-                          <span>عربون الآن ({depositPct}%)</span>
+                          <span>عربون الآن ({depositPctLabel})</span>
                           <span dir="ltr">{formatMoney(depositAmount)} ر.س</span>
                         </div>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -1400,7 +1400,7 @@ function OfferDetailPage() {
                         disabled={loading || !agreed}
                         className="flex-[2] rounded-xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] py-3.5 text-base font-extrabold text-white shadow-lg shadow-primary/30 transition hover:scale-[1.01] disabled:opacity-60 disabled:hover:scale-100"
                       >
-                        {loading ? "جاري تأكيد الحجز…" : `تأكيد ودفع العربون — ${formatMoney(depositAmount)} ر.س`}
+                        {loading ? "جاري تأكيد الحجز…" : depositPct == null ? "نسبة العربون غير محددة" : `تأكيد ودفع العربون — ${formatMoney(depositAmount)} ر.س`}
                       </button>
                     </div>
                   </div>
