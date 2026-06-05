@@ -469,8 +469,15 @@ function BookingsPage() {
           {viewing && (
             <div className="space-y-4 text-sm">
               <div className="grid gap-3 sm:grid-cols-2">
-                <Info label={L("رقم التأكيد", "Confirmation #")}>
+                <Info label={L("رقم الحجز", "Booking #")}>
                   <span className="font-mono font-bold text-primary" dir="ltr">{pickRef(viewing) || `#${String(viewing.id).slice(-6).toUpperCase()}`}</span>
+                </Info>
+                <Info label={L("رمز التأكيد", "Verify code")}>
+                  {pickVerifyCode(viewing) ? (
+                    <span dir="ltr" className="inline-block rounded-lg bg-amber-50 px-2 py-1 text-sm font-black tracking-[0.25em] text-amber-800">{pickVerifyCode(viewing)}</span>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </Info>
                 <Info label={L("الحالة", "Status")}>
                   <Pill tone={statusTone(viewing.status)}>{statusLabel(viewing.status, lang)}</Pill>
