@@ -2618,10 +2618,10 @@ function AnalyticsTab() {
 
   const kpis = [
     { label: "إجمالي الإيرادات", value: `${totalRevenue.toLocaleString()} ر.س`, icon: TrendingUp, color: "from-violet-500 to-purple-600" },
-    { label: "نسبة العمولة", value: `${displayPct}%`, icon: Percent, color: "from-emerald-500 to-teal-600" },
+    { label: "صافي الربح بعد خصم العربون", value: `${(totalRevenue - totalCommission).toLocaleString()} ر.س`, icon: Percent, color: "from-emerald-500 to-teal-600", note: `تم تطبيق ${displayPct}% عمولة` },
     { label: "عمولة المنصة", value: `${totalCommission.toLocaleString()} ر.س`, icon: Zap, color: "from-pink-500 to-rose-600" },
     { label: "متوسط قيمة الحجز", value: `${avgValue.toFixed(0)} ر.س`, icon: Users, color: "from-amber-500 to-orange-600" },
-  ];
+  ] as { label: string; value: string; icon: any; color: string; note?: string }[];
 
   const chart = daily.map((d) => Number(d.revenue || 0));
   const max = Math.max(1, ...chart);
@@ -2649,6 +2649,7 @@ function AnalyticsTab() {
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${k.color} text-white shadow`}><k.icon className="h-5 w-5" /></div>
             <div className="mt-3 text-2xl font-black" dir="ltr">{k.value}</div>
             <div className="mt-1 text-xs font-bold text-muted-foreground">{k.label}</div>
+            {k.note && <div className="mt-1 text-[10px] font-bold text-emerald-600">{k.note}</div>}
           </div>
         ))}
       </div>
