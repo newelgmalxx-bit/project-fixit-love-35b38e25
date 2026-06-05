@@ -365,15 +365,6 @@ function LoginPage() {
                 width="380"
               />
             </div>
-            <button
-              type="button"
-              onClick={signInWithGoogle}
-              disabled={submitting}
-              className="mt-3 inline-flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white py-3 text-sm font-bold text-foreground shadow-sm transition hover:border-primary hover:bg-secondary/40 disabled:opacity-60"
-            >
-              <GoogleIcon className="h-5 w-5" />
-              {t("auth.googleSignIn")} (بديل)
-            </button>
 
             <Link
               to="/partner-login"
