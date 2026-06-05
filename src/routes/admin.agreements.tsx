@@ -102,6 +102,13 @@ async function ensureFixedTemplate(): Promise<Template | null> {
   }
 }
 
+async function persistPartnerRate(partnerId: string, rate: number) {
+  await adminPartnersApi.update(partnerId, {
+    commissionPct: rate,
+    depositPct: rate,
+  } as Partial<AdminPartner>);
+}
+
 function AgreementsPage() {
   return (
     <AdminLayout title="اتفاقيات الشركاء">
@@ -604,10 +611,11 @@ function EditPendingAgreementDialog({
         customBody: body,
         adminNotes: notes || null,
       });
+      await persistPartnerRate(partnerId, rate);
       toast.success("تم تحديث الاتفاقية وإعادة الإرسال للشريك");
       onSaved();
     } catch (e: any) {
-      toast.error(e?.message || "تعذّر التحديث");
+      toast.error(e?.message || "تعذّر التحديث أو حفظ النسبة على المركز");
     } finally {
       setSaving(false);
     }
@@ -667,7 +675,7 @@ function IssueAgreementDialog({
 }: { partner: Partner; template: Template; onClose: () => void; onSaved: () => void }) {
   const defaultClauses = extractAgreementClauses(template.body);
 
-  const [rate, setRate] = useState<number>(partner.commission_pct ?? 10);
+  const [rate, setRate] = useState<number>(partner.commission_pct ?? partner.deposit_pct ?? 10);
   const [title, setTitle] = useState<string>(template.title);
   const [clauses, setClauses] = useState<string[]>(defaultClauses.length ? defaultClauses : [""]);
   const [notes, setNotes] = useState("");
@@ -742,11 +750,12 @@ function IssueAgreementDialog({
         customBody: bodyText,
         adminNotes: notes || null,
       });
+      await persistPartnerRate(partner.id, rate);
       toast.success("تم إصدار الاتفاقية وحفظها في قاعدة البيانات");
       onSaved();
     } catch (e: any) {
       console.error(e);
-      toast.error(e?.message || "تعذّر إصدار الاتفاقية");
+      toast.error(e?.message || "تعذّر إصدار الاتفاقية أو حفظ النسبة على المركز");
     } finally {
       setSaving(false);
     }
