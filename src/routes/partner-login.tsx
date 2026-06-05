@@ -258,23 +258,7 @@ function PartnerLoginPage() {
             </form>
 
 
-            <div className="my-7 flex items-center gap-3">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-[11px] text-muted-foreground">
-                {lang === "ar" ? "أو تابع باستخدام" : "or continue with"}
-              </span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-
-            <button
-              type="button"
-              onClick={signInWithGoogle}
-              disabled={submitting}
-              className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white py-3 text-sm font-bold text-foreground shadow-sm transition hover:border-primary hover:bg-secondary/40 disabled:opacity-60"
-            >
-              <GoogleIcon className="h-5 w-5" />
-              {lang === "ar" ? "تسجيل الدخول بحساب Google" : "Sign in with Google"}
-            </button>
+            {/* Google sign-in hidden for partners until backend adds /auth/partner/oauth/google */}
 
             <p className="mt-7 text-center text-xs text-muted-foreground">
               {lang === "ar" ? "ليس لديك حساب شريك؟" : "Don't have a partner account?"}{" "}
