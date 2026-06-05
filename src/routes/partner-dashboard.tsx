@@ -1239,20 +1239,17 @@ function WalletTab() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [payoutSummary, setPayoutSummary] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
-        const [s, b, p]: any[] = await Promise.all([
+        const [s, b]: any[] = await Promise.all([
           partnerApi.stats("30d").catch(() => ({})),
           partnerApi.listBookings({ limit: 100 }).catch(() => ({ items: [] })),
-          partnerApi.payoutsSummary().catch(() => ({})),
         ]);
         setStats(s || {});
         setBookings((b?.items || []) as Booking[]);
-        setPayoutSummary(p || {});
       } catch (e: any) {
         toast.error(e?.message || "تعذر تحميل النتائج");
       }
@@ -1307,22 +1304,6 @@ function WalletTab() {
         </div>
       </div>
 
-
-      {payoutSummary && (payoutSummary.due || payoutSummary.paid || payoutSummary.pending) ? (
-        <div className="grid gap-4 sm:grid-cols-4">
-          {[
-            { label: "مستحق", value: Number(payoutSummary.due || 0), color: "text-amber-600" },
-            { label: "قيد المعالجة", value: Number(payoutSummary.processing || 0), color: "text-sky-600" },
-            { label: "بانتظار", value: Number(payoutSummary.pending || 0), color: "text-violet-600" },
-            { label: "تمت التسوية", value: Number(payoutSummary.paid || 0), color: "text-emerald-600" },
-          ].map((p) => (
-            <div key={p.label} className="rounded-3xl border border-border bg-card p-5">
-              <div className="text-xs font-bold text-muted-foreground">{p.label}</div>
-              <div className={`mt-2 text-xl font-black ${p.color}`} dir="ltr">{p.value.toLocaleString()} ر.س</div>
-            </div>
-          ))}
-        </div>
-      ) : null}
 
       <div className="overflow-hidden rounded-3xl border border-border bg-card">
         <div className="border-b border-border p-5">
