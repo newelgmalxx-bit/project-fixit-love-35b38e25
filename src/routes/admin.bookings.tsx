@@ -371,23 +371,31 @@ function BookingsPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={11} className="px-3 py-10 text-center">
+                <tr><td colSpan={12} className="px-3 py-10 text-center">
                   <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
                 </td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={11} className="px-3 py-10 text-center text-xs text-muted-foreground">
+                <tr><td colSpan={12} className="px-3 py-10 text-center text-xs text-muted-foreground">
                   <CalendarCheck className="mx-auto mb-2 h-8 w-8 opacity-40" />
                   {L("لا توجد حجوزات", "No bookings")}
                 </td></tr>
               ) : items.map((b) => {
                 const shortId = String(b.id).slice(-6).toUpperCase();
                 const ref = pickRef(b);
+                const vcode = pickVerifyCode(b);
                 const isPending = String(b.status || "").toLowerCase() === "pending";
                 return (
                 <tr key={b.id} className="border-b border-border hover:bg-muted/40">
                   <td className="px-3 py-3 font-mono text-xs" title={String(b.id)}>
                     <div className="font-bold text-primary">{ref || `#${shortId}`}</div>
                     {ref && <div className="text-[10px] text-muted-foreground">#{shortId}</div>}
+                  </td>
+                  <td className="px-3 py-3">
+                    {vcode ? (
+                      <span dir="ltr" className="inline-block rounded-lg bg-amber-50 px-2 py-1 text-xs font-black tracking-[0.2em] text-amber-800">{vcode}</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </td>
                   <td className="px-3 py-3 text-xs font-bold">{pickPartnerName(b) || "—"}</td>
                   <td className="px-3 py-3 text-xs font-bold">{b.customerName || "—"}</td>
