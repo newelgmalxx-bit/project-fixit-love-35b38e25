@@ -464,14 +464,14 @@ function OverviewTab({ partner, onNavigate }: { partner: Profile; onNavigate: (t
           partnerApi.listOffers({ limit: 1000 }).catch(() => ({ items: [] })),
           partnerApi.listBookings({ limit: 4 }).catch(() => ({ items: [] })),
         ]);
-        const bookingsList = (ball?.items || []) as { amount: number | null; partner_amount?: number | null; status: string }[];
+        const bookingsList = (ball?.items || []) as any[];
         const offersList = (oall?.items || []) as Offer[];
-        const revenueFromList = bookingsList
-          .reduce((acc, x) => acc + Number(x.partner_amount ?? x.amount ?? 0), 0);
+        const countedBookings = bookingsList.filter(isCountedBooking);
+        const revenueFromList = countedBookings.reduce((acc, x) => acc + bookingTotalValue(x), 0);
         const pendingFromList = bookingsList.filter((x) => x.status === "pending").length;
         setStats({
-          offers: s?.offers ?? s?.offersCount ?? offersList.length,
-          bookings: s?.bookingsCount ?? s?.totalBookings ?? bookingsList.length,
+          offers: s?.totalOffers ?? s?.offers ?? s?.offersCount ?? offersList.length,
+          bookings: s?.bookingsCount ?? s?.totalBookings ?? countedBookings.length,
           revenue: revenueFromList,
           pendingBookings: s?.pendingBookings ?? s?.pendingCount ?? pendingFromList,
         });
