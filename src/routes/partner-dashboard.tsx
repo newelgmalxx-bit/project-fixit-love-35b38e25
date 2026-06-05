@@ -6,6 +6,7 @@ import {
   Wallet, Star, Bell, ArrowDownToLine, MessageSquare, LineChart,
   CalendarDays, UserCog, Crown, LifeBuoy, Send, Phone, Mail, Shield,
   Sparkles, ChevronLeft, ChevronRight, Zap, Menu, ExternalLink, Percent, FileText, Eye,
+  ShieldCheck, CheckCircle2, XCircle, Search, User as UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { partnerApi, partnerAuth, getStoredPartner, setStoredPartner, type PartnerProfile as ApiPartnerProfile } from "@/lib/api/partner";
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/partner-dashboard")({
   ),
 });
 
-type Tab = "overview" | "profile" | "offers" | "bookings" | "schedule" | "wallet" | "reviews" | "messages" | "analytics" | "agreement" | "notifications" | "support";
+type Tab = "overview" | "profile" | "offers" | "bookings" | "verify" | "schedule" | "wallet" | "reviews" | "messages" | "analytics" | "agreement" | "notifications" | "support";
 
 type WorkingHour = { day: string; open: string; close: string; closed?: boolean };
 const WEEK_DAYS: { key: string; ar: string }[] = [
