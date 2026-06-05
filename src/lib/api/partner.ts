@@ -382,6 +382,20 @@ export const partnerApi = {
     if (b.coverUrl !== undefined) payload.coverUrl = b.coverUrl;
     if (b.about !== undefined) payload.about = b.about;
     if (b.workingHours !== undefined) payload.workingHours = b.workingHours;
+    // Mirror admin AddCenterDialog fields
+    if (b.nameEn !== undefined || b.vendorNameEn !== undefined) {
+      payload.nameEn = b.nameEn ?? b.vendorNameEn;
+      payload.vendorNameEn = b.nameEn ?? b.vendorNameEn;
+    }
+    if (b.description !== undefined) payload.description = b.description;
+    if (b.descriptionEn !== undefined) payload.descriptionEn = b.descriptionEn;
+    if (b.terms !== undefined) payload.terms = b.terms;
+    if (b.termsEn !== undefined) payload.termsEn = b.termsEn;
+    if (b.aboutEn !== undefined) payload.aboutEn = b.aboutEn;
+    if (b.categoryIds !== undefined) {
+      payload.categoryIds = b.categoryIds;
+      payload.category_ids = b.categoryIds;
+    }
     return unwrap<{ partner: PartnerProfile }>(
       request(`/partner/profile`, { method: "PUT", body: JSON.stringify(payload) }),
     );
