@@ -42,6 +42,7 @@ import { Route as BookingsConfirmationRouteImport } from './routes/bookings.conf
 import { Route as BookingBookingIdRouteImport } from './routes/booking.$bookingId'
 import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AdminWebhookLogsRouteImport } from './routes/admin.webhook-logs'
+import { Route as AdminVerifyRouteImport } from './routes/admin.verify'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTrackingRouteImport } from './routes/admin.tracking'
 import { Route as AdminSponsoredAdsRouteImport } from './routes/admin.sponsored-ads'
@@ -255,6 +256,11 @@ const AuthResetRoute = AuthResetRouteImport.update({
 const AdminWebhookLogsRoute = AdminWebhookLogsRouteImport.update({
   id: '/webhook-logs',
   path: '/webhook-logs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminVerifyRoute = AdminVerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -558,6 +564,7 @@ export interface FileRoutesByFullPath {
   '/admin/sponsored-ads': typeof AdminSponsoredAdsRoute
   '/admin/tracking': typeof AdminTrackingRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/verify': typeof AdminVerifyRoute
   '/admin/webhook-logs': typeof AdminWebhookLogsRoute
   '/auth/reset': typeof AuthResetRoute
   '/booking/$bookingId': typeof BookingBookingIdRoute
@@ -641,6 +648,7 @@ export interface FileRoutesByTo {
   '/admin/sponsored-ads': typeof AdminSponsoredAdsRoute
   '/admin/tracking': typeof AdminTrackingRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/verify': typeof AdminVerifyRoute
   '/admin/webhook-logs': typeof AdminWebhookLogsRoute
   '/auth/reset': typeof AuthResetRoute
   '/booking/$bookingId': typeof BookingBookingIdRoute
@@ -726,6 +734,7 @@ export interface FileRoutesById {
   '/admin/sponsored-ads': typeof AdminSponsoredAdsRoute
   '/admin/tracking': typeof AdminTrackingRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/verify': typeof AdminVerifyRoute
   '/admin/webhook-logs': typeof AdminWebhookLogsRoute
   '/auth/reset': typeof AuthResetRoute
   '/booking/$bookingId': typeof BookingBookingIdRoute
@@ -812,6 +821,7 @@ export interface FileRouteTypes {
     | '/admin/sponsored-ads'
     | '/admin/tracking'
     | '/admin/users'
+    | '/admin/verify'
     | '/admin/webhook-logs'
     | '/auth/reset'
     | '/booking/$bookingId'
@@ -895,6 +905,7 @@ export interface FileRouteTypes {
     | '/admin/sponsored-ads'
     | '/admin/tracking'
     | '/admin/users'
+    | '/admin/verify'
     | '/admin/webhook-logs'
     | '/auth/reset'
     | '/booking/$bookingId'
@@ -979,6 +990,7 @@ export interface FileRouteTypes {
     | '/admin/sponsored-ads'
     | '/admin/tracking'
     | '/admin/users'
+    | '/admin/verify'
     | '/admin/webhook-logs'
     | '/auth/reset'
     | '/booking/$bookingId'
@@ -1286,6 +1298,13 @@ declare module '@tanstack/react-router' {
       path: '/webhook-logs'
       fullPath: '/admin/webhook-logs'
       preLoaderRoute: typeof AdminWebhookLogsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/verify': {
+      id: '/admin/verify'
+      path: '/verify'
+      fullPath: '/admin/verify'
+      preLoaderRoute: typeof AdminVerifyRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/users': {
@@ -1684,6 +1703,7 @@ interface AdminRouteChildren {
   AdminSponsoredAdsRoute: typeof AdminSponsoredAdsRoute
   AdminTrackingRoute: typeof AdminTrackingRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  AdminVerifyRoute: typeof AdminVerifyRoute
   AdminWebhookLogsRoute: typeof AdminWebhookLogsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminTicketsTicketIdRoute: typeof AdminTicketsTicketIdRoute
@@ -1720,6 +1740,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSponsoredAdsRoute: AdminSponsoredAdsRoute,
   AdminTrackingRoute: AdminTrackingRoute,
   AdminUsersRoute: AdminUsersRoute,
+  AdminVerifyRoute: AdminVerifyRoute,
   AdminWebhookLogsRoute: AdminWebhookLogsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminTicketsTicketIdRoute: AdminTicketsTicketIdRoute,

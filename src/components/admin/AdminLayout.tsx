@@ -5,7 +5,7 @@ import {
   BarChart3, FileSpreadsheet, Building2, Search, Target, CreditCard, Link2,
   UserCheck, Settings, ChevronDown, Bell, LogOut, Menu, User, Palette, Plug, Tag,
   Users2, BellRing, CheckCircle2, AlertCircle, ShoppingBag, LifeBuoy, Ticket, ExternalLink, Star, ScrollText, Store, MessageSquare,
-  ClipboardCheck, Wallet, MapPin, Clock, Megaphone, Heart, Webhook,
+  ClipboardCheck, Wallet, MapPin, Clock, Megaphone, Heart, Webhook, ShieldCheck,
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -28,6 +28,7 @@ type NavItem = { to: string; ar: string; en: string; icon: any; children?: { to:
 const navGroups: (NavItem | "sep")[] = [
   { to: "/admin", ar: "لوحة التحكم", en: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/bookings", ar: "الحجوزات", en: "Bookings", icon: CalendarCheck },
+  { to: "/admin/verify", ar: "التحقق من الحجز", en: "Verify booking", icon: ShieldCheck } as any,
   { to: "/admin/schedule", ar: "إدارة المواعيد", en: "Schedule", icon: Clock },
   { to: "/admin/abandoned-carts", ar: "السلات المتروكة", en: "Abandoned carts", icon: ShoppingBag },
   

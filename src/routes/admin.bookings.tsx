@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout, PanelCard, Pill, PrimaryButton, GhostButton } from "@/components/admin/AdminLayout";
 import {
   CalendarCheck, Loader2, Search, Eye, RefreshCw,
-  ChevronLeft, ChevronRight, X, CheckCircle2, Shield,
+  ChevronLeft, ChevronRight, CheckCircle2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -140,71 +140,6 @@ function BookingsPage() {
   const [viewing, setViewing] = useState<AdminBooking | null>(null);
   const [refundFor, setRefundFor] = useState<AdminBooking | null>(null);
 
-  // Confirm-by-code form
-  const [confirmBookingId, setConfirmBookingId] = useState("");
-  const [confirmCode, setConfirmCode] = useState("");
-  const [confirming, setConfirming] = useState(false);
-
-  async function handleConfirmByCode(e: React.FormEvent) {
-    e.preventDefault();
-    const bId = cleanCheckValue(confirmBookingId);
-    const code = cleanCheckValue(confirmCode);
-    if (!bId || !code) { toast.error(L("أدخل رقم الحجز ورمز التأكيد", "Enter booking # and confirmation code")); return; }
-    if (!/^[A-Z0-9-]{4,32}$/.test(code)) { toast.error(L("رمز التأكيد غير صحيح", "Invalid confirmation code")); return; }
-    setConfirming(true);
-    try {
-      const normalized = bId.replace(/^bk[-_ ]?/i, "").toUpperCase();
-      const localMatches = items.filter((b: any) => {
-        const ref = cleanCheckValue(String(pickRef(b) || ""));
-        const refNormalized = ref.replace(/^BK[-_ ]?/i, "");
-        const v = cleanCheckValue(String(pickVerifyCode(b) || ""));
-        return (ref === bId || refNormalized === normalized) && v === code;
-      });
-      const [r1, r2, r3] = await Promise.all([
-        adminBookingsApi.list({ q: bId, limit: 50 }).catch(() => ({ items: [] as any[] })),
-        normalized && normalized !== bId
-          ? adminBookingsApi.list({ q: normalized, limit: 50 }).catch(() => ({ items: [] as any[] }))
-          : Promise.resolve({ items: [] as any[] }),
-        adminBookingsApi.list({ q: code, limit: 50 }).catch(() => ({ items: [] as any[] })),
-      ]);
-      const pool: any[] = [...localMatches, ...(r1.items || []), ...(r2.items || []), ...(r3.items || [])];
-      const match = pool.find((b: any) => {
-        const ref = cleanCheckValue(String(pickRef(b) || ""));
-        const refNormalized = ref.replace(/^BK[-_ ]?/i, "");
-        const v = cleanCheckValue(String(pickVerifyCode(b) || ""));
-        return (ref === bId || refNormalized === normalized) && v === code;
-      });
-      if (!match) { toast.error(L("لا يوجد حجز مطابق لرقم الحجز ورمز التأكيد", "No booking matches both booking # and confirmation code")); return; }
-      const st = String(match.status || "").toLowerCase();
-      if (st === "cancelled" || st === "refunded") { toast.error(L("هذا الحجز ملغي/مسترجع", "Booking is cancelled/refunded")); return; }
-      if (st === "completed" || st === "redeemed") { toast.warning(L("الحجز مستخدم من قبل", "Booking already redeemed")); return; }
-      // Verify code locally when present on the booking object
-      const expected = cleanCheckValue(String(pickVerifyCode(match) || ""));
-      if (expected !== code) {
-        toast.error(L("رمز التأكيد غير صحيح", "Invalid confirmation code"));
-        return;
-      }
-      // Confirm via redeem endpoint if available; fall back to status change
-      try {
-        await adminBookingsApi.redeem(match.id, code);
-      } catch {
-        try {
-          await adminBookingsApi.setStatus(match.id, "confirmed");
-        } catch (err: any) {
-          toast.error(err?.message || L("تعذّر تأكيد الحجز", "Failed to confirm"));
-          return;
-        }
-      }
-      toast.success(L(`تم تأكيد حجز: ${match.customerName || match.id}`, `Confirmed: ${match.customerName || match.id}`));
-      setConfirmBookingId(""); setConfirmCode("");
-      load();
-    } catch (e: any) {
-      toast.error(e?.message || L("فشل التأكيد", "Confirm failed"));
-    } finally {
-      setConfirming(false);
-    }
-  }
-
   async function load(p = page) {
     setLoading(true);
     try {
@@ -294,51 +229,6 @@ function BookingsPage() {
       subtitle={L("متابعة وإدارة كل حجوزات المراكز", "Track and manage all center bookings")}
       action={<GhostButton onClick={() => load()}><RefreshCw className="h-4 w-4" /> {L("تحديث", "Refresh")}</GhostButton>}
     >
-      {/* Verify booking */}
-      <form onSubmit={handleConfirmByCode} className="mb-4 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/5 to-transparent p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Shield className="h-4 w-4" />
-          </div>
-          <div>
-            <div className="text-sm font-extrabold">{L("التحقق من حجز العميل", "Verify customer booking")}</div>
-            <div className="text-[11px] text-muted-foreground">{L("أدخل رقم الحجز + رمز التأكيد كما يظهران للعميل", "Enter booking # + confirmation code exactly as shown")}</div>
-          </div>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-          <div>
-            <label className="text-[10px] font-bold text-muted-foreground block mb-1">{L("رقم الحجز", "Booking #")}</label>
-            <input
-              value={confirmBookingId}
-              onChange={(e) => setConfirmBookingId(e.target.value)}
-              placeholder="BK-XXXXXX"
-              className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm font-bold tracking-wider"
-              dir="ltr"
-              maxLength={64}
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-muted-foreground block mb-1">{L("رمز التأكيد", "Confirmation code")}</label>
-            <input
-              value={confirmCode}
-              onChange={(e) => setConfirmCode(e.target.value.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase().slice(0, 32))}
-              placeholder="VERIFY_CODE"
-              maxLength={32}
-              inputMode="text"
-              className="h-11 w-full rounded-xl border border-border bg-background px-3 text-center text-base font-black tracking-[0.3em]"
-              dir="ltr"
-            />
-          </div>
-          <div className="flex items-end">
-            <button type="submit" disabled={confirming}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-5 text-sm font-bold text-white shadow-sm hover:bg-emerald-600 disabled:opacity-60">
-              {confirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-              {L("تحقّق وتأكيد", "Verify & confirm")}
-            </button>
-          </div>
-        </div>
-      </form>
-
       <PanelCard>
         {/* Filters */}
         <form onSubmit={applySearch} className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
