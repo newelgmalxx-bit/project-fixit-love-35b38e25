@@ -309,11 +309,16 @@ function PartnerDashboard() {
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-extrabold">{profile.vendor_name}</div>
               <div className="truncate text-[11px] text-white/80">{profile.owner_name}</div>
+              {profile.category ? (
+                <div className="mt-0.5 truncate text-[10px] text-white/70">{profile.category}</div>
+              ) : null}
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between">
             <StatusBadge status={profile.status} />
-            <span className="text-[10px] text-white/70">{profile.city}</span>
+            <span className="truncate text-[10px] text-white/70 max-w-[60%] text-left" title={profile.address || profile.city || ""}>
+              {profile.city || profile.address || ""}
+            </span>
           </div>
         </div>
 
