@@ -1229,12 +1229,22 @@ function BookingStatusBadge({ status, redeemed }: { status: string; redeemed?: b
 /* -------------------- Profile -------------------- */
 function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Profile) => void }) {
   const { categories } = useCategories();
-  const [f, setF] = useState<Profile>(partner);
+  const [f, setF] = useState<Profile>({
+    ...partner,
+    working_hours_struct: partner.working_hours_struct?.length ? partner.working_hours_struct : defaultWorkingHours(),
+    category_ids: partner.category_ids || [],
+  });
   const [saving, setSaving] = useState(false);
   const upd = <K extends keyof Profile>(k: K, v: Profile[K]) => setF((p) => ({ ...p, [k]: v }));
 
   // Re-sync form when the partner prop changes (e.g. after /auth/partner/me hydration)
-  useEffect(() => { setF(partner); }, [partner]);
+  useEffect(() => {
+    setF({
+      ...partner,
+      working_hours_struct: partner.working_hours_struct?.length ? partner.working_hours_struct : defaultWorkingHours(),
+      category_ids: partner.category_ids || [],
+    });
+  }, [partner]);
 
   async function save() {
     setSaving(true);
@@ -1242,7 +1252,16 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
       const r: any = await partnerApi.updateProfile({
         vendorName: f.vendor_name, ownerName: f.owner_name, category: f.category,
         city: f.city, phone: f.phone, email: f.email, commercialNumber: f.commercial_number,
-        logoUrl: f.logo_url, about: f.about, workingHours: f.working_hours, address: f.address, mapsUrl: f.maps_url || null,
+        logoUrl: f.logo_url, about: f.about, address: f.address, mapsUrl: f.maps_url || null,
+        workingHours: (f.working_hours_struct as any) || [],
+        nameEn: f.vendor_name_en || "",
+        vendorNameEn: f.vendor_name_en || "",
+        description: f.description || "",
+        descriptionEn: f.description_en || "",
+        terms: f.terms || "",
+        termsEn: f.terms_en || "",
+        aboutEn: f.about_en || "",
+        categoryIds: f.category_ids || [],
       } as any);
       // The API returns the raw partner shape (camelCase). Normalize before storing.
       const raw = (r?.partner || r) as any;
@@ -1258,42 +1277,153 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
     }
   }
 
+  const catKey = (c: any) => String(c?.id ?? c?.slug ?? c?.categoryId ?? c?.category_id ?? "");
+  const selectedIds = (f.category_ids || []).map((x) => String(x));
+  function toggleCat(c: any) {
+    const k = catKey(c);
+    if (!k) return;
+    const cur = new Set(selectedIds);
+    if (cur.has(k)) cur.delete(k); else cur.add(k);
+    upd("category_ids", Array.from(cur));
+  }
+
   return (
-    <div className="grid gap-4 rounded-3xl border border-border bg-card p-6 sm:grid-cols-2">
-      <Input label="اسم المركز" value={f.vendor_name} onChange={(v) => upd("vendor_name", v)} />
+    <div className="space-y-5">
+      {/* Basic info */}
+      <div className="rounded-3xl border border-border bg-card p-6">
+        <h3 className="mb-4 text-sm font-extrabold">البيانات الأساسية</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input label="اسم المركز (عربي)" value={f.vendor_name} onChange={(v) => upd("vendor_name", v)} />
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">اسم المركز (إنجليزي)</label>
+            <input
+              dir="ltr"
+              value={f.vendor_name_en || ""}
+              onChange={(e) => upd("vendor_name_en", e.target.value)}
+              placeholder="Center name"
+              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
       <Input label="اسم المسؤول" value={f.owner_name} onChange={(v) => upd("owner_name", v)} />
-      <div>
-        <label className="mb-1.5 block text-xs font-bold">التصنيف</label>
-        <select value={f.category} onChange={(e) => upd("category", e.target.value)} className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm">
-          <option value="">اختر التصنيف</option>
-          {categories.map((c: any) => <option key={c.id || c.slug} value={c.id || c.slug}>{c.nameAr}</option>)}
-        </select>
-      </div>
       <Input label="المدينة" value={f.city || ""} onChange={(v) => upd("city", v)} />
       <Input label="رقم الجوال" value={f.phone} onChange={(v) => upd("phone", v)} />
       <Input label="البريد الإلكتروني" value={f.email || ""} onChange={(v) => upd("email", v)} />
       <Input label="السجل التجاري" value={f.commercial_number || ""} onChange={(v) => upd("commercial_number", v)} />
       <Input label="العنوان التفصيلي" value={f.address || ""} onChange={(v) => upd("address", v)} className="sm:col-span-2" />
-      <Input label="ساعات العمل" value={f.working_hours || ""} onChange={(v) => upd("working_hours", v)} placeholder="السبت - الخميس · 10ص - 10م" className="sm:col-span-2" />
-      <div className="sm:col-span-2">
-        <ImageUpload
-          label="شعار المركز"
-          value={f.logo_url}
-          onChange={(url) => upd("logo_url", url || "")}
-          folder={`partners/${f.id || "new"}/logo`}
-          aspect="aspect-square"
-          className="max-w-[200px]"
-        />
+      <Input label="رابط الموقع على خرائط جوجل" value={f.maps_url || ""} onChange={(v) => upd("maps_url", v)} placeholder="https://maps.app.goo.gl/..." className="sm:col-span-2" />
+          <div className="sm:col-span-2">
+            <ImageUpload
+              label="شعار المركز"
+              value={f.logo_url}
+              onChange={(url) => upd("logo_url", url || "")}
+              folder={`partners/${f.id || "new"}/logo`}
+              aspect="aspect-square"
+              className="max-w-[200px]"
+            />
+          </div>
+        </div>
       </div>
 
-      
-      
-      <Input label="رابط الموقع على خرائط جوجل" value={f.maps_url || ""} onChange={(v) => upd("maps_url", v)} placeholder="https://maps.app.goo.gl/..." className="sm:col-span-2" />
-      <div className="sm:col-span-2">
-        <label className="mb-1.5 block text-xs font-bold">نبذة عن المركز</label>
-        <textarea value={f.about || ""} onChange={(e) => upd("about", e.target.value)} rows={4} className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+      {/* Categories */}
+      <div className="rounded-3xl border border-border bg-card p-6">
+        <h3 className="mb-3 text-sm font-extrabold">تصنيفات المركز</h3>
+        <div className="flex flex-wrap gap-2 rounded-xl border border-border bg-background p-2">
+          {(categories || []).length === 0 && (
+            <span className="text-xs text-muted-foreground">لا توجد تصنيفات متاحة حالياً.</span>
+          )}
+          {(categories || []).map((c: any) => {
+            const k = catKey(c);
+            const selected = selectedIds.includes(k);
+            return (
+              <button
+                type="button"
+                key={k || c.nameAr}
+                onClick={() => toggleCat(c)}
+                className={[
+                  "rounded-full border px-3 py-1 text-xs font-bold transition",
+                  selected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground hover:bg-muted",
+                ].join(" ")}
+              >
+                {c.nameAr || c.name_ar || c.name || c.nameEn}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div className="sm:col-span-2">
+
+      {/* Description & Terms */}
+      <div className="rounded-3xl border border-border bg-card p-6">
+        <h3 className="mb-4 text-sm font-extrabold">الوصف والشروط</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">نبذة قصيرة (عربي)</label>
+            <textarea value={f.about || ""} onChange={(e) => upd("about", e.target.value)} rows={3} className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">Short About (English)</label>
+            <textarea dir="ltr" value={f.about_en || ""} onChange={(e) => upd("about_en", e.target.value)} rows={3} className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">وصف المركز (عربي)</label>
+            <textarea value={f.description || ""} onChange={(e) => upd("description", e.target.value)} rows={4} placeholder="نبذة عن المركز وخدماته..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">Description (English)</label>
+            <textarea dir="ltr" value={f.description_en || ""} onChange={(e) => upd("description_en", e.target.value)} rows={4} placeholder="Brief about the center..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">شروط المركز (عربي)</label>
+            <textarea value={f.terms || ""} onChange={(e) => upd("terms", e.target.value)} rows={4} placeholder="سياسة الإلغاء، التحضير قبل الموعد..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">Terms (English)</label>
+            <textarea dir="ltr" value={f.terms_en || ""} onChange={(e) => upd("terms_en", e.target.value)} rows={4} placeholder="Cancellation policy, prep before appointment..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          </div>
+        </div>
+      </div>
+
+      {/* Working hours */}
+      <div className="rounded-3xl border border-border bg-card p-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-extrabold">ساعات العمل الأسبوعية</h3>
+          <button
+            type="button"
+            onClick={() => upd("working_hours_struct", defaultWorkingHours())}
+            className="rounded-lg border border-border px-2 py-1 text-[11px] font-bold hover:bg-muted"
+          >
+            استعادة الافتراضي
+          </button>
+        </div>
+        <div className="space-y-2">
+          {WEEK_DAYS.map((d, idx) => {
+            const cur = (f.working_hours_struct || defaultWorkingHours())[idx] || { day: d.key, open: "09:00", close: "22:00", closed: false };
+            const setWh = (patch: Partial<WorkingHour>) => {
+              const next = [...(f.working_hours_struct || defaultWorkingHours())];
+              next[idx] = { ...cur, ...patch };
+              upd("working_hours_struct", next);
+            };
+            return (
+              <div key={d.key} className="grid grid-cols-[80px_1fr_1fr_auto] items-center gap-2">
+                <div className="text-xs font-bold">{d.ar}</div>
+                <input type="time" disabled={cur.closed} value={cur.open} onChange={(e) => setWh({ open: e.target.value })} className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs disabled:opacity-50" />
+                <input type="time" disabled={cur.closed} value={cur.close} onChange={(e) => setWh({ close: e.target.value })} className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs disabled:opacity-50" />
+                <label className="inline-flex items-center gap-1 text-[11px] font-bold">
+                  <input
+                    type="checkbox"
+                    checked={!!cur.closed}
+                    onChange={(e) => setWh({ closed: e.target.checked, open: e.target.checked ? "00:00" : "09:00", close: e.target.checked ? "00:00" : "22:00" })}
+                  />
+                  مغلق
+                </label>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
         <button onClick={save} disabled={saving} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] px-6 py-2.5 text-sm font-extrabold text-white shadow disabled:opacity-60">
           {saving && <Loader2 className="h-4 w-4 animate-spin" />} حفظ التغييرات
         </button>
