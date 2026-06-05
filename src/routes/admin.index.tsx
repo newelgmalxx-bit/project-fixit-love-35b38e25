@@ -130,8 +130,8 @@ function AdminDashboard() {
             total: Number(m.bookingsValue ?? m.total ?? 0) || 0,
           }));
           setRevenue((current) => {
-            const currentSum = current.reduce((sum, point) => sum + (Number(point.v) || 0), 0);
-            const analyticsSum = analyticsRevenue.reduce((sum, point) => sum + (Number(point.v) || 0), 0);
+            const currentSum = current.reduce((sum: number, point: any) => sum + (Number(point.v) || 0), 0);
+            const analyticsSum = analyticsRevenue.reduce((sum: number, point: any) => sum + (Number(point.v) || 0), 0);
             return currentSum > analyticsSum ? current : analyticsRevenue;
           });
         }
