@@ -627,12 +627,13 @@ function MerchantsPage() {
         </DialogContent>
       </Dialog>
 
-      <AddCenterDialog open={addOpen} onClose={() => setAddOpen(false)} onSave={addCenter} />
+      <AddCenterDialog open={addOpen} onClose={() => setAddOpen(false)} onSave={addCenter} categories={categories} />
       <AddCenterDialog
         open={!!editing}
         onClose={() => setEditing(null)}
         initial={editing || undefined}
         onSave={(data) => editing && updateCenter(editing.id, data)}
+        categories={categories}
       />
     </AdminLayout>
   );
