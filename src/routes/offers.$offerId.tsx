@@ -394,7 +394,7 @@ function OfferDetailPage() {
         lineTotal: total,
         depositAmount,
         remainingAmount,
-        depositPct,
+        depositPct: depositPct ?? undefined,
       };
       // Persist to backend (database). Fall back silently to legacy local
       // store so the admin demo page still has something to show if the
@@ -484,7 +484,7 @@ function OfferDetailPage() {
       partnerId: null,
       bookingDate: date,
       bookingTime: time,
-      commissionPct: depositPct,
+      commissionPct: depositPct ?? undefined,
     });
     toast.success("تمت إضافة الحجز للسلة", {
       description: `${offer.title} — ${date} ${time}`,
