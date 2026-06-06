@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AdminLayout, PanelCard, Pill, PrimaryButton } from "@/components/admin/AdminLayout";
 import { toast } from "sonner";
 import { Loader2, Trash2, Plus, Pencil, ChevronLeft, ChevronRight, Search, Eye } from "lucide-react";
@@ -49,6 +49,7 @@ function OffersPage() {
   const [partnersById, setPartnersById] = useState<Record<string, AdminPartner>>({});
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  const loadSeq = useRef(0);
 
   const partnerDisplay = (o: AdminOffer, partners = partnersById) => {
     const p: any = o.partner || partners[o.partnerId];
@@ -92,6 +93,7 @@ function OffersPage() {
 
 
   async function load(p = page) {
+    const seq = ++loadSeq.current;
     setLoading(true);
     try {
       const search = q.trim().toLowerCase();
@@ -113,6 +115,7 @@ function OffersPage() {
         catch { return [id, null] as const; }
       }));
       for (const [id, partner] of fetchedPartners) if (partner) partnerSeed[id] = partner;
+      if (seq !== loadSeq.current) return;
       setPartnersById(partnerSeed);
 
       const filtered = (data.items || []).filter((offer) => {
@@ -131,6 +134,7 @@ function OffersPage() {
       });
       const pageSize = needsClientFilter ? 20 : (data.pageSize || 20);
       const visible = needsClientFilter ? filtered.slice((p - 1) * pageSize, p * pageSize) : filtered;
+      setSelected(new Set());
       setItems(visible);
       setTotalPages(needsClientFilter ? Math.max(1, Math.ceil(filtered.length / pageSize)) : (data.totalPages || 1));
       setTotal(needsClientFilter ? filtered.length : (data.total || filtered.length));
@@ -139,7 +143,7 @@ function OffersPage() {
       toast.error(e?.message || "تعذّر تحميل العروض");
       setItems([]);
     } finally {
-      setLoading(false);
+      if (seq === loadSeq.current) setLoading(false);
     }
   }
 
