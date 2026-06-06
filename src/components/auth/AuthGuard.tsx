@@ -22,7 +22,17 @@ export function AuthGuard({ children, requireAdmin = false }: Props) {
   }
 
   if (!user) {
-    const redirect = encodeURIComponent(location.href);
+    const path = location.pathname || "/";
+    // Avoid redirect loops: don't store auth pages as the redirect target,
+    // and don't double-encode (the router serializes search params for us).
+    const isAuthPath =
+      path.startsWith("/login") ||
+      path.startsWith("/partner-login") ||
+      path.startsWith("/signup") ||
+      path.startsWith("/forgot-password") ||
+      path.startsWith("/reset-password") ||
+      path.startsWith("/auth");
+    const redirect = isAuthPath ? undefined : path;
     return <Navigate to="/login" search={{ redirect } as any} replace />;
   }
 
