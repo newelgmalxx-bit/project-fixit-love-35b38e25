@@ -1863,17 +1863,61 @@ function VerifyTab({ partner }: { partner: Profile }) {
               </div>
             </div>
             <div className="space-y-2 p-4 text-sm">
+              {(() => {
+                const st = String(b.status || "").toLowerCase();
+                const ps = String((b as any).payment_status || (b as any).paymentStatus || "").toLowerCase();
+                const sb = verifyStatusBadge(st);
+                const pb = verifyPayBadge(ps, remaining);
+                return (
+                  <div className="mb-2 grid grid-cols-2 gap-2">
+                    <div className={`flex items-center justify-between rounded-xl border px-3 py-2 ${sb.cls}`}>
+                      <span className="text-[11px] font-bold">حالة الحجز</span>
+                      <span className="text-xs font-extrabold">{sb.label}</span>
+                    </div>
+                    <div className={`flex items-center justify-between rounded-xl border px-3 py-2 ${pb.cls}`}>
+                      <span className="text-[11px] font-bold">حالة الدفع</span>
+                      <span className="text-xs font-extrabold">{pb.label}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+              <VRow icon={Hash} label="رقم الحجز" value={String((b as any).booking_number || (b as any).qr_code || b.id || "—")} ltr />
               <VRow icon={UserIcon} label="العميل" value={b.customer_name || "—"} />
               <VRow icon={Tag} label="العرض" value={(b as any).offer_title || (b as any).offerTitle || "—"} />
               <VRow icon={Phone} label="الجوال" value={b.customer_phone || "—"} ltr />
-              <VRow icon={Calendar} label="التاريخ" value={b.booking_date || "—"} ltr />
-              <VRow icon={Clock} label="الوقت" value={b.booking_time || "—"} ltr />
-              {remaining != null && remaining > 0 ? (
-                <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
-                  <span className="text-xs font-bold">يتبقى عند الخدمة</span>
-                  <span dir="ltr" className="font-extrabold">{remaining} ر.س</span>
+              <VRow icon={Calendar} label="التاريخ" value={verifyFormatDate(b.booking_date) || "—"} ltr />
+              <VRow icon={Clock} label="الوقت" value={verifyFormatTime(b.booking_time) || "—"} ltr />
+              {((b as any).partner_name || (b as any).partnerName) && (
+                <VRow icon={Building2} label="المركز" value={String((b as any).partner_name || (b as any).partnerName)} />
+              )}
+              {((b as any).partner_city || (b as any).partnerCity || (b as any).city) && (
+                <VRow icon={MapPin} label="المدينة" value={String((b as any).partner_city || (b as any).partnerCity || (b as any).city)} />
+              )}
+              {((b as any).payment_method || (b as any).paymentMethod) && (
+                <VRow icon={CreditCard} label="طريقة الدفع" value={verifyMethodLabel(String((b as any).payment_method || (b as any).paymentMethod))} />
+              )}
+
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-bold text-emerald-700">إجمالي الحجز</div>
+                  <div dir="ltr" className="mt-0.5 text-sm font-extrabold text-foreground">
+                    {totalWithVat != null ? `${totalWithVat} ر.س` : "—"}
+                  </div>
                 </div>
-              ) : null}
+                <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-bold text-emerald-700">العربون المدفوع</div>
+                  <div dir="ltr" className="mt-0.5 text-sm font-extrabold text-foreground">
+                    {paidOnline > 0 ? `${paidOnline} ر.س` : "0 ر.س"}
+                  </div>
+                </div>
+                <div className={`rounded-xl border px-3 py-2 ${remaining != null && remaining > 0 ? "border-amber-300 bg-amber-50" : "border-emerald-200 bg-white"}`}>
+                  <div className={`text-[11px] font-bold ${remaining != null && remaining > 0 ? "text-amber-700" : "text-emerald-700"}`}>المتبقي عند المركز</div>
+                  <div dir="ltr" className={`mt-0.5 text-sm font-extrabold ${remaining != null && remaining > 0 ? "text-amber-800" : "text-foreground"}`}>
+                    {remaining != null ? `${remaining} ر.س` : "—"}
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-2 pt-3">
                 {!result.alreadyRedeemed && (
                   <button
@@ -1910,6 +1954,60 @@ function VRow({ icon: Icon, label, value, ltr }: { icon: any; label: string; val
       <div className="font-bold text-foreground" dir={ltr ? "ltr" : undefined}>{value}</div>
     </div>
   );
+}
+
+function verifyFormatDate(s?: string | null): string {
+  if (!s) return "";
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (iso) {
+    const [, y, m, d] = iso;
+    return `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
+  }
+  const dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (dmy) {
+    const [, d, m, y] = dmy;
+    const yy = y.length === 2 ? `20${y}` : y;
+    return `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${yy}`;
+  }
+  return s;
+}
+function verifyFormatTime(s?: string | null): string {
+  if (!s) return "";
+  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return s;
+  const hh = parseInt(m[1]);
+  const mm = m[2];
+  const ampm = hh >= 12 ? "م" : "ص";
+  const h12 = ((hh + 11) % 12) + 1;
+  return `${h12}:${mm} ${ampm}`;
+}
+function verifyStatusBadge(st: string): { label: string; cls: string } {
+  if (st === "completed" || st === "redeemed") return { label: "مكتمل", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" };
+  if (st === "cancelled" || st === "canceled") return { label: "ملغي", cls: "bg-rose-100 text-rose-800 border-rose-300" };
+  if (st === "confirmed") return { label: "مؤكد", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" };
+  if (st === "pending") return { label: "قيد الانتظار", cls: "bg-amber-100 text-amber-800 border-amber-300" };
+  if (st === "no_show") return { label: "لم يحضر", cls: "bg-rose-100 text-rose-800 border-rose-300" };
+  return { label: st || "—", cls: "bg-slate-100 text-slate-800 border-slate-300" };
+}
+function verifyPayBadge(ps: string, remaining: number | null): { label: string; cls: string } {
+  if (ps === "paid" || ps === "completed" || ps === "success") return { label: "مدفوع بالكامل", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" };
+  if (ps === "deposit_paid" || (remaining != null && remaining > 0 && ps && ps !== "unpaid" && ps !== "pending")) return { label: "عربون مدفوع", cls: "bg-amber-100 text-amber-800 border-amber-300" };
+  if (ps === "pending") return { label: "قيد الدفع", cls: "bg-amber-100 text-amber-800 border-amber-300" };
+  if (ps === "failed") return { label: "فشل الدفع", cls: "bg-rose-100 text-rose-800 border-rose-300" };
+  if (ps === "refunded") return { label: "مُسترجَع", cls: "bg-slate-100 text-slate-800 border-slate-300" };
+  return { label: "غير مدفوع", cls: "bg-rose-100 text-rose-800 border-rose-300" };
+}
+function verifyMethodLabel(m: string): string {
+  const v = m.toLowerCase();
+  if (v === "tamara") return "تمارا";
+  if (v === "tabby") return "تابي";
+  if (v === "myfatoorah" || v === "mayfatoorah") return "ماي فاتورة";
+  if (v === "cod" || v === "cash") return "الدفع عند الخدمة";
+  if (v === "mada") return "مدى";
+  if (v === "visa") return "فيزا";
+  if (v === "applepay") return "Apple Pay";
+  if (v === "stcpay") return "STC Pay";
+  return m || "—";
 }
 
 /* -------------------- Sales Results -------------------- */
