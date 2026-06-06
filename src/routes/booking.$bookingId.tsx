@@ -151,7 +151,7 @@ function BookingConfirmation() {
         const row = r?.data?.booking ?? r?.booking ?? r?.data ?? null;
         if (!row || cancelled) return;
         const mapped: Booking = {
-          bookingId: String(row.booking_number ?? row.bookingNumber ?? row.id ?? bookingId),
+          bookingId: String(row.qr_code ?? row.qrCode ?? row.booking_number ?? row.bookingNumber ?? row.id ?? bookingId),
           verifyCode: row.verify_code ?? row.verifyCode ?? undefined,
           offerId: String(row.offer_id ?? row.offerId ?? ""),
           offerTitle: row.offer_title ?? row.offerTitle,
