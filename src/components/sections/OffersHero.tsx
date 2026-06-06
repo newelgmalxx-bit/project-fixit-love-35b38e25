@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -132,7 +132,7 @@ export function OffersHero() {
   const [q, setQ] = useState("");
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, direction: "rtl", align: "start" },
-    [Autoplay({ delay: 6000, stopOnInteraction: false })]
+    [Autoplay({ delay: 6000, stopOnInteraction: false, stopOnMouseEnter: true, stopOnFocusIn: true })]
   );
   const [selected, setSelected] = useState(0);
 
@@ -148,9 +148,28 @@ export function OffersHero() {
 
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
 
+  // Live search across offers
+  const [allOffers, setAllOffers] = useState<any[]>([]);
+  const [loadedOffers, setLoadedOffers] = useState(false);
+  const ensureOffersLoaded = useCallback(async () => {
+    if (loadedOffers) return;
+    try {
+      const data: any = await publicApi.getOffers({ pageSize: 200 } as any);
+      const items: any[] = Array.isArray(data)
+        ? data
+        : data?.items || data?.offers || data?.data || [];
+      setAllOffers(items);
+    } catch { /* ignore */ }
+    finally { setLoadedOffers(true); }
+  }, [loadedOffers]);
+
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate({ to: "/", hash: "featured-offers" });
+    if (q.trim()) {
+      navigate({ to: "/offers", search: { q: q.trim() } as any });
+    } else {
+      navigate({ to: "/offers" as any });
+    }
   };
 
   return (
@@ -170,6 +189,8 @@ export function OffersHero() {
                 setQ={setQ}
                 onSearch={onSearch}
                 active={selected === i}
+                offers={allOffers}
+                onSearchFocus={ensureOffersLoaded}
               />
             </div>
           ))}
@@ -205,6 +226,8 @@ function SlideContent({
   setQ,
   onSearch,
   active,
+  offers,
+  onSearchFocus,
 }: {
   slide: Slide;
   slideIndex: number;
@@ -212,8 +235,37 @@ function SlideContent({
   setQ: (v: string) => void;
   onSearch: (e: React.FormEvent) => void;
   active: boolean;
+  offers: any[];
+  onSearchFocus: () => void;
 }) {
   const { categories } = useCategories();
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!boxRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const matches = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (!term) return [] as any[];
+    const norm = (v: any) => String(v ?? "").toLowerCase();
+    return offers
+      .filter((o) => {
+        const hay = [
+          o.title, o.titleAr, o.titleEn, o.description,
+          o.vendorName, o.vendor?.name, o.partner?.vendorName, o.partnerName,
+          o.city, o.vendor?.city, o.categoryName, o.categoryNameAr,
+        ].map(norm).join(" ");
+        return hay.includes(term);
+      })
+      .slice(0, 8);
+  }, [q, offers]);
+
   return (
     <div className="relative">
       {/* Ambient glows colored per slide — desktop only (heavy blur lags mobile) */}
@@ -249,27 +301,64 @@ function SlideContent({
           </p>
 
           {/* Search */}
-          <form
-            onSubmit={onSearch}
-            suppressHydrationWarning
-            className="mt-4 flex max-w-xl items-center gap-2 rounded-full border border-border bg-card p-2 shadow-xl shadow-primary/10 ring-1 ring-black/5 sm:mt-8"
-          >
-            <Search className="ms-3 h-5 w-5 text-muted-foreground" />
-            <input
-              type="text"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="ابحث عن خدمة، متجر، أو مدينة…"
+          <div ref={boxRef} className="relative mt-4 max-w-xl sm:mt-8">
+            <form
+              onSubmit={onSearch}
               suppressHydrationWarning
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-            <button
-              type="submit"
-              className={`shrink-0 rounded-full bg-gradient-to-r ${slide.gradient} px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:scale-[1.02]`}
+              className="flex items-center gap-2 rounded-full border border-border bg-card p-2 shadow-xl shadow-primary/10 ring-1 ring-black/5"
             >
-              ابحث
-            </button>
-          </form>
+              <Search className="ms-3 h-5 w-5 text-muted-foreground" />
+              <input
+                type="text"
+                value={q}
+                onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+                onFocus={() => { onSearchFocus(); setOpen(true); }}
+                placeholder="ابحث عن خدمة، متجر، أو مدينة…"
+                suppressHydrationWarning
+                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+              <button
+                type="submit"
+                className={`shrink-0 rounded-full bg-gradient-to-r ${slide.gradient} px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:scale-[1.02]`}
+              >
+                ابحث
+              </button>
+            </form>
+            {open && q.trim() && (
+              <div className="absolute z-30 mt-2 max-h-80 w-full overflow-auto rounded-2xl border border-border bg-card p-2 shadow-2xl">
+                {matches.length === 0 ? (
+                  <div className="px-3 py-4 text-center text-sm text-muted-foreground">
+                    لا توجد نتائج مطابقة
+                  </div>
+                ) : (
+                  matches.map((o: any) => {
+                    const title = o.title || o.titleAr || o.titleEn || "عرض";
+                    const sub = o.vendor?.name || o.partner?.vendorName || o.partnerName || o.vendorName || o.city || "";
+                    const img = o.image || o.imageUrl || o.coverImage || null;
+                    return (
+                      <Link
+                        key={o.id}
+                        to="/offers/$offerId"
+                        params={{ offerId: String(o.id) }}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted"
+                      >
+                        {img ? (
+                          <img src={img} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover" loading="lazy" />
+                        ) : (
+                          <div className="h-10 w-10 shrink-0 rounded-lg bg-muted" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-bold text-foreground">{title}</div>
+                          {sub && <div className="truncate text-[11px] text-muted-foreground">{sub}</div>}
+                        </div>
+                      </Link>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Quick category pills */}
           <div className="mt-3 flex flex-wrap gap-2 sm:mt-6">
