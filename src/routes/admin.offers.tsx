@@ -99,7 +99,7 @@ function OffersPage() {
       const search = q.trim().toLowerCase();
       const needsClientFilter = !!(search || status || categoryId);
       const data = await adminOffersApi.list({
-        page: p,
+        page: needsClientFilter ? 1 : p,
         limit: needsClientFilter ? 500 : 20,
         status: needsClientFilter ? undefined : status || undefined,
         category: needsClientFilter ? undefined : categoryId || undefined,
