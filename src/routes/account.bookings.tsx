@@ -14,6 +14,7 @@ export const Route = createFileRoute("/account/bookings")({
 
 type StoredBooking = {
   bookingId: string;
+  bookingRef: string;
   verifyCode: string;
   offerId: string;
   offerTitle?: string;
@@ -34,8 +35,11 @@ type StoredBooking = {
 };
 
 function normalizeRow(r: any): StoredBooking {
+  const ref = String(r.booking_number ?? r.bookingNumber ?? r.id ?? "");
+  const display = String(r.qr_code ?? r.qrCode ?? ref);
   return {
-    bookingId: String(r.qr_code ?? r.qrCode ?? r.booking_number ?? r.bookingNumber ?? r.id ?? ""),
+    bookingId: display,
+    bookingRef: ref || display,
     verifyCode: String(r.verify_code ?? r.verifyCode ?? ""),
     offerId: String(r.offer_id ?? r.offerId ?? ""),
     offerTitle: r.offer_title ?? r.offerTitle ?? undefined,
@@ -114,7 +118,7 @@ function MyBookings() {
     if (!edit) return;
     if (!editDate || !editTime) { toast.error(t("account.bookings.toast.pickDate")); return; }
     try {
-      await account.updateBooking(edit.bookingId, { date: editDate, time: editTime });
+      await account.updateBooking(edit.bookingRef, { date: editDate, time: editTime });
       toast.success(t("account.bookings.toast.modified"));
       setEdit(null);
       refresh();
@@ -191,7 +195,7 @@ function MyBookings() {
                     {isUnpaid && !b.cancelledAt && (
                       <Link
                         to="/booking/pay/$bookingId"
-                        params={{ bookingId: b.bookingId }}
+                        params={{ bookingId: b.bookingRef }}
                         className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-white hover:bg-amber-600"
                       >
                         <Wallet className="h-4 w-4" /> إعادة الدفع
@@ -199,7 +203,7 @@ function MyBookings() {
                     )}
                     <Link
                       to="/booking/$bookingId"
-                      params={{ bookingId: b.bookingId }}
+                      params={{ bookingId: b.bookingRef }}
                       className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary bg-primary/5 px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary/10"
                     >
                       <QrCode className="h-4 w-4" /> {t("account.bookings.actions.qr")}
@@ -213,7 +217,7 @@ function MyBookings() {
                           <Pencil className="h-3.5 w-3.5" /> {t("account.bookings.actions.edit")}
                         </button>
                         <button
-                          onClick={() => cancelBooking(b.bookingId)}
+                          onClick={() => cancelBooking(b.bookingRef)}
                           className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-bold text-rose-700 hover:bg-rose-100"
                         >
                           <X className="h-3.5 w-3.5" /> {t("account.bookings.actions.cancel")}

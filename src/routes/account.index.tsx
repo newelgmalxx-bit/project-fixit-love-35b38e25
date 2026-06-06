@@ -14,6 +14,7 @@ export const Route = createFileRoute("/account/")({
 
 type StoredBooking = {
   bookingId: string;
+  bookingRef: string;
   verifyCode: string;
   offerId: string;
   offerTitle?: string;
@@ -37,6 +38,7 @@ function AccountHome() {
         const raw = r?.data?.items ?? r?.items ?? r?.data ?? [];
         const list: StoredBooking[] = (Array.isArray(raw) ? raw : []).map((x: any) => ({
           bookingId: String(x.qr_code ?? x.qrCode ?? x.booking_number ?? x.id ?? ""),
+          bookingRef: String(x.booking_number ?? x.bookingNumber ?? x.id ?? x.qr_code ?? x.qrCode ?? ""),
           verifyCode: String(x.verify_code ?? x.verifyCode ?? ""),
           offerId: String(x.offer_id ?? x.offerId ?? ""),
           offerTitle: x.offer_title ?? x.offerTitle ?? undefined,
@@ -94,7 +96,7 @@ function AccountHome() {
                 <Link
                   key={b.bookingId}
                   to="/booking/$bookingId"
-                  params={{ bookingId: b.bookingId }}
+                  params={{ bookingId: b.bookingRef }}
                   className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3 transition hover:border-primary/50 hover:shadow-sm"
                 >
                   <div className="flex min-w-0 items-center gap-3">
