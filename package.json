@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "clean": "rm -rf dist node_modules/.vite .tanstack .nitro .output",
+    "prebuild": "rm -rf dist node_modules/.vite .tanstack .nitro .output",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "build:dev": "rm -rf dist node_modules/.vite .tanstack .nitro .output && vite build --mode development",
     "build:static": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
