@@ -94,17 +94,47 @@ function OffersPage() {
   async function load(p = page) {
     setLoading(true);
     try {
+      const search = q.trim().toLowerCase();
+      const needsClientFilter = !!(search || status || categoryId);
       const data = await adminOffersApi.list({
         page: p,
-        limit: 20,
+        limit: needsClientFilter ? 500 : 20,
         status: status || undefined,
         category: categoryId || undefined,
-        q: q.trim() || undefined,
       });
-      setItems(data.items || []);
-      setTotalPages(data.totalPages || 1);
-      setTotal(data.total || 0);
-      setPage(data.page || p);
+      const partnerSeed: Record<string, AdminPartner> = { ...partnersById };
+      for (const offer of data.items || []) {
+        if (offer.partnerId && offer.partner) partnerSeed[offer.partnerId] = offer.partner as any;
+      }
+      const missingPartnerIds = Array.from(new Set((data.items || []).map((o) => o.partnerId).filter(Boolean)))
+        .filter((id) => !partnerSeed[id]);
+      const fetchedPartners = await Promise.all(missingPartnerIds.map(async (id) => {
+        try { return [id, await adminPartnersApi.get(id)] as const; }
+        catch { return [id, null] as const; }
+      }));
+      for (const [id, partner] of fetchedPartners) if (partner) partnerSeed[id] = partner;
+      setPartnersById(partnerSeed);
+
+      const filtered = (data.items || []).filter((offer) => {
+        if (status && offer.status !== status) return false;
+        if (categoryId && String(offer.categoryId) !== String(categoryId)) return false;
+        if (!search) return true;
+        const haystack = [
+          offer.title,
+          offer.titleEn,
+          offer.description,
+          offer.descriptionEn,
+          categoryName(offer),
+          partnerDisplay(offer, partnerSeed),
+        ].filter(Boolean).join(" ").toLowerCase();
+        return haystack.includes(search);
+      });
+      const pageSize = needsClientFilter ? 20 : (data.pageSize || 20);
+      const visible = needsClientFilter ? filtered.slice((p - 1) * pageSize, p * pageSize) : filtered;
+      setItems(visible);
+      setTotalPages(needsClientFilter ? Math.max(1, Math.ceil(filtered.length / pageSize)) : (data.totalPages || 1));
+      setTotal(needsClientFilter ? filtered.length : (data.total || filtered.length));
+      setPage(p);
     } catch (e: any) {
       toast.error(e?.message || "تعذّر تحميل العروض");
       setItems([]);
