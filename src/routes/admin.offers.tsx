@@ -140,6 +140,7 @@ function OffersPage() {
       setTotal(needsClientFilter ? filtered.length : (data.total || filtered.length));
       setPage(p);
     } catch (e: any) {
+      if (seq !== loadSeq.current) return;
       toast.error(e?.message || "تعذّر تحميل العروض");
       setItems([]);
     } finally {
@@ -155,14 +156,11 @@ function OffersPage() {
   }
 
   useEffect(() => { loadCategories(); }, []);
-  useEffect(() => { load(1); /* eslint-disable-next-line */ }, [status, categoryId]);
-
-  // Live search with debounce
   useEffect(() => {
     const t = setTimeout(() => { load(1); }, 350);
     return () => clearTimeout(t);
     // eslint-disable-next-line
-  }, [q]);
+  }, [q, status, categoryId]);
 
   // Fetch latest agreement per unique partner shown, to display current commission/deposit
   useEffect(() => {
@@ -242,7 +240,7 @@ function OffersPage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && load(1)}
-              placeholder="بحث بالعنوان..."
+              placeholder="بحث باسم العرض أو المركز أو التصنيف..."
               className="w-full rounded-xl border border-border bg-background ps-9 pe-3 py-2 text-sm"
             />
           </div>
@@ -262,9 +260,6 @@ function OffersPage() {
               <option key={c.id} value={c.id}>{c.nameAr}</option>
             ))}
           </select>
-          <button onClick={() => load(1)} className="rounded-full bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground">
-            بحث
-          </button>
         </div>
       </PanelCard>
 
