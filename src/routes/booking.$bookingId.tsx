@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { useOffer } from "@/hooks/useCatalog";
 import { SarIcon } from "@/components/ui/SarIcon";
+import { account } from "@/lib/api/account";
 
 export const Route = createFileRoute("/booking/$bookingId")({
   component: BookingConfirmation,
@@ -129,19 +130,57 @@ function BookingConfirmation() {
   const [booking, setBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     try {
       const raw = sessionStorage.getItem(`booking:${bookingId}`);
       if (raw) {
         setBooking(JSON.parse(raw));
-        return;
-      }
-      const all = localStorage.getItem("myBookings");
-      if (all) {
-        const list: Booking[] = JSON.parse(all);
-        const b = list.find((x) => x.bookingId === bookingId);
-        if (b) setBooking(b);
+      } else {
+        const all = localStorage.getItem("myBookings");
+        if (all) {
+          const list: Booking[] = JSON.parse(all);
+          const b = list.find((x) => x.bookingId === bookingId);
+          if (b) setBooking(b);
+        }
       }
     } catch {}
+    // Always try to refresh from server (overrides stale local data)
+    (async () => {
+      try {
+        const r: any = await account.bookingDetail(bookingId);
+        const row = r?.data?.booking ?? r?.booking ?? r?.data ?? null;
+        if (!row || cancelled) return;
+        const mapped: Booking = {
+          bookingId: String(row.booking_number ?? row.bookingNumber ?? row.id ?? bookingId),
+          verifyCode: row.verify_code ?? row.verifyCode ?? undefined,
+          offerId: String(row.offer_id ?? row.offerId ?? ""),
+          offerTitle: row.offer_title ?? row.offerTitle,
+          vendorName: row.partner_name ?? row.vendorName,
+          vendorCity: row.partner_city ?? row.vendorCity,
+          vendorAddress: row.partner_address ?? row.vendorAddress,
+          vendorPhone: row.partner_phone ?? row.vendorPhone,
+          vendorMapsUrl: row.partner_maps_url ?? row.vendorMapsUrl,
+          priceAfter: row.price_after != null ? Number(row.price_after) : undefined,
+          date: String(row.booking_date ?? row.bookingDate ?? row.date ?? ""),
+          time: String(row.booking_time ?? row.bookingTime ?? row.time ?? ""),
+          qty: row.qty != null ? Number(row.qty) : 1,
+          total: row.total_amount != null ? Number(row.total_amount) : undefined,
+          depositAmount: row.deposit_amount != null ? Number(row.deposit_amount) : undefined,
+          remainingAmount: row.remaining_amount != null ? Number(row.remaining_amount) : undefined,
+          depositPct: row.deposit_pct != null ? Number(row.deposit_pct) : undefined,
+          customerName: String(row.customer_name ?? row.customerName ?? ""),
+          customerPhone: String(row.customer_phone ?? row.customerPhone ?? ""),
+          createdAt: String(row.created_at ?? row.createdAt ?? ""),
+          paid: row.payment_status === "paid" || row.payment_status === "deposit_paid",
+          paymentStatus: row.payment_status ?? row.paymentStatus,
+          paymentMethod: row.payment_method ?? row.paymentMethod,
+          status: row.status,
+        };
+        setBooking(mapped);
+        try { sessionStorage.setItem(`booking:${bookingId}`, JSON.stringify(mapped)); } catch {}
+      } catch {}
+    })();
+    return () => { cancelled = true; };
   }, [bookingId]);
 
   const liveOffer = useOffer(booking?.offerId).offer;
