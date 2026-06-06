@@ -260,8 +260,8 @@ function VerifyPage() {
                   ); })()}
                   <Row icon={User} label="العميل" value={result.booking.customerName} />
                   <Row icon={Phone} label="الجوال" value={result.booking.customerPhone} ltr />
-                  <Row icon={Calendar} label="التاريخ" value={result.booking.date} />
-                  <Row icon={Clock} label="الوقت" value={result.booking.time} />
+                  <Row icon={Calendar} label="التاريخ" value={formatDate(result.booking.date)} ltr />
+                  <Row icon={Clock} label="الوقت" value={result.booking.time} ltr />
                   {result.booking.remainingAmount ? (
                     <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
                       <span className="text-xs font-bold">يتبقى عند الخدمة</span>
