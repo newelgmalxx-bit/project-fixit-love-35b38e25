@@ -309,17 +309,60 @@ function AdminVerifyPage() {
                 </div>
               </div>
               <div className="space-y-2 p-4 text-sm">
+                {(() => {
+                  const st = pickStatus(b);
+                  const ps = pickPaymentStatus(b);
+                  const sb = statusBadge(st);
+                  const pb = payBadge(ps, remaining);
+                  return (
+                    <div className="mb-2 grid grid-cols-2 gap-2">
+                      <div className={`flex items-center justify-between rounded-xl border px-3 py-2 ${sb.cls}`}>
+                        <span className="text-[11px] font-bold">حالة الحجز</span>
+                        <span className="text-xs font-extrabold">{sb.label}</span>
+                      </div>
+                      <div className={`flex items-center justify-between rounded-xl border px-3 py-2 ${pb.cls}`}>
+                        <span className="text-[11px] font-bold">حالة الدفع</span>
+                        <span className="text-xs font-extrabold">{pb.label}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+                <VRow icon={Hash} label="رقم الحجز" value={pickRef(b) || String(b?.id || "—")} ltr />
                 <VRow icon={UserIcon} label="العميل" value={pickCustomerName(b) || "—"} />
                 <VRow icon={Tag} label="العرض" value={pickOfferTitle(b) || "—"} />
                 <VRow icon={Phone} label="الجوال" value={pickCustomerPhone(b) || "—"} ltr />
                 <VRow icon={Calendar} label="التاريخ" value={pickDate(b) || "—"} ltr />
                 <VRow icon={Clock} label="الوقت" value={pickTime(b) || "—"} ltr />
-                {remaining != null && remaining > 0 ? (
-                  <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
-                    <span className="text-xs font-bold">يتبقى عند الخدمة</span>
-                    <span dir="ltr" className="font-extrabold">{remaining} ر.س</span>
+                {pickPartnerName(b) && (
+                  <VRow icon={Building2} label="المركز" value={pickPartnerName(b)} />
+                )}
+                {pickPartnerCity(b) && (
+                  <VRow icon={MapPin} label="المدينة" value={pickPartnerCity(b)} />
+                )}
+                {pickPaymentMethod(b) && (
+                  <VRow icon={CreditCard} label="طريقة الدفع" value={methodLabel(pickPaymentMethod(b))} />
+                )}
+
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
+                    <div className="text-[11px] font-bold text-emerald-700">إجمالي الحجز</div>
+                    <div dir="ltr" className="mt-0.5 text-sm font-extrabold text-foreground">
+                      {totalWithVat != null ? `${totalWithVat} ر.س` : "—"}
+                    </div>
                   </div>
-                ) : null}
+                  <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
+                    <div className="text-[11px] font-bold text-emerald-700">العربون المدفوع</div>
+                    <div dir="ltr" className="mt-0.5 text-sm font-extrabold text-foreground">
+                      {paidOnline > 0 ? `${paidOnline} ر.س` : "0 ر.س"}
+                    </div>
+                  </div>
+                  <div className={`rounded-xl border px-3 py-2 ${remaining != null && remaining > 0 ? "border-amber-300 bg-amber-50" : "border-emerald-200 bg-white"}`}>
+                    <div className={`text-[11px] font-bold ${remaining != null && remaining > 0 ? "text-amber-700" : "text-emerald-700"}`}>المتبقي عند المركز</div>
+                    <div dir="ltr" className={`mt-0.5 text-sm font-extrabold ${remaining != null && remaining > 0 ? "text-amber-800" : "text-foreground"}`}>
+                      {remaining != null ? `${remaining} ر.س` : "—"}
+                    </div>
+                  </div>
+                </div>
                 <div className="flex gap-2 pt-3">
                   {!result.alreadyRedeemed && (
                     <button
