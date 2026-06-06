@@ -107,4 +107,24 @@ export const account = {
 
   removeFavorite: (serviceId: string) =>
     request<ApiResponse<any>>(`/account/favorites/${serviceId}`, { method: 'DELETE' }),
+
+  // ----- Bookings (auth) -----
+  bookings: (params?: { status?: string; page?: number; limit?: number }) => {
+    const clean: Record<string, string> = {};
+    if (params) for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null && v !== '') clean[k] = String(v);
+    }
+    const q = new URLSearchParams(clean).toString();
+    return request<PaginatedResponse<any>>(`/account/bookings${q ? '?' + q : ''}`);
+  },
+  bookingDetail: (id: string) =>
+    request<ApiResponse<{ booking: any }>>(`/account/bookings/${id}`),
+  updateBooking: (id: string, body: { date?: string; time?: string }) =>
+    request<ApiResponse<{ booking: any }>>(`/account/bookings/${id}`, {
+      method: 'PUT', body: JSON.stringify(body),
+    }),
+  cancelBooking: (id: string, reason?: string) =>
+    request<ApiResponse<{ booking: any }>>(`/account/bookings/${id}/cancel`, {
+      method: 'POST', body: JSON.stringify({ reason: reason ?? '' }),
+    }),
 };
