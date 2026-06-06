@@ -213,15 +213,15 @@ export const adminCategoriesApi = {
       method: "POST",
       body: JSON.stringify(body),
     }),
-  update: (id: number, body: Partial<AdminCategory>) =>
+  update: (id: number | string, body: Partial<AdminCategory>) =>
     request<ApiResponse<{ category: AdminCategory }>>(`/admin/categories/${id}`, {
       method: "PUT",
       body: JSON.stringify(body),
     }),
-  remove: (id: number) =>
+  remove: (id: number | string) =>
     request<ApiResponse<unknown>>(`/admin/categories/${id}`, { method: "DELETE" }),
   // Backend: PUT /admin/categories/{id}/status with { status: 1|0 }.
-  toggle: (id: number, isActive?: boolean) =>
+  toggle: (id: number | string, isActive?: boolean) =>
     request<ApiResponse<unknown>>(`/admin/categories/${id}/status`, {
       method: "PUT",
       body: JSON.stringify({ status: isActive === false ? 0 : 1 }),
