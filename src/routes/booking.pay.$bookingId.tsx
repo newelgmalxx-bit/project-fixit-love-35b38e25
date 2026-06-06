@@ -51,6 +51,17 @@ const FALLBACK_METHODS: UiMethod[] = [
   { id: "myfatoorah", ...METHOD_META.myfatoorah },
 ];
 
+function firstString(...values: unknown[]): string | undefined {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return undefined;
+}
+
+function looksLikeBookingNumber(value: string | undefined) {
+  return Boolean(value && /^BK-[A-Z0-9]+$/i.test(value));
+}
+
 function BookingPayPage() {
   const { bookingId } = Route.useParams();
   const navigate = useNavigate();
@@ -154,16 +165,16 @@ function BookingPayPage() {
       // Two flows:
       // 1) Booking already exists on server (re-pay) → POST /bookings/{id}/pay
       // 2) First-time pay (booking only exists locally) → POST /checkout to create + pay
-      const hasServerBooking = Boolean(
-        (booking as any).serverBookingId || (booking as any).bookingNumber,
+      const serverBookingRef = firstString(
+        (booking as any).bookingNumber,
+        (booking as any).serverBookingId,
+        looksLikeBookingNumber(booking.bookingId) ? booking.bookingId : undefined,
+        looksLikeBookingNumber(bookingId) ? bookingId : undefined,
       );
 
       let res: any;
-      if (hasServerBooking) {
-        res = await checkout.payExistingBooking(
-          (booking as any).bookingNumber || (booking as any).serverBookingId || bookingId,
-          paymentMethodId,
-        );
+      if (serverBookingRef) {
+        res = await checkout.payExistingBooking(serverBookingRef, paymentMethodId);
       } else {
         const backendMethod: string =
           method === "cod" ? "cod"
@@ -192,9 +203,24 @@ function BookingPayPage() {
       }
 
       const data = res?.data ?? res ?? {};
-      const url: string | undefined = data.paymentUrl;
-      const bookingNumber: string | undefined = data.bookingNumber ?? data.orderNumber;
-      const serverBookingId: string | undefined = data.bookingId ?? data.orderId;
+      const nestedData = data?.data ?? {};
+      const firstBooking = Array.isArray(data?.bookings) ? data.bookings[0] : undefined;
+      const url = firstString(
+        data.paymentUrl,
+        data.payment_url,
+        data.invoiceUrl,
+        data.invoice_url,
+        data.PaymentURL,
+        data.InvoiceURL,
+        nestedData.paymentUrl,
+        nestedData.payment_url,
+        nestedData.invoiceUrl,
+        nestedData.invoice_url,
+        nestedData.PaymentURL,
+        nestedData.InvoiceURL,
+      );
+      const bookingNumber = firstString(data.bookingNumber, data.bookingNo, data.orderNumber, firstBooking?.bookingNo);
+      const serverBookingId = firstString(data.bookingId, data.orderId, firstBooking?.bookingId);
 
       try {
         const merged = {
@@ -211,8 +237,8 @@ function BookingPayPage() {
         return;
       }
 
-      // No redirect URL → go back to booking summary
-      navigate({ to: "/booking/$bookingId", params: { bookingId } });
+      alert("تم إنشاء طلب الدفع لكن الباك إند لم يرجع رابط الدفع paymentUrl");
+      setProcessing(false);
     } catch (e: any) {
       console.error("Pay error", e);
       alert(e?.message || "تعذّر بدء الدفع، حاول مرة أخرى");
