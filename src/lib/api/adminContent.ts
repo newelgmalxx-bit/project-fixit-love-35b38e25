@@ -9,7 +9,7 @@ import type { ApiResponse } from "./types";
 
 // ---------- Types ----------
 export type AdminCategory = {
-  id: number;
+  id: number | string;
   slug: string;
   nameAr: string;
   nameEn: string;
@@ -37,6 +37,14 @@ export type AdminCity = {
 export type AdminOfferPartner = {
   id: string;
   vendorName: string;
+  vendorNameAr?: string;
+  vendorNameEn?: string;
+  ownerName?: string;
+  owner_name?: string;
+  contactName?: string;
+  name?: string;
+  nameAr?: string;
+  nameEn?: string;
   city?: string;
   status?: string;
 };
@@ -172,13 +180,33 @@ function qs(params?: Record<string, any>): string {
   return s ? "?" + s : "";
 }
 
+function normalizeCategory(raw: any): AdminCategory {
+  return {
+    id: raw?.id,
+    slug: raw?.slug ?? "",
+    nameAr: raw?.nameAr ?? raw?.name_ar ?? raw?.name ?? "",
+    nameEn: raw?.nameEn ?? raw?.name_en ?? "",
+    icon: raw?.icon ?? null,
+    color: raw?.color ?? null,
+    cover: raw?.cover ?? null,
+    descriptionAr: raw?.descriptionAr ?? raw?.description_ar ?? null,
+    descriptionEn: raw?.descriptionEn ?? raw?.description_en ?? null,
+    isActive: typeof raw?.isActive === "boolean" ? raw.isActive : raw?.is_active === 1 || raw?.is_active === true || raw?.is_active === "1",
+    sortOrder: Number(raw?.sortOrder ?? raw?.sort_order ?? 0),
+    offersCount: raw?.offersCount ?? raw?.offers_count,
+    createdAt: raw?.createdAt ?? raw?.created_at,
+    updatedAt: raw?.updatedAt ?? raw?.updated_at,
+  };
+}
+
 // ---------- Categories ----------
 export const adminCategoriesApi = {
   list: async (params?: { inactive?: boolean; q?: string }) => {
     const r = await request<ApiResponse<{ items: AdminCategory[]; total: number }>>(
       `/admin/categories${qs(params)}`,
     );
-    return r.data;
+    const items = ((r.data as any)?.items || []).map(normalizeCategory);
+    return { ...r.data, items };
   },
   create: (body: Partial<AdminCategory>) =>
     request<ApiResponse<{ category: AdminCategory }>>("/admin/categories", {
