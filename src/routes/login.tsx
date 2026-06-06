@@ -49,14 +49,34 @@ function LoginPage() {
     // Only honor the redirect if it's compatible with the user's role.
     // A client logging in must never be sent to partner/admin areas.
     if (redirectTo) {
-      const path = redirectTo.split("?")[0].split("#")[0];
+      // Defensively decode in case an upstream caller double-encoded the value.
+      let decoded = redirectTo;
+      try {
+        for (let i = 0; i < 5 && /%[0-9A-Fa-f]{2}/.test(decoded); i++) {
+          const next = decodeURIComponent(decoded);
+          if (next === decoded) break;
+          decoded = next;
+        }
+      } catch {
+        decoded = redirectTo;
+      }
+      const path = decoded.split("?")[0].split("#")[0];
       const isPartnerArea = path.startsWith("/partner") || path === "/partner-dashboard";
       const isAdminArea = path.startsWith("/admin");
       if (isPartnerArea && role !== "partner" && role !== "admin") return defaultDest;
       if (isAdminArea && role !== "admin") return defaultDest;
       // Avoid loops back to auth pages
-      if (path === "/login" || path === "/partner-login") return defaultDest;
-      return redirectTo;
+      if (
+        path === "/login" ||
+        path === "/partner-login" ||
+        path.startsWith("/signup") ||
+        path.startsWith("/forgot-password") ||
+        path.startsWith("/reset-password") ||
+        path.startsWith("/auth")
+      ) return defaultDest;
+      // Only allow same-origin internal paths.
+      if (!path.startsWith("/") || path.startsWith("//")) return defaultDest;
+      return decoded;
     }
     return defaultDest;
   }
