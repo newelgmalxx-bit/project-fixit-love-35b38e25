@@ -199,8 +199,8 @@ function TrackPage() {
         verifyCode: code,
       });
       const data: any = res?.data ?? res ?? {};
-      const o: any = data.order ?? data;
-      if (!o || (!o.number && !o.order_number && !o.id)) {
+      const o: any = data.order ?? data.booking ?? data;
+      if (!o || (!o.qrCode && !o.qr_code && !o.number && !o.order_number && !o.bookingNumber && !o.booking_number && !o.id)) {
         setNotFound(true);
         setLoading(false);
         return;
@@ -210,7 +210,7 @@ function TrackPage() {
       const p: any = data.partner ?? o.partner ?? null;
       const mapped: Result = {
         order: {
-          number: String(o.number ?? o.order_number ?? o.id ?? ""),
+          number: String(o.qrCode ?? o.qr_code ?? o.number ?? o.order_number ?? o.bookingNumber ?? o.booking_number ?? o.id ?? qr),
           status: String(o.status ?? ""),
           paymentStatus: o.paymentStatus ?? o.payment_status,
           paymentMethod: o.paymentMethod ?? o.payment_method,
@@ -220,7 +220,7 @@ function TrackPage() {
           depositPaid: Number(o.depositPaid ?? o.deposit_paid ?? 0),
           remaining: Number(o.remaining ?? o.remaining_amount ?? 0),
           verificationCode: o.verificationCode ?? o.verification_code ?? undefined,
-          qrData: o.qrData ?? o.qr_data ?? undefined,
+          qrData: o.qrData ?? o.qr_data ?? o.qrCode ?? o.qr_code ?? undefined,
           couponDiscount: Number(o.couponDiscount ?? o.coupon_discount ?? 0),
           currency: o.currency ?? "SAR",
           notes: o.notes ?? undefined,
