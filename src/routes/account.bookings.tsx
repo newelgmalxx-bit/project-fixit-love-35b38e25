@@ -142,6 +142,7 @@ function MyBookings() {
             const offerTitle = b.offerTitle || t("account.home.serviceFallback");
             const venue = b.vendorName ? `${b.vendorName}${b.vendorCity ? ` — ${b.vendorCity}` : ""}` : "";
             const isPast = b.date && new Date(b.date) < new Date(new Date().toDateString());
+            const isUnpaid = !!b.paymentStatus && b.paymentStatus !== "paid" && b.paymentStatus !== "completed" && b.paymentStatus !== "success";
             const canModify = !b.redeemedAt && !b.cancelledAt && !isPast;
             return (
               <div key={b.bookingId} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:border-primary/40 hover:shadow-md">
@@ -157,7 +158,16 @@ function MyBookings() {
                       <CheckCircle2 className="h-3 w-3" /> {t("account.bookings.status.used")}
                     </span>
                   ) : (
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">{t("account.bookings.status.confirmed")}</span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {isUnpaid ? (
+                        <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-700">قيد الدفع</span>
+                      ) : (
+                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">{t("account.bookings.status.confirmed")}</span>
+                      )}
+                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${isUnpaid ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"}`}>
+                        {isUnpaid ? "غير مدفوع" : "مدفوع"}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="grid gap-3 p-5 sm:grid-cols-[1fr,auto] sm:items-center">
@@ -178,6 +188,15 @@ function MyBookings() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
+                    {isUnpaid && !b.cancelledAt && (
+                      <Link
+                        to="/booking/pay/$bookingId"
+                        params={{ bookingId: b.bookingId }}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-white hover:bg-amber-600"
+                      >
+                        <Wallet className="h-4 w-4" /> إعادة الدفع
+                      </Link>
+                    )}
                     <Link
                       to="/booking/$bookingId"
                       params={{ bookingId: b.bookingId }}
