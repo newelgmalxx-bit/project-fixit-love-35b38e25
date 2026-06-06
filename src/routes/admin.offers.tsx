@@ -289,13 +289,7 @@ function OffersPage() {
               <PanelCard
                 key={o.id}
                 title={o.title}
-                subtitle={(() => {
-                  const p: any = o.partner;
-                  if (!p) return undefined;
-                  const owner = p.ownerName || p.owner_name || p.contactName || p.name;
-                  const city = p.city ? ` · ${p.city}` : "";
-                  return owner ? `${p.vendorName} — ${owner}${city}` : `${p.vendorName}${city}`;
-                })()}
+                subtitle={partnerDisplay(o)}
                 action={
                   <div className="flex items-center gap-2">
                     <input
@@ -314,7 +308,7 @@ function OffersPage() {
                     <img src={o.image} alt={o.title} className="h-24 w-24 rounded-xl object-cover border border-border" />
                   )}
                   <div className="flex-1 space-y-1 text-sm">
-                    {o.category && <div className="text-xs text-muted-foreground">التصنيف: {o.category.nameAr}</div>}
+                    {categoryName(o) && <div className="text-xs text-muted-foreground">التصنيف: {categoryName(o)}</div>}
                     <div className="font-extrabold text-primary">
                       {o.priceAfter} ر.س
                       {o.priceBefore && o.priceBefore > o.priceAfter && (
