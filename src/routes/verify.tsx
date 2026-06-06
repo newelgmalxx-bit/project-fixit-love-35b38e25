@@ -347,7 +347,7 @@ function SuccessHero({ booking }: { booking: StoredBooking }) {
         <InfoBox label="الجوال" value={booking.customerPhone} icon={Phone} ltr />
         <InfoBox label="الخدمة" value={offerTitle} icon={Sparkles} />
         <InfoBox label="رقم الحجز" value={booking.bookingId} icon={ShieldCheck} ltr />
-        <InfoBox label="موعد الحجز" value={`${booking.date} · ${booking.time}`} icon={Calendar} ltr />
+        <InfoBox label="موعد الحجز" value={`${formatDate(booking.date)} · ${booking.time}`} icon={Calendar} ltr />
         <InfoBox label="وقت التأكيد" value={redeemedAt.toLocaleString("en-GB", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })} icon={Clock} ltr />
       </div>
     </div>
