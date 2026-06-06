@@ -226,6 +226,8 @@ function SlideContent({
   setQ,
   onSearch,
   active,
+  offers,
+  onSearchFocus,
 }: {
   slide: Slide;
   slideIndex: number;
@@ -233,8 +235,37 @@ function SlideContent({
   setQ: (v: string) => void;
   onSearch: (e: React.FormEvent) => void;
   active: boolean;
+  offers: any[];
+  onSearchFocus: () => void;
 }) {
   const { categories } = useCategories();
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!boxRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const matches = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (!term) return [] as any[];
+    const norm = (v: any) => String(v ?? "").toLowerCase();
+    return offers
+      .filter((o) => {
+        const hay = [
+          o.title, o.titleAr, o.titleEn, o.description,
+          o.vendorName, o.vendor?.name, o.partner?.vendorName, o.partnerName,
+          o.city, o.vendor?.city, o.categoryName, o.categoryNameAr,
+        ].map(norm).join(" ");
+        return hay.includes(term);
+      })
+      .slice(0, 8);
+  }, [q, offers]);
+
   return (
     <div className="relative">
       {/* Ambient glows colored per slide — desktop only (heavy blur lags mobile) */}
