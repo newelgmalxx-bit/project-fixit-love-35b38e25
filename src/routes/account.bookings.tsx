@@ -4,6 +4,7 @@ import { Calendar, Clock, MapPin, QrCode, CheckCircle2, Ticket, X, Pencil } from
 import { toast } from "sonner";
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { useLang } from "@/i18n/LanguageProvider";
+import { account } from "@/lib/api/account";
 
 
 export const Route = createFileRoute("/account/bookings")({
@@ -30,7 +31,28 @@ type StoredBooking = {
   createdAt: string;
 };
 
-function loadAll(): StoredBooking[] {
+function normalizeRow(r: any): StoredBooking {
+  return {
+    bookingId: String(r.booking_number ?? r.bookingNumber ?? r.id ?? ""),
+    verifyCode: String(r.verify_code ?? r.verifyCode ?? ""),
+    offerId: String(r.offer_id ?? r.offerId ?? ""),
+    offerTitle: r.offer_title ?? r.offerTitle ?? undefined,
+    vendorName: r.partner_name ?? r.vendorName ?? undefined,
+    vendorCity: r.partner_city ?? r.vendorCity ?? undefined,
+    date: String(r.booking_date ?? r.bookingDate ?? r.date ?? ""),
+    time: String(r.booking_time ?? r.bookingTime ?? r.time ?? ""),
+    customerName: String(r.customer_name ?? r.customerName ?? ""),
+    customerPhone: String(r.customer_phone ?? r.customerPhone ?? ""),
+    total: r.total_amount != null ? Number(r.total_amount) : (r.total != null ? Number(r.total) : undefined),
+    depositAmount: r.deposit_amount != null ? Number(r.deposit_amount) : (r.depositAmount != null ? Number(r.depositAmount) : undefined),
+    remainingAmount: r.remaining_amount != null ? Number(r.remaining_amount) : (r.remainingAmount != null ? Number(r.remainingAmount) : undefined),
+    redeemedAt: r.redeemed_at ?? r.redeemedAt ?? undefined,
+    cancelledAt: r.cancelled_at ?? r.cancelledAt ?? undefined,
+    createdAt: String(r.created_at ?? r.createdAt ?? ""),
+  };
+}
+
+function loadLocal(): StoredBooking[] {
   try {
     const raw = localStorage.getItem("myBookings");
     return raw ? JSON.parse(raw) : [];
@@ -38,30 +60,45 @@ function loadAll(): StoredBooking[] {
     return [];
   }
 }
-function saveAll(list: StoredBooking[]) {
-  try { localStorage.setItem("myBookings", JSON.stringify(list)); } catch {}
-}
 
 function MyBookings() {
   const { t } = useLang();
   const [items, setItems] = useState<StoredBooking[]>([]);
+  const [loading, setLoading] = useState(true);
   const [edit, setEdit] = useState<StoredBooking | null>(null);
   const [editDate, setEditDate] = useState("");
   const [editTime, setEditTime] = useState("");
 
-  function refresh() {
-    const list = loadAll();
-    setItems(list.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
+  async function refresh() {
+    setLoading(true);
+    try {
+      const r: any = await account.bookings({ limit: 100 });
+      const raw = r?.data?.items ?? r?.items ?? r?.data ?? [];
+      const list: StoredBooking[] = Array.isArray(raw) ? raw.map(normalizeRow) : [];
+      // Merge any local-only (unpaid) bookings not yet on server
+      const local = loadLocal();
+      const known = new Set(list.map((b) => b.bookingId));
+      for (const lb of local) if (lb.bookingId && !known.has(lb.bookingId)) list.push(lb);
+      setItems(list.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
+    } catch (e) {
+      const local = loadLocal();
+      setItems(local.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { refresh(); }, []);
 
-  function cancelBooking(id: string) {
+  async function cancelBooking(id: string) {
     if (!confirm(t("account.bookings.confirmCancel"))) return;
-    const list = loadAll().map((b) => b.bookingId === id ? { ...b, cancelledAt: new Date().toISOString() } : b);
-    saveAll(list);
-    toast.success(t("account.bookings.toast.cancelled"));
-    refresh();
+    try {
+      await account.cancelBooking(id);
+      toast.success(t("account.bookings.toast.cancelled"));
+      refresh();
+    } catch (e: any) {
+      toast.error(e?.message || "تعذر إلغاء الحجز");
+    }
   }
 
   function openEdit(b: StoredBooking) {
@@ -70,14 +107,17 @@ function MyBookings() {
     setEditTime(b.time);
   }
 
-  function saveEdit() {
+  async function saveEdit() {
     if (!edit) return;
     if (!editDate || !editTime) { toast.error(t("account.bookings.toast.pickDate")); return; }
-    const list = loadAll().map((b) => b.bookingId === edit.bookingId ? { ...b, date: editDate, time: editTime } : b);
-    saveAll(list);
-    toast.success(t("account.bookings.toast.modified"));
-    setEdit(null);
-    refresh();
+    try {
+      await account.updateBooking(edit.bookingId, { date: editDate, time: editTime });
+      toast.success(t("account.bookings.toast.modified"));
+      setEdit(null);
+      refresh();
+    } catch (e: any) {
+      toast.error(e?.message || "تعذر تعديل الحجز");
+    }
   }
 
   return (
