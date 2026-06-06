@@ -50,7 +50,7 @@ export type AdminOfferPartner = {
 };
 
 export type AdminOfferCategory = {
-  id: number;
+  id: number | string;
   slug: string;
   nameAr: string;
   nameEn: string;
@@ -313,9 +313,14 @@ function normalizeOffer(raw: any): AdminOffer {
   return {
     id: raw?.id,
     partnerId: raw?.partnerId ?? raw?.partner_id ?? "",
-    partner: raw?.partner,
+    partner: raw?.partner ? {
+      ...raw.partner,
+      vendorName: raw.partner.vendorName ?? raw.partner.vendor_name ?? raw.partner.vendorNameAr ?? raw.partner.nameAr ?? raw.partner.name ?? "",
+      ownerName: raw.partner.ownerName ?? raw.partner.owner_name ?? raw.partner.contactName,
+      city: raw.partner.city ?? raw.partner.cityName ?? raw.partner.city_name,
+    } : undefined,
     categoryId: raw?.categoryId ?? raw?.category_id ?? null,
-    category: raw?.category ?? null,
+    category: raw?.category ? normalizeCategory(raw.category) : null,
     title: raw?.title ?? raw?.titleAr ?? raw?.title_ar ?? "",
     titleEn: raw?.titleEn ?? raw?.title_en ?? null,
     description: raw?.description ?? raw?.descriptionAr ?? raw?.description_ar ?? null,
@@ -389,6 +394,12 @@ function offerPayload(body: Partial<AdminOfferInput> & { isFeatured?: boolean })
 
 export const adminOffersApi = {
   list: async (params?: OfferListParams) => {
+    const query = params ? {
+      ...params,
+      categoryId: params.category,
+      category_id: params.category,
+      partner_id: params.partnerId,
+    } : undefined;
     const r = await request<
       ApiResponse<{
         items: any[];
@@ -397,7 +408,7 @@ export const adminOffersApi = {
         pageSize: number;
         totalPages: number;
       }>
-    >(`/admin/offers${qs(params)}`);
+    >(`/admin/offers${qs(query)}`);
     const items = (r.data?.items || []).map(normalizeOffer);
     return { ...r.data, items };
   },
