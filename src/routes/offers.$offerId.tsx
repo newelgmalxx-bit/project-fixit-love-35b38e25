@@ -592,10 +592,6 @@ function OfferDetailPage() {
     };
     try {
       sessionStorage.setItem(`booking:${bookingId}`, JSON.stringify(payload));
-      const raw = localStorage.getItem("myBookings");
-      const list = raw ? JSON.parse(raw) : [];
-      list.push(payload);
-      localStorage.setItem("myBookings", JSON.stringify(list));
     } catch {}
     removeAbandoned();
     setTimeout(() => {
