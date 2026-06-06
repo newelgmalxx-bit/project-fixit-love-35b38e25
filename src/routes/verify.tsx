@@ -6,6 +6,22 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { pushVerifyEvent, playSuccessChime } from "@/lib/verifyFeed";
 
 
+function formatDate(s: string): string {
+  if (!s) return "";
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (iso) {
+    const [, y, m, d] = iso;
+    return `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
+  }
+  const dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (dmy) {
+    const [, d, m, y] = dmy;
+    const yy = y.length === 2 ? `20${y}` : y;
+    return `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${yy}`;
+  }
+  return s;
+}
+
 export const Route = createFileRoute("/verify")({
   head: () => ({ meta: [{ title: "التحقق من حجز | بوكينج" }] }),
   validateSearch: (s: Record<string, unknown>) => ({
@@ -260,8 +276,8 @@ function VerifyPage() {
                   ); })()}
                   <Row icon={User} label="العميل" value={result.booking.customerName} />
                   <Row icon={Phone} label="الجوال" value={result.booking.customerPhone} ltr />
-                  <Row icon={Calendar} label="التاريخ" value={result.booking.date} />
-                  <Row icon={Clock} label="الوقت" value={result.booking.time} />
+                  <Row icon={Calendar} label="التاريخ" value={formatDate(result.booking.date)} ltr />
+                  <Row icon={Clock} label="الوقت" value={result.booking.time} ltr />
                   {result.booking.remainingAmount ? (
                     <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
                       <span className="text-xs font-bold">يتبقى عند الخدمة</span>
@@ -331,7 +347,7 @@ function SuccessHero({ booking }: { booking: StoredBooking }) {
         <InfoBox label="الجوال" value={booking.customerPhone} icon={Phone} ltr />
         <InfoBox label="الخدمة" value={offerTitle} icon={Sparkles} />
         <InfoBox label="رقم الحجز" value={booking.bookingId} icon={ShieldCheck} ltr />
-        <InfoBox label="موعد الحجز" value={`${booking.date} · ${booking.time}`} icon={Calendar} ltr />
+        <InfoBox label="موعد الحجز" value={`${formatDate(booking.date)} · ${booking.time}`} icon={Calendar} ltr />
         <InfoBox label="وقت التأكيد" value={redeemedAt.toLocaleString("en-GB", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })} icon={Clock} ltr />
       </div>
     </div>
