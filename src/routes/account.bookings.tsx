@@ -14,6 +14,7 @@ export const Route = createFileRoute("/account/bookings")({
 
 type StoredBooking = {
   bookingId: string;
+  bookingRef: string;
   verifyCode: string;
   offerId: string;
   offerTitle?: string;
@@ -34,8 +35,11 @@ type StoredBooking = {
 };
 
 function normalizeRow(r: any): StoredBooking {
+  const ref = String(r.booking_number ?? r.bookingNumber ?? r.id ?? "");
+  const display = String(r.qr_code ?? r.qrCode ?? ref);
   return {
-    bookingId: String(r.qr_code ?? r.qrCode ?? r.booking_number ?? r.bookingNumber ?? r.id ?? ""),
+    bookingId: display,
+    bookingRef: ref || display,
     verifyCode: String(r.verify_code ?? r.verifyCode ?? ""),
     offerId: String(r.offer_id ?? r.offerId ?? ""),
     offerTitle: r.offer_title ?? r.offerTitle ?? undefined,
