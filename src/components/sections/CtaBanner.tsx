@@ -115,7 +115,7 @@ export function CtaBanner() {
             </div>
 
             {/* Right column: two stacked daily offers picked by admin */}
-            <div className="relative hidden lg:block">
+            <div className="relative">
               <div className="absolute -inset-4 -z-10 rounded-[32px] bg-gradient-to-br from-white/15 to-transparent blur-xl" />
               <div className="space-y-3">
                 {(featured.length > 0 ? featured : [null]).map((o, idx) => {
