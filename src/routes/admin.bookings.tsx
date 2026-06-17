@@ -481,7 +481,7 @@ function BookingsPage() {
                   <span dir="ltr">{formatAdminDateTime(pickScheduleAt(viewing), lang)}</span>
                 </Info>
                 <Info label={L("أنشئ في", "Created")}>
-                  <span dir="ltr">{formatAdminDateTime(viewing.createdAt ?? (viewing as any).created_at, lang)}</span>
+                  <span dir="ltr">{formatAdminDateTime(pickString(viewing.createdAt, viewing.created_at), lang)}</span>
                 </Info>
               </div>
 
