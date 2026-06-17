@@ -360,7 +360,7 @@ function BookingsPage() {
                   <td className="px-3 py-3 text-xs">{pickOfferTitle(b) || "—"}</td>
                   
                   <td className="px-3 py-3 text-xs font-bold" dir="ltr">{pickServicesValue(b) ?? "—"}</td>
-                  <td className="px-3 py-3 text-xs" dir="ltr">{b.scheduledAt ? new Date(b.scheduledAt).toLocaleString() : "—"}</td>
+                  <td className="px-3 py-3 text-xs" dir="ltr">{formatAdminDateTime(pickScheduleAt(b), lang)}</td>
                   <td className="px-3 py-3 text-xs font-bold" dir="ltr">
                     {pickDeposit(b) ?? "—"}
                     {pickDepositPct(b) != null && <span className="ms-1 text-[10px] font-normal text-muted-foreground">({pickDepositPct(b)}%)</span>}
@@ -461,10 +461,10 @@ function BookingsPage() {
                 <Info label={L("المركز", "Center")}>{pickPartnerName(viewing) || "—"}</Info>
                 <Info label={L("العرض", "Offer")}>{pickOfferTitle(viewing) || "—"}</Info>
                 <Info label={L("الموعد", "Schedule")}>
-                  <span dir="ltr">{viewing.scheduledAt ? new Date(viewing.scheduledAt).toLocaleString() : "—"}</span>
+                  <span dir="ltr">{formatAdminDateTime(pickScheduleAt(viewing), lang)}</span>
                 </Info>
                 <Info label={L("أنشئ في", "Created")}>
-                  <span dir="ltr">{viewing.createdAt ? new Date(viewing.createdAt).toLocaleString() : "—"}</span>
+                  <span dir="ltr">{formatAdminDateTime(viewing.createdAt ?? (viewing as any).created_at, lang)}</span>
                 </Info>
               </div>
 
