@@ -110,12 +110,24 @@ function parseDateTimeParts(value?: string | null): DateTimeParts | null {
   const raw = String(value).trim();
   const ymd = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?)?/);
   if (ymd) {
-    return { year: Number(ymd[1]), month: Number(ymd[2]), day: Number(ymd[3]), hour: ymd[4] ? Number(ymd[4]) : undefined, minute: ymd[5] ? Number(ymd[5]) : undefined };
+    return {
+      year: Number(ymd[1]),
+      month: Number(ymd[2]),
+      day: Number(ymd[3]),
+      hour: ymd[4] ? Number(ymd[4]) : undefined,
+      minute: ymd[5] ? Number(ymd[5]) : undefined,
+    };
   }
   const dmy = raw.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?)?/);
   if (dmy) {
     const year = Number(dmy[3]) < 100 ? Number(dmy[3]) + 2000 : Number(dmy[3]);
-    return { year, month: Number(dmy[2]), day: Number(dmy[1]), hour: dmy[4] ? Number(dmy[4]) : undefined, minute: dmy[5] ? Number(dmy[5]) : undefined };
+    return {
+      year,
+      month: Number(dmy[2]),
+      day: Number(dmy[1]),
+      hour: dmy[4] ? Number(dmy[4]) : undefined,
+      minute: dmy[5] ? Number(dmy[5]) : undefined,
+    };
   }
   return null;
 }
@@ -131,9 +143,14 @@ function formatAdminDateTime(value?: string | null, lang = "ar"): string {
   return `${date} - ${pad(hour12)}:${pad(parts.minute)} ${suffix}`;
 }
 
-function pickScheduleAt(b: any): string | undefined {
-  const date = b?.scheduledAt ?? b?.scheduled_at ?? b?.bookingDate ?? b?.booking_date ?? b?.date;
-  const time = b?.bookingTime ?? b?.booking_time ?? b?.time;
+function pickString(...values: unknown[]): string | undefined {
+  const value = values.find((v) => typeof v === "string" && v.trim());
+  return typeof value === "string" ? value : undefined;
+}
+
+function pickScheduleAt(b: AdminBooking & Record<string, unknown>): string | undefined {
+  const date = pickString(b.scheduledAt, b.scheduled_at, b.bookingDate, b.booking_date, b.date);
+  const time = pickString(b.bookingTime, b.booking_time, b.time);
   if (date && time && !String(date).includes(":")) return `${date} ${time}`;
   return date;
 }
