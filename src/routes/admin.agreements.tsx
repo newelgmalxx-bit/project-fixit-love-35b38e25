@@ -612,7 +612,6 @@ function EditPendingAgreementDialog({
         customBody: body,
         adminNotes: notes || null,
       });
-      await persistPartnerRate(partnerId, rate);
       toast.success("تم تحديث الاتفاقية وإعادة الإرسال للشريك");
       onSaved();
     } catch (e: any) {
@@ -751,7 +750,6 @@ function IssueAgreementDialog({
         customBody: bodyText,
         adminNotes: notes || null,
       });
-      await persistPartnerRate(partner.id, rate);
       toast.success("تم إصدار الاتفاقية وحفظها في قاعدة البيانات");
       onSaved();
     } catch (e: any) {
