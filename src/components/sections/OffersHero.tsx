@@ -649,9 +649,7 @@ type SponsoredAd = {
 
 
 function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
-  const [ads, setAds] = useState<SponsoredAd[]>([]);
-  const [offers, setOffers] = useState<Record<string, any>>({});
-  const [partners, setPartners] = useState<Record<string, any>>({});
+  const { ads, offers, partners } = useSponsoredAdsBundle();
 
   const getPartnerName = (partner: any) => {
     return (
@@ -688,54 +686,6 @@ function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
     );
   };
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const data = await publicApi.getSponsoredAds();
-        if (!alive || !data) return;
-        const mapped = data.map((a: any) => ({
-          id: a.id,
-          title: a.titleAr || a.titleEn || a.title || "",
-          subtitle: a.subtitle ?? null,
-          image_url: a.image || a.imageUrl || null,
-          link_url: a.linkUrl || null,
-          cta_label: a.ctaLabel ?? null,
-          slide_index: a.slideIndex ?? null,
-          offer_id: a.offerId ?? null,
-        })) as SponsoredAd[];
-        setAds(mapped);
-
-        // Fetch linked offers
-        const ids = Array.from(new Set(mapped.map((a) => a.offer_id).filter(Boolean))) as string[];
-        const results = await Promise.all(ids.map(async (id) => {
-          try { return [id, await publicApi.getOffer(id)] as const; } catch { return [id, null] as const; }
-        }));
-        if (!alive) return;
-        const map: Record<string, any> = {};
-        for (const [id, o] of results) if (o) map[id] = o;
-        setOffers(map);
-
-        const partnerIds = Array.from(
-          new Set(results.map(([, offer]) => offer?.partnerId).filter(Boolean))
-        ) as string[];
-        const partnerResults = await Promise.all(
-          partnerIds.map(async (id) => {
-            try {
-              return [id, await publicApi.getPartner(id)] as const;
-            } catch {
-              return [id, null] as const;
-            }
-          })
-        );
-        if (!alive) return;
-        const partnerMap: Record<string, any> = {};
-        for (const [id, partner] of partnerResults) if (partner) partnerMap[id] = partner;
-        setPartners(partnerMap);
-      } catch { /* ignore */ }
-    })();
-    return () => { alive = false; };
-  }, []);
 
   const slideAds = ads.filter((a) => a.slide_index == null || Number(a.slide_index) === 0 || Number(a.slide_index) === slideIndex + 1);
 
