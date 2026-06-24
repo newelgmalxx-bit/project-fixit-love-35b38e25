@@ -24,6 +24,7 @@ import heroBlowdry from "@/assets/hero-blowdry.jpg";
 import heroMedical from "@/assets/hero-medical-1.jpg";
 import heroFitness from "@/assets/hero-fitness-1.jpg";
 import heroCarwash from "@/assets/hero-carwash.jpg";
+import heroTintingAsset from "@/assets/hero-tinting.webp.asset.json";
 
 type Slide = {
   kicker: string;
@@ -115,6 +116,17 @@ const slides: Slide[] = [
     ambient: "bg-[#f43f5e]/25",
   },
   {
+    kicker: "مراكز العزل والتظليل الحراري",
+    titleLine1: "حافظ على سيارتك من حرارة الصيف،",
+    titleLine2: "مع أفضل مراكز العزل الحراري",
+    description:
+      "تظليل حراري، عوازل عالية الجودة، وحماية متكاملة من أشعة الشمس من مراكز معتمدة بخصومات حصرية.",
+    image: heroTintingAsset.url,
+    badge: { value: "40%", label: "خصم التظليل" },
+    gradient: "from-[#0f172a] via-[#334155] to-[#64748b]",
+    ambient: "bg-[#334155]/25",
+  },
+  {
     kicker: "مراكز غسيل السيارات",
     titleLine1: "سيارتك تلمع كالجديدة،",
     titleLine2: "بأفضل مراكز الغسيل",
@@ -126,6 +138,7 @@ const slides: Slide[] = [
     ambient: "bg-[#1d4ed8]/25",
   },
 ];
+
 
 export function OffersHero() {
   const navigate = useNavigate();
