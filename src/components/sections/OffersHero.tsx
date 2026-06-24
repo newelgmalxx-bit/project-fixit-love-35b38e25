@@ -137,6 +137,8 @@ const slides: Slide[] = [
     gradient: "from-[#1e293b] via-[#1d4ed8] to-[#0ea5e9]",
     ambient: "bg-[#1d4ed8]/25",
   },
+];
+
 
 export function OffersHero() {
   const navigate = useNavigate();
