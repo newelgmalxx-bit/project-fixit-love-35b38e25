@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { publicApi } from "@/lib/api/public";
 import { useCategories } from "@/hooks/useCatalog";
+import { useSponsoredAdsBundle } from "@/hooks/useSponsoredAds";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import { SarIcon } from "@/components/ui/SarIcon";
 import heroFacial from "@/assets/hero-facial.jpg";
