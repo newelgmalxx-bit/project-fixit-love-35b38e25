@@ -4,7 +4,7 @@ import type { Offer } from "@/data/offers";
 import { useCategories, usePartner } from "@/hooks/useCatalog";
 import { SarIcon } from "@/components/ui/SarIcon";
 import { useFavorite } from "@/hooks/useFavorite";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { reviews as reviewsApi } from "@/lib/api/services";
 
 export function OfferCard({ offer }: { offer: Offer }) {
@@ -20,21 +20,28 @@ export function OfferCard({ offer }: { offer: Offer }) {
   const vendorCity = offer.vendor?.city || (partner as any)?.city || (partner as any)?.addressAr || (partner as any)?.address || "";
   const baseRating = offer.vendor?.rating || Number((partner as any)?.rating || 0);
   const baseReviews = offer.vendor?.reviewsCount || Number((partner as any)?.reviewsCount || 0);
-  const [liveStats, setLiveStats] = useState<{ avg: number; count: number } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    if (!offer.id || baseReviews > 0) return;
-    reviewsApi.list({ offerId: String(offer.id), limit: 1 }).then((res: any) => {
-      if (!alive) return;
+
+  // Shared cache key — seeded by useHomeData on the home page, so this
+  // doesn't fire a network call when home-data already provided reviews.
+  const { data: reviewStats } = useQuery({
+    queryKey: ["offer-reviews", String(offer.id)],
+    queryFn: async () => {
+      const res: any = await reviewsApi.list({ offerId: String(offer.id), limit: 1 });
       const data = res?.data ?? res;
       const total = Number(data?.total ?? (Array.isArray(data?.items) ? data.items.length : 0)) || 0;
       const avg = Number(data?.average ?? 0) || 0;
-      if (total > 0) setLiveStats({ avg: Math.round(avg * 10) / 10, count: total });
-    }).catch(() => {});
-    return () => { alive = false; };
-  }, [offer.id, baseReviews]);
+      return { total, average: Math.round(avg * 10) / 10 };
+    },
+    enabled: Boolean(offer.id) && baseReviews === 0,
+    staleTime: 60_000,
+  });
+  const liveStats =
+    reviewStats && reviewStats.total > 0
+      ? { avg: reviewStats.average, count: reviewStats.total }
+      : null;
   const vendorRating = liveStats?.avg ?? baseRating;
   const vendorReviews = liveStats?.count ?? baseReviews;
+
 
   return (
     <Link

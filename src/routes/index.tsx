@@ -12,6 +12,7 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import { buildSeo, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
 import { useLang } from "@/i18n/LanguageProvider";
+import { useHomeData } from "@/hooks/useHomeData";
 
 export const Route = createFileRoute("/")({
   head: () => {
@@ -36,6 +37,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { dir } = useLang();
+  // Single batch request that seeds categories/partners/offers/ads/reviews caches.
+  useHomeData(20);
 
   return (
     <div dir={dir} className="flex min-h-screen flex-col bg-background">
