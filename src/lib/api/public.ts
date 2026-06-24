@@ -271,6 +271,30 @@ export const publicApi = {
     }
   },
 
+  // Single batch endpoint for the home page: returns sponsored ads,
+  // featured offers (with partner fields merged), reviews keyed by offerId,
+  // partners keyed by id, categories, and a subset of site settings — in
+  // one request instead of 20+.
+  getHomeData: async (limit: number = 20): Promise<{
+    sponsoredAds: any[];
+    featuredOffers: any[];
+    reviews: Record<string, any[]>;
+    partners: Record<string, any>;
+    categories: any[];
+    settings: Record<string, any>;
+  }> => {
+    const r = await request<ApiResponse<any>>(`/home-data?limit=${limit}`);
+    const d: any = r?.data ?? r ?? {};
+    return {
+      sponsoredAds:   Array.isArray(d.sponsoredAds)   ? d.sponsoredAds   : [],
+      featuredOffers: Array.isArray(d.featuredOffers) ? d.featuredOffers : [],
+      reviews:        (d.reviews && typeof d.reviews === 'object')   ? d.reviews   : {},
+      partners:       (d.partners && typeof d.partners === 'object') ? d.partners  : {},
+      categories:     Array.isArray(d.categories)     ? d.categories     : [],
+      settings:       (d.settings && typeof d.settings === 'object') ? d.settings : {},
+    };
+  },
+
   // Generic upload (auth required by backend).
   upload: async (file: File, bucket: string = 'general') => {
     const fd = new FormData();
