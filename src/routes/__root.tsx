@@ -69,7 +69,15 @@ export const Route = createRootRoute({
     });
     return {
       meta: seo.meta,
-      links: seo.links,
+      links: [
+        ...seo.links,
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap",
+        },
+      ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(organizationJsonLd()) },
         { type: "application/ld+json", children: JSON.stringify(websiteJsonLd()) },
