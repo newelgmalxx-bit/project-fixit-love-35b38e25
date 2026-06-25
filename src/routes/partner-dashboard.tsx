@@ -3669,7 +3669,7 @@ function SupportTab() {
       const r = await partnerApi.listSupportTickets();
       setTickets(r?.items || []);
     } catch (e: any) {
-      toast.error(e?.message || "تعذر تحميل التذاكر");
+      toast.error(e?.message || L("تعذر تحميل التذاكر", "Failed to load tickets"));
     }
     setLoading(false);
   };
@@ -3685,7 +3685,7 @@ function SupportTab() {
       setActiveTicket(r?.ticket || null);
       setActiveMessages(r?.messages || []);
     } catch (e: any) {
-      toast.error(e?.message || "تعذر تحميل التذكرة");
+      toast.error(e?.message || L("تعذر تحميل التذكرة", "Failed to load ticket"));
       setActiveId(null);
     }
     setLoadingDetail(false);
@@ -3696,41 +3696,39 @@ function SupportTab() {
     setSendingReply(true);
     try {
       await partnerApi.createSupportTicket as any; // noop guard
-      // reuse messages endpoint via getSupportTicket POST? Use partnerApi if exists
       const api: any = partnerApi as any;
       if (typeof api.replySupportTicket === "function") {
         await api.replySupportTicket(activeId, reply.trim());
       } else {
-        // fallback: try generic
         await api.sendMessage?.(activeId, reply.trim());
       }
       setReply("");
       await openTicket(activeId);
-      toast.success("تم إرسال الرد");
+      toast.success(L("تم إرسال الرد", "Reply sent"));
     } catch (e: any) {
-      toast.error(e?.message || "فشل إرسال الرد");
+      toast.error(e?.message || L("فشل إرسال الرد", "Failed to send reply"));
     }
     setSendingReply(false);
   };
 
   const submit = async () => {
-    if (!subject.trim() || !body.trim()) { toast.error("املأ كل الحقول"); return; }
+    if (!subject.trim() || !body.trim()) { toast.error(L("املأ كل الحقول", "Fill in all fields")); return; }
     setSubmitting(true);
     try {
       await partnerApi.createSupportTicket({ subject: subject.trim(), body: body.trim() });
-      toast.success("تم إرسال التذكرة");
+      toast.success(L("تم إرسال التذكرة", "Ticket sent"));
       setSubject(""); setBody("");
       load();
     } catch (e: any) {
-      toast.error(e?.message || "فشل إرسال التذكرة");
+      toast.error(e?.message || L("فشل إرسال التذكرة", "Failed to send ticket"));
     }
     setSubmitting(false);
   };
 
   const statusLabel = (s?: string) => {
-    if (s === "open") return { t: "مفتوحة", c: "bg-amber-100 text-amber-800" };
-    if (s === "replied" || s === "in_progress") return { t: "تم الرد", c: "bg-blue-100 text-blue-800" };
-    if (s === "closed") return { t: "مغلقة", c: "bg-gray-200 text-gray-700" };
+    if (s === "open") return { t: L("مفتوحة", "Open"), c: "bg-amber-100 text-amber-800" };
+    if (s === "replied" || s === "in_progress") return { t: L("تم الرد", "Replied"), c: "bg-blue-100 text-blue-800" };
+    if (s === "closed") return { t: L("مغلقة", "Closed"), c: "bg-gray-200 text-gray-700" };
     return { t: s || "—", c: "bg-muted text-foreground/70" };
   };
 
