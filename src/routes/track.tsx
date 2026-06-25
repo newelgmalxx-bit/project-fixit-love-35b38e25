@@ -18,10 +18,10 @@ export const Route = createFileRoute("/track")({
 
 type StatusKey = "unpaid" | "paid" | "confirmed_branch";
 
-const STAGE_LABELS_AR: Record<StatusKey, string> = {
-  unpaid: "لم يتم الدفع",
-  paid: "تم الدفع",
-  confirmed_branch: "تم التأكيد في الفرع",
+const STAGE_LABELS: Record<StatusKey, { ar: string; en: string }> = {
+  unpaid: { ar: "لم يتم الدفع", en: "Unpaid" },
+  paid: { ar: "تم الدفع", en: "Paid" },
+  confirmed_branch: { ar: "تم التأكيد في الفرع", en: "Confirmed at branch" },
 };
 
 type OrderItem = {
