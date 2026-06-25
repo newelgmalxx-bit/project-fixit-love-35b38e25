@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { useCategories, useOffers } from "@/hooks/useCatalog";
 import { useMemo } from "react";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
+import { useLang } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/categories")({
   head: () => ({
