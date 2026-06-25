@@ -549,7 +549,7 @@ function MerchantsPage() {
                           onClick={() => setViewing(m)}
                           className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-bold hover:bg-muted"
                         >
-                          <Eye className="h-3.5 w-3.5" /> عرض
+                          <Eye className="h-3.5 w-3.5" /> {L("عرض", "View")}
                         </button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
