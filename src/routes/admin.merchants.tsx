@@ -657,42 +657,42 @@ function MerchantsPage() {
                   <div className="flex items-center gap-2"><Store className="h-4 w-4 text-primary" /> {viewing.owner}</div>
                   <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> <span dir="ltr">{viewing.phone}</span></div>
                   <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> {viewing.email}</div>
-                  <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> س.ت: <span dir="ltr">{viewing.commercialNumber}</span></div>
-                  <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /> انضم: {viewing.joined || "—"}</div>
-                  <div className="flex items-center gap-2"><Star className="h-4 w-4 text-amber-500" /> {viewing.rating > 0 ? `${viewing.rating} / 5` : "بدون تقييم"}</div>
+                  <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> {L("س.ت:", "CR:")} <span dir="ltr">{viewing.commercialNumber}</span></div>
+                  <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /> {L("انضم:", "Joined:")} {viewing.joined || "—"}</div>
+                  <div className="flex items-center gap-2"><Star className="h-4 w-4 text-amber-500" /> {viewing.rating > 0 ? `${viewing.rating} / 5` : L("بدون تقييم", "No rating")}</div>
                   {viewing.mapsUrl && (
                     <a href={viewing.mapsUrl} target="_blank" rel="noopener noreferrer" className="sm:col-span-2 inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 px-3 py-2 font-bold text-primary hover:bg-primary/10">
-                      <MapPin className="h-4 w-4" /> فتح الموقع على خرائط جوجل
+                      <MapPin className="h-4 w-4" /> {L("فتح الموقع على خرائط جوجل", "Open on Google Maps")}
                     </a>
                   )}
                 </div>
                 <div className="grid grid-cols-3 gap-3 rounded-2xl border border-border bg-muted/30 p-4 text-center">
                   <div>
                     <div className="text-2xl font-black">{viewing.offers}</div>
-                    <div className="text-xs text-muted-foreground">عرض</div>
+                    <div className="text-xs text-muted-foreground">{L("عرض", "Offers")}</div>
                   </div>
                   <div>
                     <div className="text-2xl font-black">{viewing.bookings}</div>
-                    <div className="text-xs text-muted-foreground">حجز</div>
+                    <div className="text-xs text-muted-foreground">{L("حجز", "Bookings")}</div>
                   </div>
                   <div>
                     <div className="text-2xl font-black" dir="ltr">{viewing.revenue.toLocaleString()}</div>
-                    <div className="text-xs text-muted-foreground">إيراد (ر.س)</div>
+                    <div className="text-xs text-muted-foreground">{L("إيراد (ر.س)", "Revenue (SAR)")}</div>
                   </div>
                 </div>
               </div>
               <DialogFooter className="gap-2 sm:gap-2">
                 {viewing.status === "pending" && (
                   <>
-                    <GhostButton onClick={() => setStatus(viewing.id, "rejected")}>رفض</GhostButton>
-                    <PrimaryButton onClick={() => setStatus(viewing.id, "active")}>اعتماد المركز</PrimaryButton>
+                    <GhostButton onClick={() => setStatus(viewing.id, "rejected")}>{L("رفض", "Reject")}</GhostButton>
+                    <PrimaryButton onClick={() => setStatus(viewing.id, "active")}>{L("اعتماد المركز", "Approve partner")}</PrimaryButton>
                   </>
                 )}
                 {viewing.status === "active" && (
-                  <GhostButton onClick={() => setStatus(viewing.id, "suspended")}>إيقاف مؤقت</GhostButton>
+                  <GhostButton onClick={() => setStatus(viewing.id, "suspended")}>{L("إيقاف مؤقت", "Suspend")}</GhostButton>
                 )}
                 {(viewing.status === "suspended" || viewing.status === "rejected") && (
-                  <PrimaryButton onClick={() => setStatus(viewing.id, "active")}>إعادة تفعيل</PrimaryButton>
+                  <PrimaryButton onClick={() => setStatus(viewing.id, "active")}>{L("إعادة تفعيل", "Reactivate")}</PrimaryButton>
                 )}
               </DialogFooter>
             </>
