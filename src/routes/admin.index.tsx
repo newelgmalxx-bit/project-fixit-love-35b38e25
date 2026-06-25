@@ -287,12 +287,12 @@ function AdminDashboard() {
         for (const o of offersList) {
           if (!o.id) continue;
           const byId = o.categoryId ? catNameById.get(String(o.categoryId)) : null;
-          const catName = byId || o.category?.nameAr || o.category?.nameEn || o.categoryName || o.categoryAr || "غير مصنف";
+          const catName = byId || o.category?.nameAr || o.category?.nameEn || o.categoryName || o.categoryAr || L("غير مصنف", "Uncategorized");
           offerCategoryById.set(String(o.id), catName);
         }
         const catMap = new Map<string, number>();
         for (const o of booked) {
-          const cat = offerCategoryById.get(String(o.offerId)) || o.category || o.offerCategory || "أخرى";
+          const cat = offerCategoryById.get(String(o.offerId)) || o.category || o.offerCategory || L("أخرى", "Other");
           catMap.set(cat, (catMap.get(cat) || 0) + totalOf(o));
         }
         const palette = ["#00AEC6", "#3a7fbe", "#5fa1d9", "#9bc4e8", "#cbe0f0", "#7c3aed", "#f59e0b"];
