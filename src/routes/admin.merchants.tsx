@@ -898,13 +898,13 @@ function AddCenterDialog({
           {/* Working hours */}
           <div className="sm:col-span-2 rounded-2xl border border-border p-3">
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-xs font-bold">ساعات العمل الأسبوعية</label>
+              <label className="text-xs font-bold">{L("ساعات العمل الأسبوعية", "Weekly working hours")}</label>
               <button
                 type="button"
                 onClick={() => up("workingHours", defaultWorkingHours())}
                 className="rounded-lg border border-border px-2 py-1 text-[11px] font-bold hover:bg-muted"
               >
-                استعادة الافتراضي
+                {L("استعادة الافتراضي", "Reset to default")}
               </button>
             </div>
             <div className="space-y-2">
@@ -917,7 +917,7 @@ function AddCenterDialog({
                 };
                 return (
                   <div key={d.key} className="grid grid-cols-[80px_1fr_1fr_auto] items-center gap-2">
-                    <div className="text-xs font-bold">{d.ar}</div>
+                    <div className="text-xs font-bold">{L(d.ar, d.en)}</div>
                     <input
                       type="time"
                       disabled={wh.closed}
@@ -938,7 +938,7 @@ function AddCenterDialog({
                         checked={!!wh.closed}
                         onChange={(e) => setWh({ closed: e.target.checked, open: e.target.checked ? "00:00" : "09:00", close: e.target.checked ? "00:00" : "22:00" })}
                       />
-                      مغلق
+                      {L("مغلق", "Closed")}
                     </label>
                   </div>
                 );
