@@ -35,111 +35,132 @@ type Slide = {
   description: string;
   image: string;
   badge: { value: string; label: string };
-  gradient: string; // tailwind from-* via-* to-*
-  ambient: string; // bg-{color} for blobs
+  gradient: string;
+  ambient: string;
 };
 
-const slides: Slide[] = [
-  {
-    kicker: "عروض متنوعة كل يوم",
-    titleLine1: "كل اللي تحتاجيه،",
-    titleLine2: "بخصومات حصرية ومتنوعة",
-    description:
-      "عروض مختارة من قطاعات مختلفة — جمال، صحة، لياقة، عناية وأكثر — بخصومات تصل حتى 73% وتتجدد باستمرار.",
-    image: heroFacial,
-    badge: { value: "73%", label: "أعلى خصم اليوم" },
-    gradient: "from-[#3F2A6B] via-[#7A4FB8] to-[#E0254D]",
-    ambient: "bg-[#E0254D]/25",
-  },
-  {
-    kicker: "صالونات ومراكز تجميل",
-    titleLine1: "إطلالة أحلى،",
-    titleLine2: "بأقوى عروض الصالونات",
-    description:
-      "صبغة، قصات، تسريحات، عناية بشرة وأكثر — من باقة واسعة من الصالونات والمراكز بأسعار حصرية.",
-    image: heroHairBlonde,
-    badge: { value: "60%", label: "خصومات الصالونات" },
-    gradient: "from-[#3F2A6B] via-[#A23A8A] to-[#E0254D]",
-    ambient: "bg-[#A23A8A]/25",
-  },
-  {
-    kicker: "تشكيلة متجددة من العروض",
-    titleLine1: "اختاري من تشكيلة واسعة،",
-    titleLine2: "تناسب كل احتياجاتك",
-    description:
-      "أكثر من 120 عرض حصري في تخصصات مختلفة، نضيف عروض جديدة كل أسبوع لتلاقي اللي يناسبك بسرعة.",
-    image: heroHairCurl,
-    badge: { value: "55%", label: "عروض متنوعة" },
-    gradient: "from-[#2A1B4E] via-[#5B3A9E] to-[#9B3FB8]",
-    ambient: "bg-[#5B3A9E]/30",
-  },
-  {
-    kicker: "عناية وجمال شامل",
-    titleLine1: "دلّلي نفسك،",
-    titleLine2: "بأفضل خدمات العناية",
-    description:
-      "بروتين، كيراتين، سبا، حجامة، وعلاجات تجميل متنوعة بإشراف متخصصين — احجزي بكل سهولة من المنصة.",
-    image: heroHairwash,
-    badge: { value: "50%", label: "عروض العناية" },
-    gradient: "from-[#3F2A6B] via-[#6B3FA8] to-[#E0254D]",
-    ambient: "bg-[#6B3FA8]/25",
-  },
-  {
-    kicker: "مناسبات وتصفيف احترافي",
-    titleLine1: "لكل مناسبة عرض،",
-    titleLine2: "ولكل ذوق اختيار",
-    description:
-      "تصفيف، مكياج، تجهيز عرائس، وعروض مميزة لكل المناسبات — تجدّيها كلها في مكان واحد.",
-    image: heroBlowdry,
-    badge: { value: "45%", label: "عروض المناسبات" },
-    gradient: "from-[#3F2A6B] via-[#8A3FB8] to-[#E0254D]",
-    ambient: "bg-[#3F2A6B]/30",
-  },
-  {
-    kicker: "مراكز وعيادات طبية",
-    titleLine1: "صحتك أولًا،",
-    titleLine2: "بأفضل المراكز والعيادات",
-    description:
-      "أسنان، جلدية، ليزر، تجميل طبي وأكثر — من مراكز وعيادات معتمدة بخصومات حقيقية ومتنوعة.",
-    image: heroMedical,
-    badge: { value: "55%", label: "خصومات طبية" },
-    gradient: "from-[#0b3b4a] via-[#0891b2] to-[#00aec6]",
-    ambient: "bg-[#00aec6]/25",
-  },
-  {
-    kicker: "لياقة، يوغا، ورياضة",
-    titleLine1: "نشاطك يبدأ هنا،",
-    titleLine2: "بعروض رياضية متنوعة",
-    description:
-      "اشتراكات جيم، يوغا، كروس فيت، ومدربين خاصين من نوادي مختلفة — اختاري الأنسب لك بأفضل سعر.",
-    image: heroFitness,
-    badge: { value: "40%", label: "عروض الرياضة" },
-    gradient: "from-[#7f1d1d] via-[#b91c1c] to-[#f43f5e]",
-    ambient: "bg-[#f43f5e]/25",
-  },
-  {
-    kicker: "مراكز العزل والتظليل الحراري",
-    titleLine1: "حافظ على سيارتك من حرارة الصيف،",
-    titleLine2: "مع أفضل مراكز العزل الحراري",
-    description:
-      "تظليل حراري، عوازل عالية الجودة، وحماية متكاملة من أشعة الشمس من مراكز معتمدة بخصومات حصرية.",
-    image: heroTinting,
-    badge: { value: "40%", label: "خصم التظليل" },
-    gradient: "from-[#0f172a] via-[#334155] to-[#64748b]",
-    ambient: "bg-[#334155]/25",
-  },
-  {
-    kicker: "مراكز غسيل السيارات",
-    titleLine1: "سيارتك تلمع كالجديدة،",
-    titleLine2: "بأفضل مراكز الغسيل",
-    description:
-      "غسيل خارجي وداخلي، بوليش، تلميع، وتنظيف بالبخار من مراكز معتمدة بخصومات حصرية تصل حتى 50%.",
-    image: heroCarwash,
-    badge: { value: "50%", label: "خصم الغسيل" },
-    gradient: "from-[#1e293b] via-[#1d4ed8] to-[#0ea5e9]",
-    ambient: "bg-[#1d4ed8]/25",
-  },
-];
+function buildSlides(L: (a: string, e: string) => string): Slide[] {
+  return [
+    {
+      kicker: L("عروض متنوعة كل يوم", "Fresh deals every day"),
+      titleLine1: L("كل اللي تحتاجيه،", "Everything you need,"),
+      titleLine2: L("بخصومات حصرية ومتنوعة", "with exclusive, varied discounts"),
+      description: L(
+        "عروض مختارة من قطاعات مختلفة — جمال، صحة، لياقة، عناية وأكثر — بخصومات تصل حتى 73% وتتجدد باستمرار.",
+        "Curated deals across beauty, health, fitness, wellness and more — up to 73% off, updated constantly."
+      ),
+      image: heroFacial,
+      badge: { value: "73%", label: L("أعلى خصم اليوم", "Today's biggest discount") },
+      gradient: "from-[#3F2A6B] via-[#7A4FB8] to-[#E0254D]",
+      ambient: "bg-[#E0254D]/25",
+    },
+    {
+      kicker: L("صالونات ومراكز تجميل", "Salons & beauty centers"),
+      titleLine1: L("إطلالة أحلى،", "A better look,"),
+      titleLine2: L("بأقوى عروض الصالونات", "with the best salon deals"),
+      description: L(
+        "صبغة، قصات، تسريحات، عناية بشرة وأكثر — من باقة واسعة من الصالونات والمراكز بأسعار حصرية.",
+        "Coloring, cuts, styling, skincare and more — from a wide selection of salons at exclusive prices."
+      ),
+      image: heroHairBlonde,
+      badge: { value: "60%", label: L("خصومات الصالونات", "Salon discounts") },
+      gradient: "from-[#3F2A6B] via-[#A23A8A] to-[#E0254D]",
+      ambient: "bg-[#A23A8A]/25",
+    },
+    {
+      kicker: L("تشكيلة متجددة من العروض", "A constantly refreshed lineup"),
+      titleLine1: L("اختاري من تشكيلة واسعة،", "Choose from a wide range,"),
+      titleLine2: L("تناسب كل احتياجاتك", "matching every need"),
+      description: L(
+        "أكثر من 120 عرض حصري في تخصصات مختلفة، نضيف عروض جديدة كل أسبوع لتلاقي اللي يناسبك بسرعة.",
+        "Over 120 exclusive offers across categories, with new ones added weekly so you find what fits fast."
+      ),
+      image: heroHairCurl,
+      badge: { value: "55%", label: L("عروض متنوعة", "Varied offers") },
+      gradient: "from-[#2A1B4E] via-[#5B3A9E] to-[#9B3FB8]",
+      ambient: "bg-[#5B3A9E]/30",
+    },
+    {
+      kicker: L("عناية وجمال شامل", "Complete wellness & beauty"),
+      titleLine1: L("دلّلي نفسك،", "Treat yourself,"),
+      titleLine2: L("بأفضل خدمات العناية", "with the best care services"),
+      description: L(
+        "بروتين، كيراتين، سبا، حجامة، وعلاجات تجميل متنوعة بإشراف متخصصين — احجزي بكل سهولة من المنصة.",
+        "Protein, keratin, spa, cupping and a variety of cosmetic treatments by specialists — book easily on the platform."
+      ),
+      image: heroHairwash,
+      badge: { value: "50%", label: L("عروض العناية", "Care offers") },
+      gradient: "from-[#3F2A6B] via-[#6B3FA8] to-[#E0254D]",
+      ambient: "bg-[#6B3FA8]/25",
+    },
+    {
+      kicker: L("مناسبات وتصفيف احترافي", "Occasions & pro styling"),
+      titleLine1: L("لكل مناسبة عرض،", "An offer for every occasion,"),
+      titleLine2: L("ولكل ذوق اختيار", "and a pick for every taste"),
+      description: L(
+        "تصفيف، مكياج، تجهيز عرائس، وعروض مميزة لكل المناسبات — تجدّيها كلها في مكان واحد.",
+        "Styling, makeup, bridal prep and special-occasion offers — all in one place."
+      ),
+      image: heroBlowdry,
+      badge: { value: "45%", label: L("عروض المناسبات", "Occasion deals") },
+      gradient: "from-[#3F2A6B] via-[#8A3FB8] to-[#E0254D]",
+      ambient: "bg-[#3F2A6B]/30",
+    },
+    {
+      kicker: L("مراكز وعيادات طبية", "Medical centers & clinics"),
+      titleLine1: L("صحتك أولًا،", "Your health first,"),
+      titleLine2: L("بأفضل المراكز والعيادات", "with the best centers & clinics"),
+      description: L(
+        "أسنان، جلدية، ليزر، تجميل طبي وأكثر — من مراكز وعيادات معتمدة بخصومات حقيقية ومتنوعة.",
+        "Dental, dermatology, laser, medical aesthetics and more — from accredited centers with real, varied discounts."
+      ),
+      image: heroMedical,
+      badge: { value: "55%", label: L("خصومات طبية", "Medical discounts") },
+      gradient: "from-[#0b3b4a] via-[#0891b2] to-[#00aec6]",
+      ambient: "bg-[#00aec6]/25",
+    },
+    {
+      kicker: L("لياقة، يوغا، ورياضة", "Fitness, yoga & sports"),
+      titleLine1: L("نشاطك يبدأ هنا،", "Your fitness starts here,"),
+      titleLine2: L("بعروض رياضية متنوعة", "with varied sports offers"),
+      description: L(
+        "اشتراكات جيم، يوغا، كروس فيت، ومدربين خاصين من نوادي مختلفة — اختاري الأنسب لك بأفضل سعر.",
+        "Gym memberships, yoga, CrossFit and personal trainers from various clubs — pick the best fit at the best price."
+      ),
+      image: heroFitness,
+      badge: { value: "40%", label: L("عروض الرياضة", "Sports deals") },
+      gradient: "from-[#7f1d1d] via-[#b91c1c] to-[#f43f5e]",
+      ambient: "bg-[#f43f5e]/25",
+    },
+    {
+      kicker: L("مراكز العزل والتظليل الحراري", "Insulation & window tinting"),
+      titleLine1: L("حافظ على سيارتك من حرارة الصيف،", "Protect your car from the summer heat,"),
+      titleLine2: L("مع أفضل مراكز العزل الحراري", "with the best thermal insulation centers"),
+      description: L(
+        "تظليل حراري، عوازل عالية الجودة، وحماية متكاملة من أشعة الشمس من مراكز معتمدة بخصومات حصرية.",
+        "Thermal tinting, premium insulation and full sun protection from certified centers — at exclusive prices."
+      ),
+      image: heroTinting,
+      badge: { value: "40%", label: L("خصم التظليل", "Tinting discount") },
+      gradient: "from-[#0f172a] via-[#334155] to-[#64748b]",
+      ambient: "bg-[#334155]/25",
+    },
+    {
+      kicker: L("مراكز غسيل السيارات", "Car wash centers"),
+      titleLine1: L("سيارتك تلمع كالجديدة،", "Your car shining like new,"),
+      titleLine2: L("بأفضل مراكز الغسيل", "at the top car wash centers"),
+      description: L(
+        "غسيل خارجي وداخلي، بوليش، تلميع، وتنظيف بالبخار من مراكز معتمدة بخصومات حصرية تصل حتى 50%.",
+        "Exterior & interior wash, polish, detailing and steam cleaning from certified centers — up to 50% off."
+      ),
+      image: heroCarwash,
+      badge: { value: "50%", label: L("خصم الغسيل", "Wash discount") },
+      gradient: "from-[#1e293b] via-[#1d4ed8] to-[#0ea5e9]",
+      ambient: "bg-[#1d4ed8]/25",
+    },
+  ];
+}
+
 
 
 export function OffersHero() {
