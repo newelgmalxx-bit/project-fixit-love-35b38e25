@@ -99,6 +99,10 @@ function OfferDetailPage() {
   const { offers: sameCategoryOffers } = useOffersByCategory(offer.category);
   const navigate = useNavigate();
   const site = useSiteSettings();
+  const { lang, dir } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const FAQ = lang === "en" ? FAQ_EN : FAQ_AR;
+  const cancellationTerms = lang === "en" ? cancellationTermsEn : cancellationTermsAr;
   const cancellationTermsAr: string[] = Array.isArray((site as any).cancellationTerms) && (site as any).cancellationTerms.length
     ? (site as any).cancellationTerms
     : [
