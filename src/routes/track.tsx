@@ -411,7 +411,7 @@ function TrackPage() {
         <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
           {notFound && (
             <p className="mx-auto max-w-3xl rounded-2xl border border-border bg-muted/40 p-4 text-center text-sm text-muted-foreground">
-              لم نجد حجزاً مطابقاً. تحقق من رقم الحجز ورمز التأكيد ثم حاول مرة أخرى.
+              {L("لم نجد حجزاً مطابقاً. تحقق من رقم الحجز ورمز التأكيد ثم حاول مرة أخرى.", "We couldn't find a matching booking. Verify the booking number and code, then try again.")}
             </p>
           )}
 
