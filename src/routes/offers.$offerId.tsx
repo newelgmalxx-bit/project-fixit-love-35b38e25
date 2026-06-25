@@ -1322,7 +1322,7 @@ function OfferDetailPage() {
                       <div className="text-base font-extrabold text-foreground">{offer.vendor.name}</div>
                       <div className="mt-1 flex items-start gap-1 text-sm text-muted-foreground">
                         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                        <span>{offer.vendor.address}، {offer.vendor.city}</span>
+                        <span>{offer.vendor.address}{L("، ", ", ")}{offer.vendor.city}</span>
                       </div>
                       <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/5 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/10">
                         <MapPin className="h-3.5 w-3.5" /> {L("فتح على خرائط Google", "Open in Google Maps")}
@@ -1353,8 +1353,8 @@ function OfferDetailPage() {
                           <span dir="ltr">{formatMoney(savings * qty)} {L("ر.س", "SAR")}</span>
                         </div>
                         <div className="flex items-center justify-between border-t border-border pt-2 text-base font-bold text-foreground">
-                          <span>الإجمالي شامل الضريبة</span>
-                          <span dir="ltr">{formatMoney(total)} ر.س</span>
+                          <span>{L("الإجمالي شامل الضريبة", "Total incl. VAT")}</span>
+                          <span dir="ltr">{formatMoney(total)} {L("ر.س", "SAR")}</span>
                         </div>
                         <div className="flex items-center justify-between rounded-lg bg-primary/10 px-3 py-2 text-base font-extrabold text-primary">
                           <span>{L(`عربون الآن (${depositPctLabel})`, `Deposit now (${depositPctLabel})`)}</span>
@@ -1362,7 +1362,7 @@ function OfferDetailPage() {
                         </div>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{L("المتبقي يُدفع عند الخدمة", "Remaining paid at service")}</span>
-                          <span dir="ltr">{formatMoney(remainingAmount)} ر.س</span>
+                          <span dir="ltr">{formatMoney(remainingAmount)} {L("ر.س", "SAR")}</span>
                         </div>
                       </div>
                     </section>
