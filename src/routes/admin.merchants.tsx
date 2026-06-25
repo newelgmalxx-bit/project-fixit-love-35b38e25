@@ -48,14 +48,14 @@ type Merchant = {
   packageId?: string;
 };
 
-const WEEK_DAYS: { key: string; ar: string }[] = [
-  { key: "saturday", ar: "السبت" },
-  { key: "sunday", ar: "الأحد" },
-  { key: "monday", ar: "الاثنين" },
-  { key: "tuesday", ar: "الثلاثاء" },
-  { key: "wednesday", ar: "الأربعاء" },
-  { key: "thursday", ar: "الخميس" },
-  { key: "friday", ar: "الجمعة" },
+const WEEK_DAYS: { key: string; ar: string; en: string }[] = [
+  { key: "saturday", ar: "السبت", en: "Saturday" },
+  { key: "sunday", ar: "الأحد", en: "Sunday" },
+  { key: "monday", ar: "الاثنين", en: "Monday" },
+  { key: "tuesday", ar: "الثلاثاء", en: "Tuesday" },
+  { key: "wednesday", ar: "الأربعاء", en: "Wednesday" },
+  { key: "thursday", ar: "الخميس", en: "Thursday" },
+  { key: "friday", ar: "الجمعة", en: "Friday" },
 ];
 
 function defaultWorkingHours(): WorkingHour[] {
@@ -86,11 +86,11 @@ function parseWorkingHours(raw: any): WorkingHour[] {
 }
 
 
-const STATUS_META: Record<Status, { label: string; tone: "emerald" | "amber" | "rose" | "muted"; icon: any }> = {
-  active: { label: "نشط", tone: "emerald", icon: CheckCircle2 },
-  pending: { label: "قيد المراجعة", tone: "amber", icon: Clock },
-  suspended: { label: "موقوف", tone: "muted", icon: Ban },
-  rejected: { label: "مرفوض", tone: "rose", icon: XCircle },
+const STATUS_META: Record<Status, { ar: string; en: string; tone: "emerald" | "amber" | "rose" | "muted"; icon: any }> = {
+  active: { ar: "نشط", en: "Active", tone: "emerald", icon: CheckCircle2 },
+  pending: { ar: "قيد المراجعة", en: "Pending review", tone: "amber", icon: Clock },
+  suspended: { ar: "موقوف", en: "Suspended", tone: "muted", icon: Ban },
+  rejected: { ar: "مرفوض", en: "Rejected", tone: "rose", icon: XCircle },
 };
 
 function normalizeStatus(s: any): Status {
