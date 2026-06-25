@@ -301,7 +301,7 @@ function BookingsPage() {
           <select value={category} onChange={(e) => setCategory(e.target.value)}
             className="rounded-xl border border-border bg-background px-3 py-2 text-sm">
             <option value="">{L("كل التصنيفات", "All categories")}</option>
-            {categories.map((c) => <option key={c.id} value={c.slug}>{c.nameAr}</option>)}
+            {categories.map((c) => <option key={c.id} value={c.slug}>{lang === "en" ? (c.nameEn || c.nameAr) : c.nameAr}</option>)}
           </select>
           <input value={city} onChange={(e) => setCity(e.target.value)} placeholder={L("المدينة", "City")}
             className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
