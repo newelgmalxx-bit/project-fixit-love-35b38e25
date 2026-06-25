@@ -528,7 +528,7 @@ function MerchantsPage() {
                     </td>
                     <td className="p-3 font-bold">{m.offers}</td>
                     <td className="p-3 font-bold">{m.bookings}</td>
-                    <td className="p-3 font-bold" dir="ltr">{m.revenue.toLocaleString()} ر.س</td>
+                    <td className="p-3 font-bold" dir="ltr">{m.revenue.toLocaleString()} {L("ر.س", "SAR")}</td>
                     <td className="p-3">
                       {m.rating > 0 ? (
                         <span className="inline-flex items-center gap-1 text-sm font-bold">
