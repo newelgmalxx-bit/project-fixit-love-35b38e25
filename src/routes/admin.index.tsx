@@ -102,18 +102,18 @@ function AdminDashboard() {
   async function approvePartner(p: any) {
     if (p._real) {
       try { await adminPartnersApi.setStatus(p.id, "active"); }
-      catch { toast.error("تعذّر اعتماد المركز"); return; }
+      catch { toast.error(L("تعذّر اعتماد المركز", "Failed to approve partner")); return; }
     }
     setPendingPartners((arr) => arr.filter((x) => x.id !== p.id));
-    toast.success(`تم اعتماد ${p.name}`);
+    toast.success(L(`تم اعتماد ${p.name}`, `${p.name} approved`));
   }
   async function rejectPartner(p: any) {
     if (p._real) {
       try { await adminPartnersApi.setStatus(p.id, "rejected"); }
-      catch { toast.error("تعذّر رفض الطلب"); return; }
+      catch { toast.error(L("تعذّر رفض الطلب", "Failed to reject request")); return; }
     }
     setPendingPartners((arr) => arr.filter((x) => x.id !== p.id));
-    toast.success(`تم رفض طلب ${p.name}`);
+    toast.success(L(`تم رفض طلب ${p.name}`, `${p.name} request rejected`));
   }
 
 
