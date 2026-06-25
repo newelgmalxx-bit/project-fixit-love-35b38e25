@@ -70,7 +70,7 @@ function loadLocal(): StoredBooking[] {
 }
 
 function MyBookings() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [items, setItems] = useState<StoredBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [edit, setEdit] = useState<StoredBooking | null>(null);
