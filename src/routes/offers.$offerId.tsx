@@ -99,12 +99,19 @@ function OfferDetailPage() {
   const { offers: sameCategoryOffers } = useOffersByCategory(offer.category);
   const navigate = useNavigate();
   const site = useSiteSettings();
-  const cancellationTerms: string[] = Array.isArray((site as any).cancellationTerms) && (site as any).cancellationTerms.length
+  const cancellationTermsAr: string[] = Array.isArray((site as any).cancellationTerms) && (site as any).cancellationTerms.length
     ? (site as any).cancellationTerms
     : [
         "إلغاء مجاني واسترداد العربون قبل 6 ساعات من الموعد.",
         "خصم 50% من العربون عند الإلغاء قبل أقل من 6 ساعات.",
         "العربون غير مسترد في حال عدم الحضور بدون إشعار.",
+      ];
+  const cancellationTermsEn: string[] = Array.isArray((site as any).cancellationTermsEn) && (site as any).cancellationTermsEn.length
+    ? (site as any).cancellationTermsEn
+    : [
+        "Free cancellation and deposit refund up to 6 hours before the appointment.",
+        "50% deduction from the deposit when cancelling less than 6 hours before.",
+        "Deposit is non-refundable in case of no-show without notice.",
       ];
   const mapsUrl = (offer.vendor as any).mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.vendor.name} ${offer.vendor.address} ${offer.vendor.city}`)}`;
 
