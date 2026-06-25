@@ -588,7 +588,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
               {duration > 0 && (
                 <span className="inline-flex items-center gap-0.5 text-muted-foreground">
                   <Clock className="h-3 w-3" />
-                  <span className="font-semibold">{duration} د</span>
+                  <span className="font-semibold">{duration} {L("د", "min")}</span>
                 </span>
               )}
             </div>
