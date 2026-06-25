@@ -597,7 +597,7 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
   );
 }
 
-function Timeline({ currentIndex, dir, t, timeline, locale }: { currentIndex: number; dir: "rtl" | "ltr"; t: (k: TKey) => string; timeline: TimelineEvent[]; locale: string }) {
+function Timeline({ currentIndex, dir, t, timeline, locale, lang }: { currentIndex: number; dir: "rtl" | "ltr"; t: (k: TKey) => string; timeline: TimelineEvent[]; locale: string; lang: "ar" | "en" }) {
   const ordered = dir === "rtl" ? [...STAGE_KEYS].reverse() : [...STAGE_KEYS];
 
   const stageToStatus: Record<StatusKey, string> = {
