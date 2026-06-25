@@ -4,7 +4,6 @@ import path from "node:path";
 export default defineConfig({
   tanstackStart: {
     spa: { enabled: true, prerender: { outputPath: "/index" } },
-    server: { entry: "server" },
   },
   vite: {
     resolve: {
