@@ -90,7 +90,7 @@ export function PartnerSelect({ value, onChange, placeholder, disabled }: Props)
               autoFocus
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder={placeholder}
+              placeholder={ph}
               className="flex-1 bg-transparent text-sm outline-none"
             />
           </div>
