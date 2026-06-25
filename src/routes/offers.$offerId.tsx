@@ -655,7 +655,7 @@ function OfferDetailPage() {
         <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
           {/* Breadcrumb */}
           <div className="mb-5 flex items-center gap-1 text-xs text-muted-foreground">
-            <Link to="/" className="hover:text-primary">الرئيسية</Link>
+            <Link to="/" className="hover:text-primary">{L("الرئيسية", "Home")}</Link>
             <ChevronLeft className="h-3 w-3" />
             {category && (
               <>
@@ -664,7 +664,7 @@ function OfferDetailPage() {
                   params={{ slug: category.slug }}
                   className="hover:text-primary"
                 >
-                  {category.nameAr}
+                  {lang === "en" ? ((category as any).nameEn || category.nameAr) : category.nameAr}
                 </Link>
                 <ChevronLeft className="h-3 w-3" />
               </>
@@ -690,7 +690,7 @@ function OfferDetailPage() {
                     <BadgePercent className="h-5 w-5" />
                     <div className="leading-tight">
                       <div className="text-xl font-extrabold">{offer.discountPercent}%</div>
-                      <div className="text-[10px] opacity-90">خصم اليوم</div>
+                      <div className="text-[10px] opacity-90">{L("خصم اليوم", "Today's discount")}</div>
                     </div>
                   </div>
                   {/* Category pill */}
@@ -701,7 +701,7 @@ function OfferDetailPage() {
                       className="absolute start-4 top-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-foreground backdrop-blur hover:bg-white"
                     >
                       <span className="inline-flex h-4 w-4 items-center justify-center overflow-hidden">{renderCategoryIcon(category.icon)}</span>
-                      {category.nameAr}
+                      {lang === "en" ? ((category as any).nameEn || category.nameAr) : category.nameAr}
                     </Link>
                   )}
                   {/* Bottom overlay actions */}
@@ -709,7 +709,7 @@ function OfferDetailPage() {
                     <button
                       type="button"
                       onClick={toggleFavorite}
-                      aria-label="حفظ"
+                      aria-label={L("حفظ", "Save")}
                       className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-foreground shadow-lg backdrop-blur transition hover:scale-105"
                     >
                       <Heart className={`h-5 w-5 ${favorite ? "fill-rose-500 text-rose-500" : ""}`} />
@@ -717,7 +717,7 @@ function OfferDetailPage() {
                     <button
                       type="button"
                       onClick={handleShare}
-                      aria-label="مشاركة"
+                      aria-label={L("مشاركة", "Share")}
                       className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-foreground shadow-lg backdrop-blur transition hover:scale-105"
                     >
                       <Share2 className="h-5 w-5" />
@@ -775,10 +775,10 @@ function OfferDetailPage() {
               <div className="rounded-3xl border border-border bg-card shadow-sm">
                 <div className="flex gap-1 overflow-x-auto border-b border-border p-2">
                   {[
-                    { id: "overview", label: "نظرة عامة" },
-                    { id: "terms", label: "الشروط" },
-                    { id: "location", label: "الموقع والمنشأة" },
-                    { id: "reviews", label: offer.vendor.reviewsCount > 0 ? `التقييمات (${offer.vendor.reviewsCount})` : "التقييمات" },
+                    { id: "overview", label: L("نظرة عامة", "Overview") },
+                    { id: "terms", label: L("الشروط", "Terms") },
+                    { id: "location", label: L("الموقع والمنشأة", "Location & venue") },
+                    { id: "reviews", label: offer.vendor.reviewsCount > 0 ? L(`التقييمات (${offer.vendor.reviewsCount})`, `Reviews (${offer.vendor.reviewsCount})`) : L("التقييمات", "Reviews") },
                   ].map((t) => (
                     <button
                       key={t.id}
@@ -825,7 +825,7 @@ function OfferDetailPage() {
                         </li>
                       ))}
                       {(!Array.isArray((offer as any).terms) || (offer as any).terms.length === 0) && (
-                        <li className="text-sm text-muted-foreground">لا توجد شروط مضافة لهذا العرض.</li>
+                        <li className="text-sm text-muted-foreground">{L("لا توجد شروط مضافة لهذا العرض.", "No terms added for this offer.")}</li>
                       )}
                     </ul>
                   )}
@@ -840,15 +840,15 @@ function OfferDetailPage() {
                             <span>{offer.vendor.address}، {offer.vendor.city}</span>
                           </div>
                           <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10 transition">
-                            <MapPin className="h-4 w-4" /> فتح على خرائط Google
+                            <MapPin className="h-4 w-4" /> {L("فتح على خرائط Google", "Open in Google Maps")}
                           </a>
                           <div className="flex items-start gap-2">
                             <FileText className="mt-0.5 h-4 w-4 text-primary" />
-                            <span>السجل التجاري: <span dir="ltr">{offer.vendor.commercialNumber}</span></span>
+                            <span>{L("السجل التجاري:", "Commercial register:")} <span dir="ltr">{offer.vendor.commercialNumber}</span></span>
                           </div>
                           <div className="flex items-start gap-2">
                             <Star className="mt-0.5 h-4 w-4 text-amber-500" />
-                            <span>{offer.vendor.reviewsCount > 0 ? `${offer.vendor.rating} · ${offer.vendor.reviewsCount} تقييم` : "لا توجد تقييمات بعد"}</span>
+                            <span>{offer.vendor.reviewsCount > 0 ? L(`${offer.vendor.rating} · ${offer.vendor.reviewsCount} تقييم`, `${offer.vendor.rating} · ${offer.vendor.reviewsCount} reviews`) : L("لا توجد تقييمات بعد", "No reviews yet")}</span>
                           </div>
 
                         </div>
@@ -862,7 +862,7 @@ function OfferDetailPage() {
                               <MapPin className="h-7 w-7" />
                             </div>
                             <div className="text-sm font-bold text-foreground">{offer.vendor.city}</div>
-                            <div className="text-xs text-muted-foreground">سيظهر العنوان التفصيلي بعد تأكيد الحجز</div>
+                            <div className="text-xs text-muted-foreground">{L("سيظهر العنوان التفصيلي بعد تأكيد الحجز", "The detailed address will appear after confirming the booking")}</div>
                           </div>
                         </div>
                       </div>
@@ -970,13 +970,13 @@ function OfferDetailPage() {
                           disabled={reviewSubmitting}
                           className="w-full rounded-xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] py-2.5 text-sm font-extrabold text-white shadow transition hover:scale-[1.01] disabled:opacity-60"
                         >
-                          {reviewSubmitting ? "جاري الإرسال…" : "إرسال التقييم"}
+                          {reviewSubmitting ? L("جاري الإرسال…", "Submitting…") : L("إرسال التقييم", "Submit review")}
                         </button>
                       </form>
 
                       {userReviews.length === 0 ? (
                         <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-8 text-center text-sm text-muted-foreground">
-                          لا توجد تقييمات بعد — كن أول من يشارك تجربته!
+                          {L("لا توجد تقييمات بعد — كن أول من يشارك تجربته!", "No reviews yet — be the first to share your experience!")}
                         </div>
                       ) : (
                         userReviews.map((rv, i) => (
@@ -1325,7 +1325,7 @@ function OfferDetailPage() {
                         <span>{offer.vendor.address}، {offer.vendor.city}</span>
                       </div>
                       <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/5 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/10">
-                        <MapPin className="h-3.5 w-3.5" /> فتح على خرائط Google
+                        <MapPin className="h-3.5 w-3.5" /> {L("فتح على خرائط Google", "Open in Google Maps")}
                       </a>
 
                     </section>
