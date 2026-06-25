@@ -369,11 +369,11 @@ function SlideContent({
               <div className="absolute z-30 mt-2 max-h-80 w-full overflow-auto rounded-2xl border border-border bg-card p-2 shadow-2xl">
                 {matches.length === 0 ? (
                   <div className="px-3 py-4 text-center text-sm text-muted-foreground">
-                    لا توجد نتائج مطابقة
+                    {L("لا توجد نتائج مطابقة", "No matching results")}
                   </div>
                 ) : (
                   matches.map((o: any) => {
-                    const title = o.title || o.titleAr || o.titleEn || "عرض";
+                    const title = (lang === "en" ? (o.titleEn || o.title || o.titleAr) : (o.title || o.titleAr || o.titleEn)) || L("عرض", "Offer");
                     const sub = o.vendor?.name || o.partner?.vendorName || o.partnerName || o.vendorName || o.city || "";
                     const img = o.image || o.imageUrl || o.coverImage || null;
                     return (
