@@ -533,7 +533,7 @@ function MerchantsPage() {
                     </td>
                     <td className="p-3">
                       <Pill tone={s.tone}>
-                        <s.icon className="h-3 w-3" /> {s.label}
+                        <s.icon className="h-3 w-3" /> {sLabel(m.status)}
                       </Pill>
                     </td>
                     <td className="p-3 text-end">
