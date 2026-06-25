@@ -599,21 +599,21 @@ function MerchantsPage() {
                                 setEditing(m);
                               }
                             }}>
-                              <Pencil className="me-2 h-4 w-4" /> تعديل البيانات
+                              <Pencil className="me-2 h-4 w-4" /> {L("تعديل البيانات", "Edit details")}
                             </DropdownMenuItem>
                             {m.status === "active" && (
                               <DropdownMenuItem onClick={() => setStatus(m.id, "suspended")}>
-                                <Ban className="me-2 h-4 w-4 text-amber-600" /> إيقاف مؤقت
+                                <Ban className="me-2 h-4 w-4 text-amber-600" /> {L("إيقاف مؤقت", "Suspend")}
                               </DropdownMenuItem>
                             )}
                             {(m.status === "suspended" || m.status === "rejected") && (
                               <DropdownMenuItem onClick={() => setStatus(m.id, "active")}>
-                                <CheckCircle2 className="me-2 h-4 w-4 text-emerald-600" /> إعادة تفعيل
+                                <CheckCircle2 className="me-2 h-4 w-4 text-emerald-600" /> {L("إعادة تفعيل", "Reactivate")}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => deleteCenter(m, true)} className="text-rose-600 focus:text-rose-600">
-                              <Trash2 className="me-2 h-4 w-4" /> حذف نهائي
+                              <Trash2 className="me-2 h-4 w-4" /> {L("حذف نهائي", "Delete permanently")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
