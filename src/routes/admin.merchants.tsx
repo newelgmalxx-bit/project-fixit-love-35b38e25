@@ -334,17 +334,17 @@ function MerchantsPage() {
       });
       const tempPwd = res?.data?.partner?.tempPassword || res?.partner?.tempPassword;
       if (tempPwd) {
-        toast.success(`تمت إضافة المركز — كلمة المرور المؤقتة: ${tempPwd}`, {
+        toast.success(L(`تمت إضافة المركز — كلمة المرور المؤقتة: ${tempPwd}`, `Partner added — temporary password: ${tempPwd}`), {
           duration: 12000,
-          action: { label: "نسخ", onClick: () => navigator.clipboard.writeText(tempPwd) },
+          action: { label: L("نسخ", "Copy"), onClick: () => navigator.clipboard.writeText(tempPwd) },
         });
       } else {
-        toast.success("تمت إضافة المركز");
+        toast.success(L("تمت إضافة المركز", "Partner added"));
       }
       setAddOpen(false);
       load();
     } catch (e: any) {
-      toast.error(e?.message || "تعذّر إضافة المركز");
+      toast.error(e?.message || L("تعذّر إضافة المركز", "Failed to add partner"));
     }
   }
 
