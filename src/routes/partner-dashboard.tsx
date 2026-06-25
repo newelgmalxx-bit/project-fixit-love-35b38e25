@@ -448,11 +448,13 @@ function PartnerDashboard() {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { lang } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
   const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: "قيد المراجعة", cls: "bg-amber-100 text-amber-800 border-amber-200" },
-    active: { label: "نشط", cls: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-    rejected: { label: "مرفوض", cls: "bg-rose-100 text-rose-800 border-rose-200" },
-    suspended: { label: "موقوف", cls: "bg-gray-200 text-gray-800 border-gray-300" },
+    pending: { label: L("قيد المراجعة", "Under review"), cls: "bg-amber-100 text-amber-800 border-amber-200" },
+    active: { label: L("نشط", "Active"), cls: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+    rejected: { label: L("مرفوض", "Rejected"), cls: "bg-rose-100 text-rose-800 border-rose-200" },
+    suspended: { label: L("موقوف", "Suspended"), cls: "bg-gray-200 text-gray-800 border-gray-300" },
   };
   const c = map[status] || map.pending;
   return <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold ${c.cls}`}>{c.label}</span>;
