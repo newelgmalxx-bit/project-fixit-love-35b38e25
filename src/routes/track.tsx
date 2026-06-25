@@ -525,7 +525,7 @@ function TrackPage() {
               {/* Partner / Center info */}
               {result.partner && (
                 <div className="rounded-3xl border border-border bg-white p-6 sm:p-8">
-                  <h2 className={`mb-6 ${textEnd} text-xl font-extrabold text-foreground`}>بيانات المركز</h2>
+                  <h2 className={`mb-6 ${textEnd} text-xl font-extrabold text-foreground`}>{L("بيانات المركز", "Center details")}</h2>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <Store className="h-6 w-6" />
