@@ -450,17 +450,17 @@ function TrackPage() {
               {/* Deposit & QR — shown when deposit_paid */}
               {result.order.paymentStatus?.toLowerCase() === "deposit_paid" && (
                 <div className="rounded-3xl border border-border bg-white p-6 sm:p-8">
-                  <h2 className={`mb-6 ${textEnd} text-xl font-extrabold text-foreground`}>تفاصيل الدفع</h2>
+                  <h2 className={`mb-6 ${textEnd} text-xl font-extrabold text-foreground`}>{L("تفاصيل الدفع", "Payment details")}</h2>
                   <div className="grid gap-6 sm:grid-cols-2">
                     {/* QR + Verification */}
                     <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-muted/30 p-5">
-                      <div className="text-sm font-bold text-foreground">امسح QR للتحقق</div>
+                      <div className="text-sm font-bold text-foreground">{L("امسح QR للتحقق", "Scan QR to verify")}</div>
                       <div className="rounded-xl bg-white p-2 shadow-sm">
                         <QRCodeSVG value={result.order.qrData || result.order.number} size={160} level="M" />
                       </div>
                       {result.order.verificationCode && (
                         <div className={`w-full rounded-xl bg-primary/10 p-3 text-center ${textEnd}`}>
-                          <div className="text-xs text-muted-foreground">كود التحقق</div>
+                          <div className="text-xs text-muted-foreground">{L("كود التحقق", "Verification code")}</div>
                           <div className="mt-1 text-2xl font-extrabold tracking-widest text-primary" dir="ltr">{result.order.verificationCode}</div>
                         </div>
                       )}
@@ -469,17 +469,17 @@ function TrackPage() {
                         onClick={openBookingDetails}
                         className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-primary/10"
                       >
-                        <FileText className="h-4 w-4" /> عرض تفاصيل الحجز
+                        <FileText className="h-4 w-4" /> {L("عرض تفاصيل الحجز", "View booking details")}
                       </button>
                     </div>
                     {/* Amounts */}
                     <div className="flex flex-col justify-center gap-4">
                       <div className={`rounded-2xl border border-border bg-muted/30 p-5 ${textEnd}`}>
-                        <div className="text-xs text-muted-foreground">العربون المدفوع أونلاين</div>
+                        <div className="text-xs text-muted-foreground">{L("العربون المدفوع أونلاين", "Deposit paid online")}</div>
                         <div className="mt-1 text-2xl font-extrabold text-primary">{result.order.depositPaid ?? 0} {currency}</div>
                       </div>
                       <div className={`rounded-2xl border border-border bg-muted/30 p-5 ${textEnd}`}>
-                        <div className="text-xs text-muted-foreground">المتبقي (يُدفع في المركز)</div>
+                        <div className="text-xs text-muted-foreground">{L("المتبقي (يُدفع في المركز)", "Remaining (paid at center)")}</div>
                         <div className="mt-1 text-2xl font-extrabold text-foreground">{result.order.remaining ?? 0} {currency}</div>
                       </div>
                     </div>
