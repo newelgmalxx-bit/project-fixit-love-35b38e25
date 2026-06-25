@@ -723,6 +723,8 @@ function AddCenterDialog({
   categories?: AdminCategory[];
   packages?: PartnerPackage[];
 }) {
+  const { lang, dir } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
   const empty = {
     name: "", nameEn: "", owner: "", city: "", phone: "", email: "",
     commercialNumber: "", mapsUrl: "", status: "pending" as Status,
