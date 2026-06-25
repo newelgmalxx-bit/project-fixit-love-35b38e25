@@ -517,7 +517,7 @@ function TrackPage() {
                     )}
                     <div className="my-2 h-px bg-border" />
                     <Row label={t("track.total")} value={`${result.order.total ?? 0} ${currency}`} bold />
-                    <p className="text-[11px] text-muted-foreground text-end">السعر شامل ضريبة القيمة المضافة</p>
+                    <p className="text-[11px] text-muted-foreground text-end">{L("السعر شامل ضريبة القيمة المضافة", "Price includes VAT")}</p>
                   </div>
                 </div>
               )}
