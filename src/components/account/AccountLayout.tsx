@@ -82,7 +82,7 @@ export function AccountLayout({ children, title, subtitle }: { children: React.R
                       }`}
                     >
                       <Icon className="h-4 w-4" />
-                      <span>{n.label}</span>
+                      <span>{t(n.labelKey)}</span>
                     </Link>
                   );
                 })}
