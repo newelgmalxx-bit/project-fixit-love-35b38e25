@@ -88,7 +88,7 @@ function MyBookings() {
       setItems(list.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
     } catch (e) {
       console.error("[account.bookings] fetch failed", e);
-      toast.error("تعذّر تحميل الحجوزات من السيرفر");
+      toast.error(lang === "ar" ? "تعذّر تحميل الحجوزات من السيرفر" : "Failed to load bookings from the server");
       setItems([]);
     } finally {
       setLoading(false);
