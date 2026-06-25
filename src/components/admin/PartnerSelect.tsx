@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Search, X } from "lucide-react";
 import { adminPartnersApi, partnerLabel, type AdminPartner } from "@/lib/api/adminPartners";
+import { useLang } from "@/i18n/LanguageProvider";
 
 type Props = {
   value: string;
@@ -13,7 +14,10 @@ type Props = {
  * Searchable async dropdown for admin partner selection.
  * Hits GET /admin/partners?q= and shows a typeahead list.
  */
-export function PartnerSelect({ value, onChange, placeholder = "ابحث بالاسم...", disabled }: Props) {
+export function PartnerSelect({ value, onChange, placeholder, disabled }: Props) {
+  const { lang } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const ph = placeholder ?? L("ابحث بالاسم...", "Search by name...");
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [items, setItems] = useState<AdminPartner[]>([]);
@@ -68,7 +72,7 @@ export function PartnerSelect({ value, onChange, placeholder = "ابحث بال�
         className="mt-1 flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2 text-right text-sm"
       >
         <span className={selected ? "" : "text-muted-foreground"}>
-          {selected ? partnerLabel(selected) : "— اختر شريكًا —"}
+          {selected ? partnerLabel(selected) : L("— اختر شريكًا —", "— Select a partner —")}
         </span>
         {selected && (
           <X
@@ -86,7 +90,7 @@ export function PartnerSelect({ value, onChange, placeholder = "ابحث بال�
               autoFocus
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder={placeholder}
+              placeholder={ph}
               className="flex-1 bg-transparent text-sm outline-none"
             />
           </div>
@@ -96,7 +100,7 @@ export function PartnerSelect({ value, onChange, placeholder = "ابحث بال�
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
             ) : items.length === 0 ? (
-              <div className="py-4 text-center text-xs text-muted-foreground">لا توجد نتائج</div>
+              <div className="py-4 text-center text-xs text-muted-foreground">{L("لا توجد نتائج", "No results")}</div>
             ) : (
               items.map((p) => (
                 <button

@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { publicApi } from "@/lib/api/public";
+import { useLang } from "@/i18n/LanguageProvider";
 import { useCategories } from "@/hooks/useCatalog";
 import { useSponsoredAdsBundle } from "@/hooks/useSponsoredAds";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
@@ -34,118 +35,142 @@ type Slide = {
   description: string;
   image: string;
   badge: { value: string; label: string };
-  gradient: string; // tailwind from-* via-* to-*
-  ambient: string; // bg-{color} for blobs
+  gradient: string;
+  ambient: string;
 };
 
-const slides: Slide[] = [
-  {
-    kicker: "عروض متنوعة كل يوم",
-    titleLine1: "كل اللي تحتاجيه،",
-    titleLine2: "بخصومات حصرية ومتنوعة",
-    description:
-      "عروض مختارة من قطاعات مختلفة — جمال، صحة، لياقة، عناية وأكثر — بخصومات تصل حتى 73% وتتجدد باستمرار.",
-    image: heroFacial,
-    badge: { value: "73%", label: "أعلى خصم اليوم" },
-    gradient: "from-[#3F2A6B] via-[#7A4FB8] to-[#E0254D]",
-    ambient: "bg-[#E0254D]/25",
-  },
-  {
-    kicker: "صالونات ومراكز تجميل",
-    titleLine1: "إطلالة أحلى،",
-    titleLine2: "بأقوى عروض الصالونات",
-    description:
-      "صبغة، قصات، تسريحات، عناية بشرة وأكثر — من باقة واسعة من الصالونات والمراكز بأسعار حصرية.",
-    image: heroHairBlonde,
-    badge: { value: "60%", label: "خصومات الصالونات" },
-    gradient: "from-[#3F2A6B] via-[#A23A8A] to-[#E0254D]",
-    ambient: "bg-[#A23A8A]/25",
-  },
-  {
-    kicker: "تشكيلة متجددة من العروض",
-    titleLine1: "اختاري من تشكيلة واسعة،",
-    titleLine2: "تناسب كل احتياجاتك",
-    description:
-      "أكثر من 120 عرض حصري في تخصصات مختلفة، نضيف عروض جديدة كل أسبوع لتلاقي اللي يناسبك بسرعة.",
-    image: heroHairCurl,
-    badge: { value: "55%", label: "عروض متنوعة" },
-    gradient: "from-[#2A1B4E] via-[#5B3A9E] to-[#9B3FB8]",
-    ambient: "bg-[#5B3A9E]/30",
-  },
-  {
-    kicker: "عناية وجمال شامل",
-    titleLine1: "دلّلي نفسك،",
-    titleLine2: "بأفضل خدمات العناية",
-    description:
-      "بروتين، كيراتين، سبا، حجامة، وعلاجات تجميل متنوعة بإشراف متخصصين — احجزي بكل سهولة من المنصة.",
-    image: heroHairwash,
-    badge: { value: "50%", label: "عروض العناية" },
-    gradient: "from-[#3F2A6B] via-[#6B3FA8] to-[#E0254D]",
-    ambient: "bg-[#6B3FA8]/25",
-  },
-  {
-    kicker: "مناسبات وتصفيف احترافي",
-    titleLine1: "لكل مناسبة عرض،",
-    titleLine2: "ولكل ذوق اختيار",
-    description:
-      "تصفيف، مكياج، تجهيز عرائس، وعروض مميزة لكل المناسبات — تجدّيها كلها في مكان واحد.",
-    image: heroBlowdry,
-    badge: { value: "45%", label: "عروض المناسبات" },
-    gradient: "from-[#3F2A6B] via-[#8A3FB8] to-[#E0254D]",
-    ambient: "bg-[#3F2A6B]/30",
-  },
-  {
-    kicker: "مراكز وعيادات طبية",
-    titleLine1: "صحتك أولًا،",
-    titleLine2: "بأفضل المراكز والعيادات",
-    description:
-      "أسنان، جلدية، ليزر، تجميل طبي وأكثر — من مراكز وعيادات معتمدة بخصومات حقيقية ومتنوعة.",
-    image: heroMedical,
-    badge: { value: "55%", label: "خصومات طبية" },
-    gradient: "from-[#0b3b4a] via-[#0891b2] to-[#00aec6]",
-    ambient: "bg-[#00aec6]/25",
-  },
-  {
-    kicker: "لياقة، يوغا، ورياضة",
-    titleLine1: "نشاطك يبدأ هنا،",
-    titleLine2: "بعروض رياضية متنوعة",
-    description:
-      "اشتراكات جيم، يوغا، كروس فيت، ومدربين خاصين من نوادي مختلفة — اختاري الأنسب لك بأفضل سعر.",
-    image: heroFitness,
-    badge: { value: "40%", label: "عروض الرياضة" },
-    gradient: "from-[#7f1d1d] via-[#b91c1c] to-[#f43f5e]",
-    ambient: "bg-[#f43f5e]/25",
-  },
-  {
-    kicker: "مراكز العزل والتظليل الحراري",
-    titleLine1: "حافظ على سيارتك من حرارة الصيف،",
-    titleLine2: "مع أفضل مراكز العزل الحراري",
-    description:
-      "تظليل حراري، عوازل عالية الجودة، وحماية متكاملة من أشعة الشمس من مراكز معتمدة بخصومات حصرية.",
-    image: heroTinting,
-    badge: { value: "40%", label: "خصم التظليل" },
-    gradient: "from-[#0f172a] via-[#334155] to-[#64748b]",
-    ambient: "bg-[#334155]/25",
-  },
-  {
-    kicker: "مراكز غسيل السيارات",
-    titleLine1: "سيارتك تلمع كالجديدة،",
-    titleLine2: "بأفضل مراكز الغسيل",
-    description:
-      "غسيل خارجي وداخلي، بوليش، تلميع، وتنظيف بالبخار من مراكز معتمدة بخصومات حصرية تصل حتى 50%.",
-    image: heroCarwash,
-    badge: { value: "50%", label: "خصم الغسيل" },
-    gradient: "from-[#1e293b] via-[#1d4ed8] to-[#0ea5e9]",
-    ambient: "bg-[#1d4ed8]/25",
-  },
-];
+function buildSlides(L: (a: string, e: string) => string): Slide[] {
+  return [
+    {
+      kicker: L("عروض متنوعة كل يوم", "Fresh deals every day"),
+      titleLine1: L("كل اللي تحتاجيه،", "Everything you need,"),
+      titleLine2: L("بخصومات حصرية ومتنوعة", "with exclusive, varied discounts"),
+      description: L(
+        "عروض مختارة من قطاعات مختلفة — جمال، صحة، لياقة، عناية وأكثر — بخصومات تصل حتى 73% وتتجدد باستمرار.",
+        "Curated deals across beauty, health, fitness, wellness and more — up to 73% off, updated constantly."
+      ),
+      image: heroFacial,
+      badge: { value: "73%", label: L("أعلى خصم اليوم", "Today's biggest discount") },
+      gradient: "from-[#3F2A6B] via-[#7A4FB8] to-[#E0254D]",
+      ambient: "bg-[#E0254D]/25",
+    },
+    {
+      kicker: L("صالونات ومراكز تجميل", "Salons & beauty centers"),
+      titleLine1: L("إطلالة أحلى،", "A better look,"),
+      titleLine2: L("بأقوى عروض الصالونات", "with the best salon deals"),
+      description: L(
+        "صبغة، قصات، تسريحات، عناية بشرة وأكثر — من باقة واسعة من الصالونات والمراكز بأسعار حصرية.",
+        "Coloring, cuts, styling, skincare and more — from a wide selection of salons at exclusive prices."
+      ),
+      image: heroHairBlonde,
+      badge: { value: "60%", label: L("خصومات الصالونات", "Salon discounts") },
+      gradient: "from-[#3F2A6B] via-[#A23A8A] to-[#E0254D]",
+      ambient: "bg-[#A23A8A]/25",
+    },
+    {
+      kicker: L("تشكيلة متجددة من العروض", "A constantly refreshed lineup"),
+      titleLine1: L("اختاري من تشكيلة واسعة،", "Choose from a wide range,"),
+      titleLine2: L("تناسب كل احتياجاتك", "matching every need"),
+      description: L(
+        "أكثر من 120 عرض حصري في تخصصات مختلفة، نضيف عروض جديدة كل أسبوع لتلاقي اللي يناسبك بسرعة.",
+        "Over 120 exclusive offers across categories, with new ones added weekly so you find what fits fast."
+      ),
+      image: heroHairCurl,
+      badge: { value: "55%", label: L("عروض متنوعة", "Varied offers") },
+      gradient: "from-[#2A1B4E] via-[#5B3A9E] to-[#9B3FB8]",
+      ambient: "bg-[#5B3A9E]/30",
+    },
+    {
+      kicker: L("عناية وجمال شامل", "Complete wellness & beauty"),
+      titleLine1: L("دلّلي نفسك،", "Treat yourself,"),
+      titleLine2: L("بأفضل خدمات العناية", "with the best care services"),
+      description: L(
+        "بروتين، كيراتين، سبا، حجامة، وعلاجات تجميل متنوعة بإشراف متخصصين — احجزي بكل سهولة من المنصة.",
+        "Protein, keratin, spa, cupping and a variety of cosmetic treatments by specialists — book easily on the platform."
+      ),
+      image: heroHairwash,
+      badge: { value: "50%", label: L("عروض العناية", "Care offers") },
+      gradient: "from-[#3F2A6B] via-[#6B3FA8] to-[#E0254D]",
+      ambient: "bg-[#6B3FA8]/25",
+    },
+    {
+      kicker: L("مناسبات وتصفيف احترافي", "Occasions & pro styling"),
+      titleLine1: L("لكل مناسبة عرض،", "An offer for every occasion,"),
+      titleLine2: L("ولكل ذوق اختيار", "and a pick for every taste"),
+      description: L(
+        "تصفيف، مكياج، تجهيز عرائس، وعروض مميزة لكل المناسبات — تجدّيها كلها في مكان واحد.",
+        "Styling, makeup, bridal prep and special-occasion offers — all in one place."
+      ),
+      image: heroBlowdry,
+      badge: { value: "45%", label: L("عروض المناسبات", "Occasion deals") },
+      gradient: "from-[#3F2A6B] via-[#8A3FB8] to-[#E0254D]",
+      ambient: "bg-[#3F2A6B]/30",
+    },
+    {
+      kicker: L("مراكز وعيادات طبية", "Medical centers & clinics"),
+      titleLine1: L("صحتك أولًا،", "Your health first,"),
+      titleLine2: L("بأفضل المراكز والعيادات", "with the best centers & clinics"),
+      description: L(
+        "أسنان، جلدية، ليزر، تجميل طبي وأكثر — من مراكز وعيادات معتمدة بخصومات حقيقية ومتنوعة.",
+        "Dental, dermatology, laser, medical aesthetics and more — from accredited centers with real, varied discounts."
+      ),
+      image: heroMedical,
+      badge: { value: "55%", label: L("خصومات طبية", "Medical discounts") },
+      gradient: "from-[#0b3b4a] via-[#0891b2] to-[#00aec6]",
+      ambient: "bg-[#00aec6]/25",
+    },
+    {
+      kicker: L("لياقة، يوغا، ورياضة", "Fitness, yoga & sports"),
+      titleLine1: L("نشاطك يبدأ هنا،", "Your fitness starts here,"),
+      titleLine2: L("بعروض رياضية متنوعة", "with varied sports offers"),
+      description: L(
+        "اشتراكات جيم، يوغا، كروس فيت، ومدربين خاصين من نوادي مختلفة — اختاري الأنسب لك بأفضل سعر.",
+        "Gym memberships, yoga, CrossFit and personal trainers from various clubs — pick the best fit at the best price."
+      ),
+      image: heroFitness,
+      badge: { value: "40%", label: L("عروض الرياضة", "Sports deals") },
+      gradient: "from-[#7f1d1d] via-[#b91c1c] to-[#f43f5e]",
+      ambient: "bg-[#f43f5e]/25",
+    },
+    {
+      kicker: L("مراكز العزل والتظليل الحراري", "Insulation & window tinting"),
+      titleLine1: L("حافظ على سيارتك من حرارة الصيف،", "Protect your car from the summer heat,"),
+      titleLine2: L("مع أفضل مراكز العزل الحراري", "with the best thermal insulation centers"),
+      description: L(
+        "تظليل حراري، عوازل عالية الجودة، وحماية متكاملة من أشعة الشمس من مراكز معتمدة بخصومات حصرية.",
+        "Thermal tinting, premium insulation and full sun protection from certified centers — at exclusive prices."
+      ),
+      image: heroTinting,
+      badge: { value: "40%", label: L("خصم التظليل", "Tinting discount") },
+      gradient: "from-[#0f172a] via-[#334155] to-[#64748b]",
+      ambient: "bg-[#334155]/25",
+    },
+    {
+      kicker: L("مراكز غسيل السيارات", "Car wash centers"),
+      titleLine1: L("سيارتك تلمع كالجديدة،", "Your car shining like new,"),
+      titleLine2: L("بأفضل مراكز الغسيل", "at the top car wash centers"),
+      description: L(
+        "غسيل خارجي وداخلي، بوليش، تلميع، وتنظيف بالبخار من مراكز معتمدة بخصومات حصرية تصل حتى 50%.",
+        "Exterior & interior wash, polish, detailing and steam cleaning from certified centers — up to 50% off."
+      ),
+      image: heroCarwash,
+      badge: { value: "50%", label: L("خصم الغسيل", "Wash discount") },
+      gradient: "from-[#1e293b] via-[#1d4ed8] to-[#0ea5e9]",
+      ambient: "bg-[#1d4ed8]/25",
+    },
+  ];
+}
+
 
 
 export function OffersHero() {
   const navigate = useNavigate();
+  const { lang, dir } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const slides = useMemo(() => buildSlides(L), [lang]);
   const [q, setQ] = useState("");
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, direction: "rtl", align: "start" },
+    { loop: true, direction: dir, align: "start" },
     [Autoplay({ delay: 6000, stopOnInteraction: false, stopOnMouseEnter: true, stopOnFocusIn: true })]
   );
   const [selected, setSelected] = useState(0);
@@ -220,7 +245,7 @@ export function OffersHero() {
             key={i}
             type="button"
             onClick={() => scrollTo(i)}
-            aria-label={`الشريحة ${i + 1}`}
+            aria-label={L(`الشريحة ${i + 1}`, `Slide ${i + 1}`)}
             className={`h-2 rounded-full transition-all ${
               selected === i
                 ? "w-8 bg-primary"
@@ -252,6 +277,8 @@ function SlideContent({
   offers: any[];
   onSearchFocus: () => void;
 }) {
+  const { lang } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
   const { categories } = useCategories();
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -327,7 +354,7 @@ function SlideContent({
                 value={q}
                 onChange={(e) => { setQ(e.target.value); setOpen(true); }}
                 onFocus={() => { onSearchFocus(); setOpen(true); }}
-                placeholder="ابحث عن خدمة، متجر، أو مدينة…"
+                placeholder={L("ابحث عن خدمة، متجر، أو مدينة…", "Search for a service, store, or city…")}
                 suppressHydrationWarning
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
@@ -335,18 +362,18 @@ function SlideContent({
                 type="submit"
                 className={`shrink-0 rounded-full bg-gradient-to-r ${slide.gradient} px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:scale-[1.02]`}
               >
-                ابحث
+                {L("ابحث", "Search")}
               </button>
             </form>
             {open && q.trim() && (
               <div className="absolute z-30 mt-2 max-h-80 w-full overflow-auto rounded-2xl border border-border bg-card p-2 shadow-2xl">
                 {matches.length === 0 ? (
                   <div className="px-3 py-4 text-center text-sm text-muted-foreground">
-                    لا توجد نتائج مطابقة
+                    {L("لا توجد نتائج مطابقة", "No matching results")}
                   </div>
                 ) : (
                   matches.map((o: any) => {
-                    const title = o.title || o.titleAr || o.titleEn || "عرض";
+                    const title = (lang === "en" ? (o.titleEn || o.title || o.titleAr) : (o.title || o.titleAr || o.titleEn)) || L("عرض", "Offer");
                     const sub = o.vendor?.name || o.partner?.vendorName || o.partnerName || o.vendorName || o.city || "";
                     const img = o.image || o.imageUrl || o.coverImage || null;
                     return (
@@ -377,9 +404,9 @@ function SlideContent({
           {/* Quick category pills */}
           <div className="mt-3 flex flex-wrap gap-2 sm:mt-6">
             <span className="self-center text-xs font-medium text-muted-foreground">
-              شائع:
+              {L("شائع:", "Popular:")}
             </span>
-            {categories.slice(0, 5).map((c) => (
+            {categories.slice(0, 5).map((c: any) => (
               <Link
                 key={c.slug}
                 to="/offers/category/$slug"
@@ -387,16 +414,16 @@ function SlideContent({
                 className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
               >
                 <span className="me-1 inline-flex h-4 w-4 items-center justify-center overflow-hidden">{renderCategoryIcon(c.icon)}</span>
-                {c.nameAr}
+                {lang === "en" ? (c.nameEn || c.nameAr) : (c.nameAr || c.nameEn)}
               </Link>
             ))}
           </div>
 
           {/* Stats */}
           <div className="mt-5 grid max-w-xl grid-cols-3 gap-2 border-t border-border pt-4 text-center sm:mt-10 sm:gap-4 sm:pt-6 sm:text-start">
-            <Stat value="+120" label="عرض حصري" />
-            <Stat value="+45" label="متجر معتمد" />
-            <Stat value="73%" label="أقصى خصم" />
+            <Stat value="+120" label={L("عرض حصري", "Exclusive offers")} />
+            <Stat value="+45" label={L("متجر معتمد", "Verified stores")} />
+            <Stat value="73%" label={L("أقصى خصم", "Max discount")} />
           </div>
         </div>
 
@@ -415,6 +442,8 @@ function SlideContent({
 }
 
 function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }) {
+  const { lang, dir } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
   const { ads, offers, partners } = useSponsoredAdsBundle();
   const ad =
     ads.find((a) => Number(a.slide_index) === slideIndex + 1) ||
@@ -437,10 +466,10 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
       : 0;
 
   const badgeValue = discountPct > 0 ? `${discountPct}%` : slide.badge.value;
-  const badgeLabel = discountPct > 0 ? "خصم العرض" : slide.badge.label;
+  const badgeLabel = discountPct > 0 ? L("خصم العرض", "Offer discount") : slide.badge.label;
 
   const offerTitle =
-    offer?.title || offer?.titleAr || offer?.titleEn || ad?.title || "";
+    (lang === "en" ? (offer?.titleEn || offer?.title || offer?.titleAr) : (offer?.title || offer?.titleAr || offer?.titleEn)) || ad?.title || "";
   const centerName =
     offer?.vendor?.name ||
     offer?.vendorName ||
@@ -485,7 +514,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
       <div className="relative overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-xl shadow-primary/20 sm:rounded-[2rem] sm:shadow-2xl">
         <img
           src={imgSrc}
-          alt={useOfferImage ? offerTitle || "عرض ممول" : "عرض مميز"}
+          alt={useOfferImage ? offerTitle || L("عرض ممول", "Sponsored offer") : L("عرض مميز", "Featured offer")}
           width={896}
           height={1152}
           loading="lazy"
@@ -504,8 +533,8 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
             </div>
           </div>
           {savings > 0 && (
-            <span className="inline-flex items-center rounded-lg bg-white/95 px-2 py-0.5 text-[10px] font-extrabold text-[#E0254D] shadow backdrop-blur" dir="rtl">
-              توفير {savings} ر.س
+            <span className="inline-flex items-center rounded-lg bg-white/95 px-2 py-0.5 text-[10px] font-extrabold text-[#E0254D] shadow backdrop-blur" dir={dir}>
+              {L(`توفير ${savings} ر.س`, `Save ${savings} SAR`)}
             </span>
           )}
         </div>
@@ -514,7 +543,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
           <div className="pointer-events-none absolute bottom-[8.5rem] start-3 sm:bottom-[9.5rem] sm:start-5">
             <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-extrabold text-foreground shadow backdrop-blur">
               <span className="text-sm leading-none">{(cat as any).icon}</span>
-              <span className="truncate max-w-[140px]">{(cat as any).nameAr}</span>
+              <span className="truncate max-w-[140px]">{lang === "en" ? ((cat as any).nameEn || (cat as any).nameAr) : ((cat as any).nameAr || (cat as any).nameEn)}</span>
             </span>
           </div>
         )}
@@ -528,7 +557,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
             {/* Row 1: badge + title */}
             <div className="flex items-center gap-2">
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
-                <Megaphone className="h-2.5 w-2.5" /> إعلان ممول
+                <Megaphone className="h-2.5 w-2.5" /> {L("إعلان ممول", "Sponsored")}
               </span>
               <h4 className="line-clamp-1 text-xs font-extrabold text-foreground sm:text-sm">
                 {offerTitle}
@@ -559,7 +588,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
               {duration > 0 && (
                 <span className="inline-flex items-center gap-0.5 text-muted-foreground">
                   <Clock className="h-3 w-3" />
-                  <span className="font-semibold">{duration} د</span>
+                  <span className="font-semibold">{duration} {L("د", "min")}</span>
                 </span>
               )}
             </div>
@@ -577,11 +606,11 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
                       <span className="text-[10px] text-slate-400 line-through">{priceBefore}</span>
                     )}
                   </span>
-                  <span className="text-[9px] font-semibold text-muted-foreground">السعر شامل الضريبة</span>
+                  <span className="text-[9px] font-semibold text-muted-foreground">{L("السعر شامل الضريبة", "VAT included")}</span>
                 </span>
               ) : <span />}
               <span className="shrink-0 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-extrabold text-background transition group-hover:bg-gradient-to-r group-hover:from-[#3F2A6B] group-hover:to-[#E0254D]">
-                احجز الآن
+                {L("احجز الآن", "Book now")}
               </span>
             </div>
           </Link>
@@ -590,7 +619,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
             const inner = (
               <div className="min-w-0 flex-1">
                 <div className="mb-0.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
-                  <Megaphone className="h-2.5 w-2.5" /> إعلان ممول
+                  <Megaphone className="h-2.5 w-2.5" /> {L("إعلان ممول", "Sponsored")}
                 </div>
                 <div className="truncate text-xs font-extrabold text-foreground sm:text-sm">
                   {ad.title}
@@ -649,6 +678,8 @@ type SponsoredAd = {
 
 
 function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
+  const { lang } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
   const { ads, offers, partners } = useSponsoredAdsBundle();
 
   const getPartnerName = (partner: any) => {
@@ -705,7 +736,7 @@ function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
       )}
       <div className="min-w-0 flex-1">
         <div className="mb-0.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
-          <Megaphone className="h-2.5 w-2.5" /> إعلان ممول
+          <Megaphone className="h-2.5 w-2.5" /> {L("إعلان ممول", "Sponsored")}
         </div>
         <div className="truncate text-xs font-extrabold text-foreground sm:text-sm">{title}</div>
         {subtitle && (
@@ -714,7 +745,7 @@ function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
       </div>
       {showBookBtn && (
         <div className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-primary-foreground sm:px-4 sm:py-2 sm:text-xs">
-          احجز الآن
+          {L("احجز الآن", "Book now")}
         </div>
       )}
     </>
@@ -724,7 +755,7 @@ function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
     const ad = slideAds[0];
     if (ad.offer_id) {
       const offer = offers[ad.offer_id];
-      const title = offer?.title || offer?.titleAr || offer?.titleEn || ad.title;
+      const title = (lang === "en" ? (offer?.titleEn || offer?.title || offer?.titleAr) : (offer?.title || offer?.titleAr || offer?.titleEn)) || ad.title;
       const subtitle = getCenterName(offer, ad);
       const image = offer?.image || offer?.imageUrl || offer?.coverImage || ad.image_url;
       return (
