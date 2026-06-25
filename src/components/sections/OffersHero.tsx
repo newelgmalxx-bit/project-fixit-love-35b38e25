@@ -442,6 +442,8 @@ function SlideContent({
 }
 
 function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }) {
+  const { lang, dir } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
   const { ads, offers, partners } = useSponsoredAdsBundle();
   const ad =
     ads.find((a) => Number(a.slide_index) === slideIndex + 1) ||
