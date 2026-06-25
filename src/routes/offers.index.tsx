@@ -28,6 +28,8 @@ export const Route = createFileRoute("/offers/")({
 type Sort = "featured" | "discount" | "price-asc" | "price-desc" | "rating";
 
 function OffersIndex() {
+  const { lang, dir } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<CategorySlug | "all">("all");
   const [city, setCity] = useState<string>("all");
