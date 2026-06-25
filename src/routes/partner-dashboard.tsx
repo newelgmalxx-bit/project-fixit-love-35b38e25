@@ -3651,6 +3651,7 @@ function SignatureDialog({ defaultName, commission, onCancel, onConfirm }: { def
 function SupportTab() {
   const { lang } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [tickets, setTickets] = useState<any[]>([]);
