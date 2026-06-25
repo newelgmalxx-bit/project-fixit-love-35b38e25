@@ -514,7 +514,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
       <div className="relative overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-xl shadow-primary/20 sm:rounded-[2rem] sm:shadow-2xl">
         <img
           src={imgSrc}
-          alt={useOfferImage ? offerTitle || "عرض ممول" : "عرض مميز"}
+          alt={useOfferImage ? offerTitle || L("عرض ممول", "Sponsored offer") : L("عرض مميز", "Featured offer")}
           width={896}
           height={1152}
           loading="lazy"
