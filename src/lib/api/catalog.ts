@@ -225,7 +225,9 @@ export function normalizeOffer(
   return {
     id: String(api.id),
     title: api.titleAr || api.titleEn || "عرض",
+    titleEn: api.titleEn || api.titleAr || "",
     description: api.descriptionAr || api.descriptionEn || "",
+    descriptionEn: api.descriptionEn || api.descriptionAr || "",
     image: pickImage(api),
     gallery: galleryUrls,
     priceBefore,
