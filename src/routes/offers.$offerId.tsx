@@ -443,46 +443,46 @@ function OfferDetailPage() {
 
   function validateBookingForm(): string[] {
     const missing: string[] = [];
-    if (!date) missing.push("التاريخ");
-    if (!time) missing.push("الوقت");
-    if (!customerName.trim()) missing.push("الاسم الكامل");
-    if (!customerEmail.trim()) missing.push("البريد الإلكتروني");
-    if (!customerPhone.trim()) missing.push("رقم الجوال");
+    if (!date) missing.push(L("التاريخ", "Date"));
+    if (!time) missing.push(L("الوقت", "Time"));
+    if (!customerName.trim()) missing.push(L("الاسم الكامل", "Full name"));
+    if (!customerEmail.trim()) missing.push(L("البريد الإلكتروني", "Email"));
+    if (!customerPhone.trim()) missing.push(L("رقم الجوال", "Phone number"));
     return missing;
   }
 
   function handleAddToCart() {
     const missing = validateBookingForm();
     if (missing.length > 0) {
-      toast.error("بيانات ناقصة", {
-        description: `أكمل بياناتك قبل إضافة العرض للسلة: ${missing.join("، ")}`,
+      toast.error(L("بيانات ناقصة", "Missing details"), {
+        description: L(`أكمل بياناتك قبل إضافة العرض للسلة: ${missing.join("، ")}`, `Complete your details before adding to cart: ${missing.join(", ")}`),
       });
       return;
     }
     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim());
     if (!emailOk) {
-      toast.error("البريد الإلكتروني غير صحيح", {
-        description: "أدخل بريد إلكتروني صالح مثل name@example.com",
+      toast.error(L("البريد الإلكتروني غير صحيح", "Invalid email"), {
+        description: L("أدخل بريد إلكتروني صالح مثل name@example.com", "Enter a valid email like name@example.com"),
       });
       return;
     }
     if (customerPhone.replace(/\D/g, "").length < 9) {
-      toast.error("رقم الجوال غير صحيح", {
-        description: "أدخل رقم جوال صحيح (مثال: 05XXXXXXXX)",
+      toast.error(L("رقم الجوال غير صحيح", "Invalid phone number"), {
+        description: L("أدخل رقم جوال صحيح (مثال: 05XXXXXXXX)", "Enter a valid phone number (e.g. 05XXXXXXXX)"),
       });
       return;
     }
     if (dayOff) {
-      toast.error("هذا اليوم غير متاح", { description: "المركز غير متاح في هذا اليوم — يرجى اختيار تاريخ آخر." });
+      toast.error(L("هذا اليوم غير متاح", "This day is unavailable"), { description: L("المركز غير متاح في هذا اليوم — يرجى اختيار تاريخ آخر.", "The center is closed on this day — please pick another date.") });
       return;
     }
     if (blockedSlots.includes(time)) {
-      toast.error("هذا الموعد غير متاح", { description: "تم تعطيل هذا الوقت من قِبَل المركز — يرجى اختيار وقت آخر." });
+      toast.error(L("هذا الموعد غير متاح", "This time is unavailable"), { description: L("تم تعطيل هذا الوقت من قِبَل المركز — يرجى اختيار وقت آخر.", "This time was disabled by the center — please pick another time.") });
       return;
     }
     if (depositPct == null) {
-      toast.error("نسبة عربون المركز غير متاحة", {
-        description: "لا يمكن إضافة الحجز للسلة قبل ضبط نسبة هذا المركز من الإدارة.",
+      toast.error(L("نسبة عربون المركز غير متاحة", "Center deposit percentage is not available"), {
+        description: L("لا يمكن إضافة الحجز للسلة قبل ضبط نسبة هذا المركز من الإدارة.", "The booking cannot be added to the cart until the admin configures this center's percentage."),
       });
       return;
     }
@@ -500,9 +500,9 @@ function OfferDetailPage() {
       bookingTime: time,
       commissionPct: depositPct ?? undefined,
     });
-    toast.success("تمت إضافة الحجز للسلة", {
+    toast.success(L("تمت إضافة الحجز للسلة", "Booking added to cart"), {
       description: `${offer.title} — ${date} ${time}`,
-      action: { label: "الذهاب للسلة", onClick: () => navigate({ to: "/cart" as any }) },
+      action: { label: L("الذهاب للسلة", "Go to cart"), onClick: () => navigate({ to: "/cart" as any }) },
     });
     // ملاحظة: لا نمسح سجل السلة المتروكة هنا. الإضافة للسلة لا تعني إتمام
     // الحجز — يتم المسح فقط بعد نجاح الدفع/تأكيد الحجز.
@@ -512,48 +512,48 @@ function OfferDetailPage() {
   function goToReview(e: React.FormEvent) {
     e.preventDefault();
     const missing: string[] = [];
-    if (!date) missing.push("التاريخ");
-    if (!time) missing.push("الوقت");
-    if (!customerName.trim()) missing.push("الاسم الكامل");
-    if (!customerEmail.trim()) missing.push("البريد الإلكتروني");
-    if (!customerPhone.trim()) missing.push("رقم الجوال");
+    if (!date) missing.push(L("التاريخ", "Date"));
+    if (!time) missing.push(L("الوقت", "Time"));
+    if (!customerName.trim()) missing.push(L("الاسم الكامل", "Full name"));
+    if (!customerEmail.trim()) missing.push(L("البريد الإلكتروني", "Email"));
+    if (!customerPhone.trim()) missing.push(L("رقم الجوال", "Phone number"));
 
     if (missing.length > 0) {
-      toast.error("بيانات ناقصة", {
-        description: `من فضلك املأ: ${missing.join("، ")}`,
+      toast.error(L("بيانات ناقصة", "Missing details"), {
+        description: L(`من فضلك املأ: ${missing.join("، ")}`, `Please fill in: ${missing.join(", ")}`),
       });
       return;
     }
 
     if (date && dayOff) {
-      toast.error("هذا اليوم غير متاح", { description: "المركز غير متاح في هذا اليوم — يرجى اختيار تاريخ آخر." });
+      toast.error(L("هذا اليوم غير متاح", "This day is unavailable"), { description: L("المركز غير متاح في هذا اليوم — يرجى اختيار تاريخ آخر.", "The center is closed on this day — please pick another date.") });
       return;
     }
     if (date && time && blockedSlots.includes(time)) {
-      toast.error("هذا الموعد غير متاح", { description: "تم تعطيل هذا الوقت من قِبَل المركز — يرجى اختيار وقت آخر." });
+      toast.error(L("هذا الموعد غير متاح", "This time is unavailable"), { description: L("تم تعطيل هذا الوقت من قِبَل المركز — يرجى اختيار وقت آخر.", "This time was disabled by the center — please pick another time.") });
       return;
     }
 
 
     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim());
     if (!emailOk) {
-      toast.error("البريد الإلكتروني غير صحيح", {
-        description: "أدخل بريد إلكتروني صالح مثل name@example.com",
+      toast.error(L("البريد الإلكتروني غير صحيح", "Invalid email"), {
+        description: L("أدخل بريد إلكتروني صالح مثل name@example.com", "Enter a valid email like name@example.com"),
       });
       return;
     }
 
     const phoneDigits = customerPhone.replace(/\D/g, "");
     if (phoneDigits.length < 9) {
-      toast.error("رقم الجوال غير صحيح", {
-        description: "أدخل رقم جوال صحيح (مثال: 05XXXXXXXX)",
+      toast.error(L("رقم الجوال غير صحيح", "Invalid phone number"), {
+        description: L("أدخل رقم جوال صحيح (مثال: 05XXXXXXXX)", "Enter a valid phone number (e.g. 05XXXXXXXX)"),
       });
       return;
     }
 
     if (depositPct == null) {
-      toast.error("نسبة عربون المركز غير متاحة", {
-        description: "لا يمكن عرض أو دفع عربون ثابت لأن نسبة هذا المركز لم تصل من النظام.",
+      toast.error(L("نسبة عربون المركز غير متاحة", "Center deposit percentage is not available"), {
+        description: L("لا يمكن عرض أو دفع عربون ثابت لأن نسبة هذا المركز لم تصل من النظام.", "Cannot display or pay a fixed deposit because this center's percentage was not received from the system."),
       });
       return;
     }
@@ -565,7 +565,7 @@ function OfferDetailPage() {
   function confirmBooking() {
     if (!agreed) return;
     if (depositPct == null) {
-      toast.error("نسبة عربون المركز غير متاحة");
+      toast.error(L("نسبة عربون المركز غير متاحة", "Center deposit percentage is not available"));
       return;
     }
     setLoading(true);
@@ -617,36 +617,36 @@ function OfferDetailPage() {
   }
 
   const highlights = [
-    { icon: BadgePercent, label: `خصم ${offer.discountPercent}%`, tint: "from-rose-500 to-rose-600" },
+    { icon: BadgePercent, label: L(`خصم ${offer.discountPercent}%`, `${offer.discountPercent}% off`), tint: "from-rose-500 to-rose-600" },
     {
       icon: Clock,
-      label: offer.durationMinutes > 0 ? `${offer.durationMinutes} دقيقة` : "خدمة فورية",
+      label: offer.durationMinutes > 0 ? L(`${offer.durationMinutes} دقيقة`, `${offer.durationMinutes} min`) : L("خدمة فورية", "Instant service"),
       tint: "from-primary to-primary",
     },
-    { icon: Star, label: offer.vendor.reviewsCount > 0 ? `${offer.vendor.rating} (${offer.vendor.reviewsCount})` : "جديد", tint: "from-amber-500 to-orange-500" },
-    { icon: ShieldCheck, label: "متجر موثّق", tint: "from-emerald-500 to-emerald-600" },
+    { icon: Star, label: offer.vendor.reviewsCount > 0 ? `${offer.vendor.rating} (${offer.vendor.reviewsCount})` : L("جديد", "New"), tint: "from-amber-500 to-orange-500" },
+    { icon: ShieldCheck, label: L("متجر موثّق", "Verified merchant"), tint: "from-emerald-500 to-emerald-600" },
   ];
 
   if (isLoading) {
     return (
-      <div dir="rtl" className="flex min-h-screen flex-col bg-background">
+      <div dir={dir} className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
-        <main className="flex-1 flex items-center justify-center"><p className="text-muted-foreground">جاري التحميل…</p></main>
+        <main className="flex-1 flex items-center justify-center"><p className="text-muted-foreground">{L("جاري التحميل…", "Loading…")}</p></main>
         <SiteFooter />
       </div>
     );
   }
   if (!offerData) {
     return (
-      <div dir="rtl" className="flex min-h-screen flex-col bg-background">
+      <div dir={dir} className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
-        <main className="flex-1 flex items-center justify-center"><p className="text-muted-foreground">العرض غير موجود.</p></main>
+        <main className="flex-1 flex items-center justify-center"><p className="text-muted-foreground">{L("العرض غير موجود.", "Offer not found.")}</p></main>
         <SiteFooter />
       </div>
     );
   }
   return (
-    <div dir="rtl" className="flex min-h-screen flex-col bg-background">
+    <div dir={dir} className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
         {/* Ambient background */}
