@@ -8,9 +8,10 @@ import { toast } from "sonner";
 import { adminPartnersApi, partnerLabel, type AdminPartner } from "@/lib/api/adminPartners";
 import { adminCategoriesApi, type AdminCategory } from "@/lib/api/adminContent";
 import { adminPartnerPackagesApi, type PartnerPackage } from "@/lib/api/partnerPackages";
+import { useLang } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/admin/merchants")({
-  head: () => ({ meta: [{ title: "إدارة المراكز | Admin" }] }),
+  head: () => ({ meta: [{ title: "Merchants | Admin" }] }),
   component: MerchantsPage,
 });
 
