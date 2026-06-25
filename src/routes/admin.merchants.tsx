@@ -180,6 +180,9 @@ function mapPartner(p: AdminPartner): Merchant {
 }
 
 function MerchantsPage() {
+  const { lang } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const sLabel = (s: Status) => L(STATUS_META[s].ar, STATUS_META[s].en);
 
   const [items, setItems] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
