@@ -766,18 +766,18 @@ function AddCenterDialog({
   }
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!f.name.trim()) { toast.error("اسم المركز مطلوب"); return; }
-    if (!f.owner.trim()) { toast.error("اسم المالك مطلوب"); return; }
-    if (!f.city.trim()) { toast.error("المدينة مطلوبة"); return; }
-    if (!f.phone.trim()) { toast.error("رقم الجوال مطلوب"); return; }
-    if (!initial && !f.email.trim()) { toast.error("البريد الإلكتروني مطلوب لإرسال بيانات الدخول"); return; }
+    if (!f.name.trim()) { toast.error(L("اسم المركز مطلوب", "Partner name is required")); return; }
+    if (!f.owner.trim()) { toast.error(L("اسم المالك مطلوب", "Owner name is required")); return; }
+    if (!f.city.trim()) { toast.error(L("المدينة مطلوبة", "City is required")); return; }
+    if (!f.phone.trim()) { toast.error(L("رقم الجوال مطلوب", "Phone is required")); return; }
+    if (!initial && !f.email.trim()) { toast.error(L("البريد الإلكتروني مطلوب لإرسال بيانات الدخول", "Email is required to send login credentials")); return; }
     onSave({ ...f });
     reset();
   }
   return (
     <Dialog open={open} onOpenChange={(o) => !o && (reset(), onClose())}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
-        <DialogHeader><DialogTitle className="text-end">{initial ? "تعديل بيانات المركز" : "إضافة مركز يدوي"}</DialogTitle></DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={dir}>
+        <DialogHeader><DialogTitle className="text-end">{initial ? L("تعديل بيانات المركز", "Edit partner details") : L("إضافة مركز يدوي", "Add partner manually")}</DialogTitle></DialogHeader>
         <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className="text-xs font-bold">اسم المركز (عربي) *</label>
