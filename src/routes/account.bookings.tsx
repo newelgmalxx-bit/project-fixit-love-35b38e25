@@ -198,7 +198,7 @@ function MyBookings() {
                         params={{ bookingId: b.bookingRef }}
                         className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-white hover:bg-amber-600"
                       >
-                        <Wallet className="h-4 w-4" /> إعادة الدفع
+                        <Wallet className="h-4 w-4" /> {lang === "ar" ? "إعادة الدفع" : "Pay now"}
                       </Link>
                     )}
                     <Link
