@@ -755,7 +755,7 @@ function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
     const ad = slideAds[0];
     if (ad.offer_id) {
       const offer = offers[ad.offer_id];
-      const title = offer?.title || offer?.titleAr || offer?.titleEn || ad.title;
+      const title = (lang === "en" ? (offer?.titleEn || offer?.title || offer?.titleAr) : (offer?.title || offer?.titleAr || offer?.titleEn)) || ad.title;
       const subtitle = getCenterName(offer, ad);
       const image = offer?.image || offer?.imageUrl || offer?.coverImage || ad.image_url;
       return (
