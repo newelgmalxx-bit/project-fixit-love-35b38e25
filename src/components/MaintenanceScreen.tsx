@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Wrench } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { useLang } from "@/i18n/LanguageProvider";
 
-export function MaintenanceScreen({ lang = "ar" }: { lang?: "ar" | "en" }) {
+export function MaintenanceScreen({ lang: langProp }: { lang?: "ar" | "en" } = {}) {
+  const { lang: ctxLang } = useLang();
+  const lang = langProp ?? ctxLang;
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60_000);
