@@ -380,17 +380,17 @@ function MerchantsPage() {
         } as any),
       });
       if (data.password) {
-        toast.success(`تم تحديث المركز وكلمة المرور الجديدة: ${data.password}`, {
+        toast.success(L(`تم تحديث المركز وكلمة المرور الجديدة: ${data.password}`, `Partner updated, new password: ${data.password}`), {
           duration: 12000,
-          action: { label: "نسخ", onClick: () => navigator.clipboard.writeText(data.password!) },
+          action: { label: L("نسخ", "Copy"), onClick: () => navigator.clipboard.writeText(data.password!) },
         });
       } else {
-        toast.success("تم تحديث بيانات المركز");
+        toast.success(L("تم تحديث بيانات المركز", "Partner updated"));
       }
       setEditing(null);
       load();
     } catch (e: any) {
-      toast.error(e?.message || "تعذّر تحديث المركز");
+      toast.error(e?.message || L("تعذّر تحديث المركز", "Failed to update partner"));
     }
   }
 
