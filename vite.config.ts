@@ -21,9 +21,20 @@ function serverEntryShim(): PluginOption {
           fs.writeFileSync(
             shim,
             `import handler from "./index.mjs";\n` +
+              `// Wrap incoming Request to allow the Cloudflare adapter to set\n` +
+              `// .ip/.runtime/.waitUntil (it assumes a Workers Request which permits\n` +
+              `// arbitrary property assignment; native Request rejects writes).\n` +
+              `function wrapReq(req) {\n` +
+              `  const extras = Object.create(null);\n` +
+              `  return new Proxy(req, {\n` +
+              `    get(t, k) { if (k in extras) return extras[k]; const v = Reflect.get(t, k); return typeof v === "function" ? v.bind(t) : v; },\n` +
+              `    set(_t, k, v) { extras[k] = v; return true; },\n` +
+              `    has(t, k) { return k in extras || k in t; },\n` +
+              `  });\n` +
+              `}\n` +
               `export default {\n` +
               `  fetch(req, env, ctx) {\n` +
-              `    return handler.fetch(req, env ?? {}, ctx ?? { waitUntil() {}, passThroughOnException() {} });\n` +
+              `    return handler.fetch(wrapReq(req), env ?? {}, ctx ?? { waitUntil() {}, passThroughOnException() {} });\n` +
               `  },\n` +
               `};\n`,
           );
