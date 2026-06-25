@@ -639,7 +639,7 @@ function MerchantsPage() {
                     const s = STATUS_META[viewing.status];
                     return (
                       <Pill tone={s.tone}>
-                        <s.icon className="h-3 w-3" /> {s.label}
+                        <s.icon className="h-3 w-3" /> {sLabel(viewing.status)}
                       </Pill>
                     );
                   })()}
