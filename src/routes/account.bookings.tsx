@@ -8,7 +8,7 @@ import { account } from "@/lib/api/account";
 
 
 export const Route = createFileRoute("/account/bookings")({
-  head: () => ({ meta: [{ title: "حجوزاتي | بوكينج" }] }),
+  head: () => ({ meta: [{ title: "My Bookings | koswmat" }] }),
   component: MyBookings,
 });
 
