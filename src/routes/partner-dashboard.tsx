@@ -36,14 +36,14 @@ export const Route = createFileRoute("/partner-dashboard")({
 type Tab = "overview" | "profile" | "offers" | "bookings" | "verify" | "schedule" | "wallet" | "reviews" | "messages" | "analytics" | "agreement" | "commission-request" | "notifications" | "support";
 
 type WorkingHour = { day: string; open: string; close: string; closed?: boolean };
-const WEEK_DAYS: { key: string; ar: string }[] = [
-  { key: "saturday", ar: "السبت" },
-  { key: "sunday", ar: "الأحد" },
-  { key: "monday", ar: "الاثنين" },
-  { key: "tuesday", ar: "الثلاثاء" },
-  { key: "wednesday", ar: "الأربعاء" },
-  { key: "thursday", ar: "الخميس" },
-  { key: "friday", ar: "الجمعة" },
+const WEEK_DAYS: { key: string; ar: string; en: string }[] = [
+  { key: "saturday", ar: "السبت", en: "Saturday" },
+  { key: "sunday", ar: "الأحد", en: "Sunday" },
+  { key: "monday", ar: "الاثنين", en: "Monday" },
+  { key: "tuesday", ar: "الثلاثاء", en: "Tuesday" },
+  { key: "wednesday", ar: "الأربعاء", en: "Wednesday" },
+  { key: "thursday", ar: "الخميس", en: "Thursday" },
+  { key: "friday", ar: "الجمعة", en: "Friday" },
 ];
 function defaultWorkingHours(): WorkingHour[] {
   return WEEK_DAYS.map((d) => ({
