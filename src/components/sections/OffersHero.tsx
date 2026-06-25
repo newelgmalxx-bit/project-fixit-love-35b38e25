@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { publicApi } from "@/lib/api/public";
+import { useLang } from "@/i18n/LanguageProvider";
 import { useCategories } from "@/hooks/useCatalog";
 import { useSponsoredAdsBundle } from "@/hooks/useSponsoredAds";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
