@@ -54,27 +54,24 @@ export const Route = createFileRoute("/offers/$offerId")({
   component: OfferDetailPage,
   notFoundComponent: () => (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-muted-foreground">العرض غير موجود.</p>
+      <p className="text-muted-foreground">العرض غير موجود. / Offer not found.</p>
     </div>
   ),
 });
 
 
 
-const FAQ = [
-  {
-    q: "هل أحتاج لتأكيد الحجز قبل الذهاب؟",
-    a: "بعد إتمام الحجز ستصلك رسالة تأكيد مع باركود تعرضه عند وصولك للمتجر مباشرةً، لا حاجة لاتصال إضافي.",
-  },
-  {
-    q: "هل يمكنني تعديل أو إلغاء الحجز؟",
-    a: "نعم، يمكنك إعادة الجدولة أو الإلغاء مجاناً قبل 6 ساعات من الموعد من صفحة حجوزاتك.",
-  },
-  {
-    q: "كيف تتم عملية الدفع؟",
-    a: "الدفع آمن عبر مدى، فيزا، ماستر كارد، Apple Pay. لا نحتفظ بأي بيانات بطاقات على المنصة.",
-  },
+const FAQ_AR = [
+  { q: "هل أحتاج لتأكيد الحجز قبل الذهاب؟", a: "بعد إتمام الحجز ستصلك رسالة تأكيد مع باركود تعرضه عند وصولك للمتجر مباشرةً، لا حاجة لاتصال إضافي." },
+  { q: "هل يمكنني تعديل أو إلغاء الحجز؟", a: "نعم، يمكنك إعادة الجدولة أو الإلغاء مجاناً قبل 6 ساعات من الموعد من صفحة حجوزاتك." },
+  { q: "كيف تتم عملية الدفع؟", a: "الدفع آمن عبر مدى، فيزا، ماستر كارد، Apple Pay. لا نحتفظ بأي بيانات بطاقات على المنصة." },
 ];
+const FAQ_EN = [
+  { q: "Do I need to confirm my booking before going?", a: "After completing the booking you'll receive a confirmation message with a barcode to present on arrival — no extra call needed." },
+  { q: "Can I edit or cancel the booking?", a: "Yes, you can reschedule or cancel free of charge up to 6 hours before the appointment from your bookings page." },
+  { q: "How is payment processed?", a: "Payment is secure via Mada, Visa, Mastercard, and Apple Pay. We do not store any card data on the platform." },
+];
+
 
 const formatMoney = (value: number) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
