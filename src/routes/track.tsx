@@ -652,7 +652,7 @@ function Timeline({ currentIndex, dir, t, timeline, locale, lang }: { currentInd
               )}
             </div>
             <div className={["mt-3 text-center text-xs font-semibold sm:text-sm", reached ? "text-foreground" : "text-muted-foreground"].join(" ")}>
-              {STAGE_LABELS_AR[stage]}
+              {STAGE_LABELS[stage][lang]}
             </div>
             {reached && eventDate && (
               <div className="mt-1 text-[10px] text-muted-foreground sm:text-xs">
