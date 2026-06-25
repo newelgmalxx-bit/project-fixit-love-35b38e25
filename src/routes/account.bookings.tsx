@@ -164,12 +164,12 @@ function MyBookings() {
                   ) : (
                     <div className="flex flex-wrap items-center gap-1.5">
                       {isUnpaid ? (
-                        <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-700">قيد الدفع</span>
+                        <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-700">{lang === "ar" ? "قيد الدفع" : "Awaiting payment"}</span>
                       ) : (
                         <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">{t("account.bookings.status.confirmed")}</span>
                       )}
                       <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${isUnpaid ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"}`}>
-                        {isUnpaid ? "غير مدفوع" : "مدفوع"}
+                        {isUnpaid ? (lang === "ar" ? "غير مدفوع" : "Unpaid") : (lang === "ar" ? "مدفوع" : "Paid")}
                       </span>
                     </div>
                   )}
