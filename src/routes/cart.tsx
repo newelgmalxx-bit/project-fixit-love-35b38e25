@@ -117,10 +117,10 @@ function CartPage() {
                                       </span>
                                       {it.commissionPct != null && it.commissionPct > 0 ? (
                                         <span className="text-[11px] text-muted-foreground">
-                                          عربون الآن: <b className="text-primary" data-ltr-number>{formatCurrency((it.price * it.qty * it.commissionPct) / 100)}</b> · الباقي عند الزيارة: <span data-ltr-number>{formatCurrency(it.price * it.qty * (1 - it.commissionPct / 100))}</span>
+                                          {L("عربون الآن:", "Deposit now:")} <b className="text-primary" data-ltr-number>{formatCurrency((it.price * it.qty * it.commissionPct) / 100)}</b> · {L("الباقي عند الزيارة:", "Remaining at visit:")} <span data-ltr-number>{formatCurrency(it.price * it.qty * (1 - it.commissionPct / 100))}</span>
                                         </span>
                                       ) : (
-                                        <span className="text-[11px] font-bold text-rose-600">نسبة عربون هذا المركز غير محددة</span>
+                                        <span className="text-[11px] font-bold text-rose-600">{L("نسبة عربون هذا المركز غير محددة", "This center's deposit percentage is not set")}</span>
                                       )}
                                     </div>
                                   )}
