@@ -18,7 +18,15 @@ function serverEntryShim(): PluginOption {
         const target = path.join(dir, "index.mjs");
         const shim = path.join(dir, "server.js");
         if (fs.existsSync(target) && !fs.existsSync(shim)) {
-          fs.writeFileSync(shim, `export { default } from "./index.mjs";\n`);
+          fs.writeFileSync(
+            shim,
+            `import handler from "./index.mjs";\n` +
+              `export default {\n` +
+              `  fetch(req, env, ctx) {\n` +
+              `    return handler.fetch(req, env ?? {}, ctx ?? { waitUntil() {}, passThroughOnException() {} });\n` +
+              `  },\n` +
+              `};\n`,
+          );
         }
       },
     },
