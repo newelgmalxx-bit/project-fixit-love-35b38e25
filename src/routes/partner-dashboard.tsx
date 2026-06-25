@@ -3422,14 +3422,14 @@ function AgreementTab({ partner, onPartnerUpdate }: { partner: Profile; onPartne
         <div onClick={() => setViewing(false)} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div onClick={(e) => e.stopPropagation()} className="flex w-full max-w-4xl h-[92vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between gap-3 border-b border-border p-4">
-              <div className="font-extrabold">اتفاقية الشراكة</div>
+              <div className="font-extrabold">{L("اتفاقية الشراكة", "Partnership agreement")}</div>
               <div className="flex items-center gap-2">
                 <button onClick={downloadDemoAgreementPdf} className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700">
-                  <ArrowDownToLine className="h-4 w-4" /> تحميل PDF
+                  <ArrowDownToLine className="h-4 w-4" /> {L("تحميل PDF", "Download PDF")}
                 </button>
                 {adminAgreement.status !== "signed" && (
                   <button onClick={() => { setViewing(false); openSignDialog(); }} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] px-4 py-2 text-xs font-bold text-white">
-                    <Check className="h-4 w-4" /> الموافقة والتوقيع
+                    <Check className="h-4 w-4" /> {L("الموافقة والتوقيع", "Approve & sign")}
                   </button>
                 )}
                 <button onClick={() => setViewing(false)} className="rounded-full border border-border p-2 hover:bg-muted"><X className="h-4 w-4" /></button>
