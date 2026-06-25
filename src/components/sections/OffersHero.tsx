@@ -245,7 +245,7 @@ export function OffersHero() {
             key={i}
             type="button"
             onClick={() => scrollTo(i)}
-            aria-label={`الشريحة ${i + 1}`}
+            aria-label={L(`الشريحة ${i + 1}`, `Slide ${i + 1}`)}
             className={`h-2 rounded-full transition-all ${
               selected === i
                 ? "w-8 bg-primary"
