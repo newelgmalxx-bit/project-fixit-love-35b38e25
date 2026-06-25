@@ -9,6 +9,7 @@ import { useOffers, useCategories } from "@/hooks/useCatalog";
 import { buildSeo } from "@/lib/seo";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import offersHero from "@/assets/offers-hero.webp";
+import { useLang } from "@/i18n/LanguageProvider";
 
 
 export const Route = createFileRoute("/offers/")({
