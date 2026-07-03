@@ -3,8 +3,8 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { OffersHero } from "@/components/sections/OffersHero";
 import { CategoriesGrid } from "@/components/sections/CategoriesGrid";
-import { FeaturedOffers } from "@/components/sections/FeaturedOffers";
-import { HomeOfferSlider1, HomeOfferSlider2, useHasHomeSliders } from "@/components/sections/HomeOfferSlider";
+import { HomeOfferSlider1, HomeOfferSlider2 } from "@/components/sections/HomeOfferSlider";
+
 import { AboutIntroSection } from "@/components/sections/AboutIntroSection";
 import { WhyUsSection } from "@/components/sections/WhyUsSection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
@@ -40,7 +40,6 @@ function Index() {
   const { dir } = useLang();
   // Single batch request that seeds categories/partners/offers/ads/reviews caches.
   useHomeData(20);
-  const hasSliders = useHasHomeSliders();
 
   return (
     <div dir={dir} className="flex min-h-screen flex-col bg-background">
@@ -48,14 +47,9 @@ function Index() {
       <main className="flex-1">
         <OffersHero />
         <Reveal variant="up"><CategoriesGrid /></Reveal>
-        {hasSliders ? (
-          <>
-            <Reveal variant="up" delay={80}><HomeOfferSlider1 /></Reveal>
-            <Reveal variant="up" delay={80}><HomeOfferSlider2 /></Reveal>
-          </>
-        ) : (
-          <Reveal variant="up" delay={80}><FeaturedOffers /></Reveal>
-        )}
+        <Reveal variant="up" delay={80}><HomeOfferSlider1 /></Reveal>
+        <Reveal variant="up" delay={80}><HomeOfferSlider2 /></Reveal>
+
         <Reveal variant="up"><WhyUsSection /></Reveal>
         {/* Legacy / secondary content kept below */}
         <Reveal variant="up"><AboutIntroSection /></Reveal>
