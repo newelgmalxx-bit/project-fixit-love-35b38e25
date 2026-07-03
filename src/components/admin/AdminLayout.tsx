@@ -45,6 +45,7 @@ const navGroups: (NavItem | "sep")[] = [
   { to: "/admin/tickets", ar: "التذاكر", en: "Tickets", icon: LifeBuoy },
   { to: "/admin/reviews", ar: "آراء العملاء", en: "Reviews", icon: Star },
   { to: "/admin/featured-offers", ar: "عروض اليوم المميزة", en: "Daily featured offers", icon: Tag },
+  { to: "/admin/home-sliders", ar: "سلايدرات الرئيسية", en: "Home sliders", icon: Layers },
   { to: "/admin/sponsored-ads", ar: "الإعلانات الممولة", en: "Sponsored ads", icon: Megaphone },
   { to: "/admin/analytics", ar: "التحليلات", en: "Analytics", icon: BarChart3 },
   { to: "/admin/reports", ar: "التقارير", en: "Reports", icon: FileSpreadsheet },
