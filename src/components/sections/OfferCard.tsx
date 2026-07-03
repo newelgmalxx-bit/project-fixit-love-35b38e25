@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { MapPin, Star, Heart } from "lucide-react";
+import { MapPin, Star, Heart, Store } from "lucide-react";
 import type { Offer } from "@/data/offers";
 import { usePartner } from "@/hooks/useCatalog";
 import { useFavorite } from "@/hooks/useFavorite";
