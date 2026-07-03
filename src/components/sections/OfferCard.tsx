@@ -152,7 +152,7 @@ export function OfferCard({ offer }: { offer: Offer }) {
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); }}
-          className="mt-5 w-full rounded-2xl bg-foreground px-5 py-3.5 text-sm font-extrabold text-background transition-all duration-300 hover:bg-gradient-to-r hover:from-[#3F2A6B] hover:to-[#E0254D]"
+          className="mt-auto w-full rounded-2xl bg-foreground px-5 py-3.5 text-sm font-extrabold text-background transition-all duration-300 hover:bg-gradient-to-r hover:from-[#3F2A6B] hover:to-[#E0254D]"
         >
           {L("احجز الآن", "Book now")}
         </button>
