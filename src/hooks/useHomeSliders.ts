@@ -35,18 +35,22 @@ function sortEntries(items: any[]): any[] {
     .sort((a, b) => Number(a?.sortOrder ?? a?.sort_order ?? 0) - Number(b?.sortOrder ?? b?.sort_order ?? 0));
 }
 
-/** Flatten backend row → shape our HomeOfferSlider component understands. */
+/** Flatten backend row → shape our HomeOfferSlider component understands.
+ * Handles two shapes: (1) legacy — offer nested under `row.offer`; (2) new
+ * public endpoint — all offer fields flat on the row alongside partner*. */
 function flatten(items: any[]): any[] {
   return items.map((row) => {
-    const offer = row?.offer ?? {};
+    const nested = row?.offer ?? null;
+    const src = nested ?? row; // when not nested, the row itself IS the offer
     return {
-      id: row?.offerId ?? row?.offer_id ?? offer?.id ?? row?.id,
-      ...offer,
-      partnerNameAr: offer?.partnerNameAr ?? row?.partnerNameAr,
-      partnerNameEn: offer?.partnerNameEn ?? row?.partnerNameEn,
-      partnerCity: offer?.partnerCity ?? row?.partnerCity,
-      partnerLogo: offer?.partnerLogo ?? row?.partnerLogo,
-      partnerId: offer?.partnerId ?? row?.partnerId ?? row?.partner_id,
+      ...src,
+      id: row?.offerId ?? row?.offer_id ?? src?.id ?? row?.id,
+      partnerNameAr: src?.partnerNameAr ?? row?.partnerNameAr,
+      partnerNameEn: src?.partnerNameEn ?? row?.partnerNameEn,
+      partnerCity: src?.partnerCity ?? row?.partnerCity,
+      partnerAddress: src?.partnerAddress ?? row?.partnerAddress,
+      partnerLogo: src?.partnerLogo ?? row?.partnerLogo,
+      partnerId: src?.partnerId ?? row?.partnerId ?? row?.partner_id,
     };
   });
 }
