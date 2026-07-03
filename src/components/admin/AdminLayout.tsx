@@ -5,7 +5,7 @@ import {
   BarChart3, FileSpreadsheet, Building2, Search, Target, CreditCard, Link2,
   UserCheck, Settings, ChevronDown, Bell, LogOut, Menu, User, Palette, Plug, Tag,
   Users2, BellRing, CheckCircle2, AlertCircle, ShoppingBag, LifeBuoy, Ticket, ExternalLink, Star, ScrollText, Store, MessageSquare,
-  ClipboardCheck, Wallet, MapPin, Clock, Megaphone, Heart, Webhook, ShieldCheck,
+  ClipboardCheck, Wallet, MapPin, Clock, Megaphone, Heart, Webhook, ShieldCheck, Layers,
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -45,6 +45,7 @@ const navGroups: (NavItem | "sep")[] = [
   { to: "/admin/tickets", ar: "التذاكر", en: "Tickets", icon: LifeBuoy },
   { to: "/admin/reviews", ar: "آراء العملاء", en: "Reviews", icon: Star },
   { to: "/admin/featured-offers", ar: "عروض اليوم المميزة", en: "Daily featured offers", icon: Tag },
+  { to: "/admin/home-sliders", ar: "سلايدرات الرئيسية", en: "Home sliders", icon: Layers },
   { to: "/admin/sponsored-ads", ar: "الإعلانات الممولة", en: "Sponsored ads", icon: Megaphone },
   { to: "/admin/analytics", ar: "التحليلات", en: "Analytics", icon: BarChart3 },
   { to: "/admin/reports", ar: "التقارير", en: "Reports", icon: FileSpreadsheet },
