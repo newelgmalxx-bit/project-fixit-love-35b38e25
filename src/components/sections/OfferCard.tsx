@@ -60,7 +60,7 @@ export function OfferCard({ offer }: { offer: Offer }) {
 
   const offerTitle = lang === "en" ? ((offer as any).titleEn || offer.title) : (offer.title || (offer as any).titleEn || "");
   const currency = L("ر.س", "SAR");
-  const offerNo = shortOfferNumber(String(offer.id));
+  
 
   return (
     <Link
