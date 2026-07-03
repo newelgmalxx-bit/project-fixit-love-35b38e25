@@ -38,7 +38,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { dir } = useLang();
+  const { dir, lang } = useLang();
   // Single batch request that seeds categories/partners/offers/ads/reviews caches.
   useHomeData(20);
 
