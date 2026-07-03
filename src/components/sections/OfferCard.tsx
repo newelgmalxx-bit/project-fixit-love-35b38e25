@@ -66,7 +66,7 @@ export function OfferCard({ offer }: { offer: Offer }) {
     <Link
       to="/offers/$offerId"
       params={{ offerId: offer.id }}
-      className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/15"
+      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/15"
     >
       {/* Image */}
       <div className="relative aspect-[16/11] overflow-hidden bg-muted">
@@ -152,7 +152,7 @@ export function OfferCard({ offer }: { offer: Offer }) {
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); }}
-          className="mt-5 w-full rounded-2xl bg-foreground px-5 py-3.5 text-sm font-extrabold text-background transition-all duration-300 hover:bg-gradient-to-r hover:from-[#3F2A6B] hover:to-[#E0254D]"
+          className="mt-auto w-full rounded-2xl bg-foreground px-5 py-3.5 text-sm font-extrabold text-background transition-all duration-300 hover:bg-gradient-to-r hover:from-[#3F2A6B] hover:to-[#E0254D]"
         >
           {L("احجز الآن", "Book now")}
         </button>
