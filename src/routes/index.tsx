@@ -40,6 +40,7 @@ function Index() {
   const { dir } = useLang();
   // Single batch request that seeds categories/partners/offers/ads/reviews caches.
   useHomeData(20);
+  const hasSliders = useHasHomeSliders();
 
   return (
     <div dir={dir} className="flex min-h-screen flex-col bg-background">
@@ -47,7 +48,14 @@ function Index() {
       <main className="flex-1">
         <OffersHero />
         <Reveal variant="up"><CategoriesGrid /></Reveal>
-        <Reveal variant="up" delay={80}><FeaturedOffers /></Reveal>
+        {hasSliders ? (
+          <>
+            <Reveal variant="up" delay={80}><HomeOfferSlider1 /></Reveal>
+            <Reveal variant="up" delay={80}><HomeOfferSlider2 /></Reveal>
+          </>
+        ) : (
+          <Reveal variant="up" delay={80}><FeaturedOffers /></Reveal>
+        )}
         <Reveal variant="up"><WhyUsSection /></Reveal>
         {/* Legacy / secondary content kept below */}
         <Reveal variant="up"><AboutIntroSection /></Reveal>
