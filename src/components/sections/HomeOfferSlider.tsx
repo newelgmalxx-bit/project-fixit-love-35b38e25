@@ -118,11 +118,11 @@ export function HomeOfferSlider({ sliderKey, titleAr, titleEn, kickerAr, kickerE
         </div>
 
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="-ml-4 flex">
+          <div className="-ml-4 flex items-stretch">
             {offers.map((o) => (
               <div
                 key={o.id}
-                className="min-w-0 shrink-0 grow-0 basis-[70%] pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                className="flex min-w-0 shrink-0 grow-0 basis-[70%] pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
                 <OfferCard offer={o} />
               </div>
