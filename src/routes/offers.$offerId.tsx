@@ -1052,7 +1052,7 @@ function OfferDetailPage() {
             </div>
 
             {/* ===== Right: Booking card ===== */}
-            <aside className="order-1 lg:order-2 lg:sticky lg:top-24 h-fit min-w-0">
+            <aside className="col-start-2 row-start-1 self-start min-w-0 h-fit lg:col-auto lg:row-auto lg:sticky lg:top-24">
               <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
                 {/* Price header */}
                 <div className="relative overflow-hidden bg-gradient-to-br from-[#3F2A6B] via-[#6B3FA8] to-[#E0254D] p-5 sm:p-6 text-white">
