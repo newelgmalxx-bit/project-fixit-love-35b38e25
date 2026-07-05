@@ -8,6 +8,7 @@ import { renderCategoryIcon } from "@/lib/categoryIcon";
 import {
   ChevronLeft,
   MapPin,
+  Store,
   Phone,
   Star,
   Clock,
