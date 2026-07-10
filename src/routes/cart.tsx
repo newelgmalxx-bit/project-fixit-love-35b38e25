@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trash2, ShoppingBag, ArrowLeft, Loader2, AlertCircle, Store, Calendar, Clock, MapPin, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { useCart, MAX_QTY_PER_ITEM, isOfferBooking } from "@/hooks/useCart";
