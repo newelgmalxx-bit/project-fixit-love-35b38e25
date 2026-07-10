@@ -94,6 +94,7 @@ export const cart = {
       offerId,
       qty: body.qty ?? 1,
     };
+    if (body.branchId) payload.branchId = body.branchId;
     return unwrap(request<ApiResponse<any>>('/cart/items', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -103,6 +104,12 @@ export const cart = {
 
   updateQty: (lineId: string, qty: number) =>
     unwrap(request<ApiResponse<any>>(`/cart/items/${lineId}`, { method: 'PUT', body: JSON.stringify({ qty }) })),
+
+  updateBranch: (lineId: string, branchId: string, qty?: number) =>
+    unwrap(request<ApiResponse<any>>(`/cart/items/${lineId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ branchId, ...(qty ? { qty } : { qty: 1 }) }),
+    })),
 
   remove: (lineId: string) =>
     unwrap(request<ApiResponse<any>>(`/cart/items/${lineId}`, { method: 'DELETE' })),
