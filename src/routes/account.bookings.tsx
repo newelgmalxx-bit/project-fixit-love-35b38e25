@@ -47,6 +47,8 @@ function normalizeRow(r: any): StoredBooking {
     offerTitle: r.offer_title ?? r.offerTitle ?? undefined,
     vendorName: r.partner_name ?? r.vendorName ?? undefined,
     vendorCity: r.partner_city ?? r.vendorCity ?? undefined,
+    branchName: r.branch_name ?? r.branchName ?? r.branch?.name_ar ?? r.branch?.nameAr ?? r.branch?.name_en ?? r.branch?.nameEn ?? undefined,
+
     date: String(r.booking_date ?? r.bookingDate ?? r.date ?? ""),
     time: String(r.booking_time ?? r.bookingTime ?? r.time ?? ""),
     customerName: String(r.customer_name ?? r.customerName ?? ""),
