@@ -274,6 +274,20 @@ export function useCart() {
     }
   }, [remove]);
 
+  const updateBranch = useCallback(async (lineId: string, branchId: string, branchName?: string | null) => {
+    const nextItems = cache.items.map((i) =>
+      i.id === lineId ? { ...i, branchId, branchName: branchName ?? i.branchName ?? null } : i,
+    );
+    setCache({ ...cache, items: nextItems, ...computeTotals(nextItems) });
+    if (!lineId.startsWith("local-")) {
+      try {
+        const line = cache.items.find((i) => i.id === lineId);
+        await api.cart.updateItemBranch(lineId, branchId, line?.qty);
+        await trySyncFromApi();
+      } catch { /* keep local update */ }
+    }
+  }, []);
+
   const clear = useCallback(async () => {
     const ids = cache.items.map((i) => i.id);
     setCache({ items: [], subtotal: 0, discount: 0, vat: 0, total: 0, loading: false, error: null });
@@ -298,6 +312,7 @@ export function useCart() {
     add,
     remove,
     updateQty,
+    updateBranch,
     clear,
     refresh,
   };
