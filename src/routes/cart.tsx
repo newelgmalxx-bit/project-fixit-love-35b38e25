@@ -313,13 +313,12 @@ function BranchPickerModal({
   const [err, setErr] = useState<string | null>(null);
   const L = (a: string, e: string) => (lang === "en" ? e : a);
 
-  useState(() => {
+  useEffect(() => {
     publicApi
       .getOfferBranches(offerId)
       .then((list) => setBranches(list || []))
       .catch((e: any) => setErr(e?.message || "Failed to load branches"));
-    return undefined;
-  });
+  }, [offerId]);
 
   return (
     <div
