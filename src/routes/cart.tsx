@@ -252,10 +252,23 @@ function CartPage() {
           )}
         </div>
       </main>
+      {branchModal && (
+        <BranchPickerModal
+          offerId={branchModal.offerId}
+          currentBranchId={branchModal.currentBranchId ?? null}
+          onClose={() => setBranchModal(null)}
+          onPick={async (b) => {
+            await updateBranch(branchModal.lineId, b.id, b.nameAr);
+            setBranchModal(null);
+          }}
+          lang={lang}
+        />
+      )}
       <SiteFooter />
     </div>
   );
 }
+
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
