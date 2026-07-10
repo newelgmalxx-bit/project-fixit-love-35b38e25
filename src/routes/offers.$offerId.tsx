@@ -199,7 +199,7 @@ function OfferDetailPage() {
     let cancelled = false;
     (async () => {
       try {
-        const data: any = await publicApi.getOfferAvailability(offer.id, date);
+        const data: any = await publicApi.getOfferAvailability(offer.id, date, selectedBranchId);
         if (cancelled || !data) return;
         const slots: any[] = Array.isArray(data.slots) ? data.slots : [];
         const allTimes = slots.map((s) => s.time).filter(Boolean);
@@ -219,7 +219,7 @@ function OfferDetailPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [date, offer.id, FALLBACK_SLOTS]);
+  }, [date, offer.id, FALLBACK_SLOTS, selectedBranchId]);
 
 
   // Fetch 14-day range for the upcoming-days strip
@@ -233,7 +233,7 @@ function OfferDetailPage() {
     let cancelled = false;
     (async () => {
       try {
-        const arr: any[] = await publicApi.getOfferAvailabilityRange(offer.id, from, to);
+        const arr: any[] = await publicApi.getOfferAvailabilityRange(offer.id, from, to, selectedBranchId);
         if (cancelled) return;
         // Only honor "fullyBooked" from the range endpoint — closed-day info
         // is sourced from the partner's workingHours (more reliable).
@@ -244,7 +244,7 @@ function OfferDetailPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [offer.id]);
+  }, [offer.id, selectedBranchId]);
 
 
   // Weekday keys (Sun..Sat) marked closed in the partner's workingHours.
@@ -538,6 +538,8 @@ function OfferDetailPage() {
       bookingDate: date,
       bookingTime: time,
       commissionPct: depositPct ?? undefined,
+      branchId: selectedBranchId ?? undefined,
+      branchName: selectedBranch?.nameAr ?? undefined,
     });
     toast.success(L("تمت إضافة الحجز للسلة", "Booking added to cart"), {
       description: `${offerTitle} — ${date} ${time}`,
