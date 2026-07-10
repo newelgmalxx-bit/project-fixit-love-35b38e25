@@ -680,6 +680,7 @@ function MerchantsPage() {
                     <div className="text-xs text-muted-foreground">{L("إيراد (ر.س)", "Revenue (SAR)")}</div>
                   </div>
                 </div>
+                <BranchesPanel partnerId={viewing.id} />
               </div>
               <DialogFooter className="gap-2 sm:gap-2">
                 {viewing.status === "pending" && (
