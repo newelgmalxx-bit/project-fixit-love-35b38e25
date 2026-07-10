@@ -23,6 +23,11 @@ type Booking = {
   vendorAddress?: string;
   vendorPhone?: string;
   vendorMapsUrl?: string;
+  branchId?: string;
+  branchName?: string;
+  branchAddress?: string;
+  branchPhone?: string;
+  branchMapsUrl?: string;
   priceAfter?: number;
   date: string;
   time: string;
