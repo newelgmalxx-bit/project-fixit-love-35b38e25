@@ -1,5 +1,5 @@
 import { request, getToken, getSid, BASE } from './client';
-import type { ApiResponse } from './types';
+import type { ApiResponse, Branch } from './types';
 
 export type SponsoredAd = {
   id: string;
@@ -94,16 +94,22 @@ export const publicApi = {
   },
 
   /* ───── Availability ───── */
-  getOfferAvailability: async (offerId: string, date: string) => {
-    const r = await request<ApiResponse<any>>(`/offers/${encodeURIComponent(offerId)}/availability?date=${encodeURIComponent(date)}`);
+  getOfferAvailability: async (offerId: string, date: string, branchId?: string | null) => {
+    const q = new URLSearchParams({ date });
+    if (branchId) q.set('branchId', branchId);
+    const r = await request<ApiResponse<any>>(`/offers/${encodeURIComponent(offerId)}/availability?${q.toString()}`);
     return r.data ?? null;
   },
-  getPartnerAvailability: async (partnerId: string, date: string) => {
-    const r = await request<ApiResponse<any>>(`/partners/${encodeURIComponent(partnerId)}/availability?date=${encodeURIComponent(date)}`);
+  getPartnerAvailability: async (partnerId: string, date: string, branchId?: string | null) => {
+    const q = new URLSearchParams({ date });
+    if (branchId) q.set('branchId', branchId);
+    const r = await request<ApiResponse<any>>(`/partners/${encodeURIComponent(partnerId)}/availability?${q.toString()}`);
     return r.data ?? null;
   },
-  getOfferAvailabilityRange: async (offerId: string, from: string, to: string) => {
-    const r = await request<ApiResponse<any>>(`/offers/${encodeURIComponent(offerId)}/availability/range?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+  getOfferAvailabilityRange: async (offerId: string, from: string, to: string, branchId?: string | null) => {
+    const q = new URLSearchParams({ from, to });
+    if (branchId) q.set('branchId', branchId);
+    const r = await request<ApiResponse<any>>(`/offers/${encodeURIComponent(offerId)}/availability/range?${q.toString()}`);
     const d: any = r.data ?? [];
     // Support new shape `{items:[{date,dayOff,fullyBooked}]}`, old shape
     // `{days:[{date,dayOff,availableSlots}]}`, or a bare array.
@@ -125,6 +131,17 @@ export const publicApi = {
       };
     });
   },
+
+  /* ───── Offer branches ───── */
+  getOfferBranches: async (offerId: string): Promise<Branch[]> => {
+    const r = await request<ApiResponse<{ offerId: string; branches: Branch[] }>>(
+      `/checkout/offer-branches/${encodeURIComponent(offerId)}`,
+    );
+    return r.data?.branches ?? [];
+  },
+
+
+
 
 
 

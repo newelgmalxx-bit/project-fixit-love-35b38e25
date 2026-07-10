@@ -29,6 +29,8 @@ function normalizeCart(raw: any): Cart {
       price: Number(it.price) || 0,
       original_price: it.originalPrice ?? it.original_price ?? null,
       qty: Number(it.qty) || 1,
+      branchId: it.branchId ?? it.branch_id ?? it.branch?.id ?? null,
+      branchName: it.branch?.nameAr ?? it.branch?.name_ar ?? it.branchName ?? it.branch_name ?? null,
     })),
     subtotal: Number(summary.subtotal ?? raw.subtotal) || 0,
     vat: Number(summary.vat ?? raw.vat) || 0,
@@ -37,6 +39,7 @@ function normalizeCart(raw: any): Cart {
     discount: summary.discount ?? raw.couponDiscount ?? raw.discount ?? undefined,
     code: raw.coupon?.code ?? raw.code ?? undefined,
   };
+
 }
 
 async function unwrap(p: Promise<ApiResponse<any>>): Promise<ApiResponse<Cart>> {
@@ -47,6 +50,7 @@ async function unwrap(p: Promise<ApiResponse<any>>): Promise<ApiResponse<Cart>> 
 export type AddCartBody = {
   offerId?: string;
   offerSlug?: string;
+  branchId?: string | null;
   // Legacy alias inputs we still accept from existing UI code:
   serviceId?: string;
   serviceSlug?: string;
@@ -90,6 +94,7 @@ export const cart = {
       offerId,
       qty: body.qty ?? 1,
     };
+    if (body.branchId) payload.branchId = body.branchId;
     return unwrap(request<ApiResponse<any>>('/cart/items', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -99,6 +104,12 @@ export const cart = {
 
   updateQty: (lineId: string, qty: number) =>
     unwrap(request<ApiResponse<any>>(`/cart/items/${lineId}`, { method: 'PUT', body: JSON.stringify({ qty }) })),
+
+  updateBranch: (lineId: string, branchId: string, qty?: number) =>
+    unwrap(request<ApiResponse<any>>(`/cart/items/${lineId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ branchId, ...(qty ? { qty } : { qty: 1 }) }),
+    })),
 
   remove: (lineId: string) =>
     unwrap(request<ApiResponse<any>>(`/cart/items/${lineId}`, { method: 'DELETE' })),

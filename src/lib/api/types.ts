@@ -67,11 +67,27 @@ export type ServiceFull = ServiceListItem & {
   seo: { titleAr: string; titleEn: string; descriptionAr: string; descriptionEn: string; keywords: string; ogImage: string | null } | null;
 };
 
+export type Branch = {
+  id: string;
+  partnerId?: string | null;
+  nameAr: string;
+  nameEn?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  mapsUrl?: string | null;
+  isDefault?: boolean;
+  workingHours?: any | null;
+  status?: string;
+};
+
 export type CartItem = {
   id: string; service_slug: string; service_title: string;
   plan_id: string | null; plan_name: string | null;
   price: number; original_price: number | null; qty: number;
+  branchId?: string | null;
+  branchName?: string | null;
 };
+
 
 export type Cart = {
   items: CartItem[]; subtotal: number;
@@ -95,6 +111,7 @@ export type Order = {
   notes: string | null; source: string;
   timeline: { status: string; at: string; note: string }[];
   invoice: { id: string; number: string; status: string; total: number } | null;
+  branch?: Branch | null;
 };
 
 export type Ticket = {
