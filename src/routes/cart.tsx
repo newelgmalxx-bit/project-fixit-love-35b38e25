@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Trash2, ShoppingBag, ArrowLeft, Loader2, AlertCircle, Store, Calendar, Clock } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowLeft, Loader2, AlertCircle, Store, Calendar, Clock, MapPin, X } from "lucide-react";
+import { useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { useCart, MAX_QTY_PER_ITEM, isOfferBooking } from "@/hooks/useCart";
 import { formatCurrency } from "@/data/account";
 import { useLang } from "@/i18n/LanguageProvider";
+import { publicApi } from "@/lib/api/public";
+import type { Branch } from "@/lib/api/types";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -14,8 +17,10 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
-  const { items, remove, updateQty, subtotal, vat, total, count, loading, error, refresh } = useCart();
+  const { items, remove, updateQty, updateBranch, subtotal, vat, total, count, loading, error, refresh } = useCart();
   const { t, lang, dir } = useLang();
+  const [branchModal, setBranchModal] = useState<{ lineId: string; offerId: string; currentBranchId?: string | null } | null>(null);
+
 
   const L = (a: string, e: string) => (lang === "en" ? e : a);
 
