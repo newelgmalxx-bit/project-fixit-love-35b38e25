@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Package, Download, MessageSquarePlus, ChevronLeft, ChevronRight, Calendar, CreditCard,
-  CheckCircle2, Circle, FileText, Receipt, Loader2, Wallet, Check,
+  CheckCircle2, Circle, FileText, Receipt, Loader2, Wallet, Check, MapPin, Phone,
 } from "lucide-react";
 import { AccountLayout, StatusBadge } from "@/components/account/AccountLayout";
 import { statusLabels, statusFlow, formatCurrency, paymentName, paymentIcon, paymentMethods, type Order, type PaymentMethod } from "@/data/account";
