@@ -37,6 +37,8 @@ type Booking = {
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
+  branchId?: string | null;
+  branchName?: string | null;
   createdAt: string;
 };
 
