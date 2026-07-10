@@ -1,5 +1,5 @@
 import { request, getToken, getSid, BASE } from './client';
-import type { ApiResponse } from './types';
+import type { ApiResponse, Branch } from './types';
 
 export type SponsoredAd = {
   id: string;
