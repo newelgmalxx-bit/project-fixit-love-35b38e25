@@ -701,6 +701,9 @@ function CheckoutPage() {
                         <div>
                           <div className="font-bold">{it.serviceTitle}</div>
                           <div className="text-xs text-muted-foreground">{(it.serviceSlug && !it.serviceSlug.startsWith("plan:")) ? (lang === "en" ? "Service" : "خدمة") : t("cart.planLabel")} {it.planName} • {lang === "en" ? "Meters" : "عدد الأمتار"}: <span data-ltr-number>{it.qty}</span></div>
+                          {it.branchName && (
+                            <div className="mt-0.5 text-[11px] text-primary font-bold">📍 {it.branchName}</div>
+                          )}
                         </div>
                         <div className="font-bold text-primary" data-ltr-number>{formatCurrency(it.price * it.qty)}</div>
                       </div>
