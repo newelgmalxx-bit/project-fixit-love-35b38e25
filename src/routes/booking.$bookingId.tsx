@@ -342,14 +342,24 @@ function BookingConfirmation() {
                   </Row>
                   <Row icon={<MapPin className="h-4 w-4 text-primary" />} label={L("المنشأة", "Venue")}>
                     <div>
-                      <div className="font-bold text-foreground">{offer.vendor.name}</div>
+                      <div className="font-bold text-foreground">
+                        {offer.vendor.name}
+                        {booking.branchName && (
+                          <span className="ms-2 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
+                            {L("فرع:", "Branch:")} {booking.branchName}
+                          </span>
+                        )}
+                      </div>
                       {isPaid ? (
                         <>
                           <div className="text-xs text-muted-foreground">
-                            {offer.vendor.address}{offer.vendor.address && offer.vendor.city ? L("، ", ", ") : ""}{offer.vendor.city}
+                            {(booking.branchAddress || offer.vendor.address)}
+                            {(booking.branchAddress || offer.vendor.address) && offer.vendor.city ? L("، ", ", ") : ""}
+                            {offer.vendor.city}
                           </div>
                           {(() => {
-                            const mapsUrl = (offer.vendor as any).mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.vendor.name} ${offer.vendor.address} ${offer.vendor.city}`)}`;
+                            const addr = booking.branchAddress || offer.vendor.address;
+                            const mapsUrl = booking.branchMapsUrl || (offer.vendor as any).mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.vendor.name} ${addr} ${offer.vendor.city}`)}`;
                             return (
                               <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/5 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/10">
                                 <MapPin className="h-3 w-3" /> {L("الذهاب للفرع عبر خرائط جوجل", "Open in Google Maps")}
@@ -365,7 +375,7 @@ function BookingConfirmation() {
                     </div>
                   </Row>
                   <Row icon={<Phone className="h-4 w-4 text-primary" />} label={L("هاتف المنشأة", "Venue phone")}>
-                    <span dir="ltr">{offer.vendor.phone}</span>
+                    <span dir="ltr">{booking.branchPhone || offer.vendor.phone}</span>
                   </Row>
                 </div>
 
