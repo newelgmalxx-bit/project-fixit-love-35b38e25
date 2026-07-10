@@ -680,6 +680,7 @@ function MerchantsPage() {
                     <div className="text-xs text-muted-foreground">{L("إيراد (ر.س)", "Revenue (SAR)")}</div>
                   </div>
                 </div>
+                <BranchesPanel partnerId={viewing.id} />
               </div>
               <DialogFooter className="gap-2 sm:gap-2">
                 {viewing.status === "pending" && (
@@ -1009,5 +1010,58 @@ function AddCenterDialog({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function BranchesPanel({ partnerId }: { partnerId: string }) {
+  const { lang } = useLang();
+  const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    import("@/lib/api/adminBranches").then(({ adminBranchesApi }) =>
+      adminBranchesApi.listForPartner(partnerId)
+        .then((d) => { if (alive) setItems(d.items || []); })
+        .catch(() => { if (alive) setItems([]); })
+        .finally(() => { if (alive) setLoading(false); })
+    );
+    return () => { alive = false; };
+  }, [partnerId]);
+
+  return (
+    <div className="rounded-2xl border border-border bg-muted/30 p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="text-sm font-bold flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-primary" /> {L("الفروع", "Branches")}
+          <span className="text-xs text-muted-foreground">({items.length})</span>
+        </div>
+        <a href={`/admin/branches`} className="text-xs font-bold text-primary hover:underline">
+          {L("إدارة الفروع", "Manage branches")}
+        </a>
+      </div>
+      {loading ? (
+        <div className="py-3 text-center"><Loader2 className="inline h-4 w-4 animate-spin text-primary" /></div>
+      ) : items.length === 0 ? (
+        <div className="py-3 text-center text-xs text-muted-foreground">{L("لا توجد فروع مسجّلة.", "No branches yet.")}</div>
+      ) : (
+        <ul className="space-y-1.5">
+          {items.map((b) => (
+            <li key={b.id} className="flex items-center justify-between gap-2 rounded-xl bg-background/70 px-3 py-2 text-xs">
+              <div className="min-w-0 truncate">
+                <span className="font-bold">{lang === "en" ? (b.nameEn || b.nameAr) : b.nameAr}</span>
+                {b.address && <span className="text-muted-foreground"> · {b.address}</span>}
+              </div>
+              {b.isDefault && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                  {L("افتراضي", "Default")}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
