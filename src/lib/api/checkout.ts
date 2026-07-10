@@ -44,7 +44,7 @@ type CheckoutBody = {
   date?: string;
   time?: string;
   sessionId?: string;
-  items?: Array<{ offerId?: string; offerTitle?: string; offerSlug?: string; serviceSlug?: string; serviceTitle?: string; planId?: string | null; planName?: string | null; price?: number; qty?: number }>;
+  items?: Array<{ offerId?: string; offerTitle?: string; offerSlug?: string; serviceSlug?: string; serviceTitle?: string; planId?: string | null; planName?: string | null; price?: number; qty?: number; branchId?: string | null }>;
 };
 
 function buildPayload(body: CheckoutBody) {
@@ -60,7 +60,7 @@ function buildPayload(body: CheckoutBody) {
     date: body.date,
     time: body.time,
     session_id: body.sessionId,
-    items: body.items,
+    items: body.items?.map((it) => ({ ...it, branchId: it.branchId ?? undefined })),
   };
 }
 
