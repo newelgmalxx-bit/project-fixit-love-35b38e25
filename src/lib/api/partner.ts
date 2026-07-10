@@ -355,6 +355,18 @@ function normalizeBooking(b: any): any {
     redeemed_at: b.redeemedAt ?? b.redeemed_at ?? null,
     created_at: b.createdAt ?? null,
     updated_at: b.updatedAt ?? null,
+    branch_id: b.branchId ?? b.branch_id ?? b.branch?.id ?? null,
+    branch_name:
+      b.branchName ??
+      b.branch_name ??
+      b.branch?.nameAr ??
+      b.branch?.name_ar ??
+      b.branch?.nameEn ??
+      b.branch?.name_en ??
+      null,
+    branch_phone: b.branchPhone ?? b.branch_phone ?? b.branch?.phone ?? null,
+    branch_address: b.branchAddress ?? b.branch_address ?? b.branch?.address ?? null,
+    branch_maps_url: b.branchMapsUrl ?? b.branch_maps_url ?? b.branch?.mapsUrl ?? b.branch?.maps_url ?? null,
   };
 }
 
