@@ -132,6 +132,17 @@ export const publicApi = {
     });
   },
 
+  /* ───── Offer branches ───── */
+  getOfferBranches: async (offerId: string): Promise<Branch[]> => {
+    const r = await request<ApiResponse<{ offerId: string; branches: Branch[] }>>(
+      `/checkout/offer-branches/${encodeURIComponent(offerId)}`,
+    );
+    return r.data?.branches ?? [];
+  },
+
+
+
+
 
 
   /* ───── Misc public ───── */
