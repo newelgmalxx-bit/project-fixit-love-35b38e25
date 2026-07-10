@@ -28,6 +28,7 @@ import {
   Minus,
 } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import type { Branch } from "@/lib/api/types";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { toast } from "sonner";
 import { useOffer, useOffersByCategory, useCategory } from "@/hooks/useCatalog";
@@ -161,6 +162,30 @@ function OfferDetailPage() {
   const [blockedSlots, setBlockedSlots] = useState<string[]>([]);
   const [dayOff, setDayOff] = useState(false);
   const [blockedDaysList, setBlockedDaysList] = useState<string[]>([]);
+
+  // ===== Branches =====
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!offer.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await publicApi.getOfferBranches(offer.id);
+        if (cancelled) return;
+        setBranches(list);
+        const def = list.find((b) => b.isDefault) ?? list[0];
+        setSelectedBranchId(def?.id ?? null);
+      } catch {
+        if (!cancelled) { setBranches([]); setSelectedBranchId(null); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [offer.id]);
+  const selectedBranch = useMemo(
+    () => branches.find((b) => b.id === selectedBranchId) ?? null,
+    [branches, selectedBranchId],
+  );
 
   const TIME_SLOTS = availableSlots;
 
