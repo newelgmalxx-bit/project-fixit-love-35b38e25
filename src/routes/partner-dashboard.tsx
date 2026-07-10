@@ -1293,6 +1293,15 @@ function BookingsTab({ partner }: { partner: Profile }) {
                   <InfoBox label={L("موعد الحجز", "Booking date")}>
                     <span dir="ltr" className="text-xs font-bold">{b.booking_date || "—"} {b.booking_time || ""}</span>
                   </InfoBox>
+                  <InfoBox label={L("الفرع", "Branch")}>
+                    {(() => {
+                      const bx: any = b;
+                      const name = bx.branch_name ?? bx.branchName ?? bx.branch?.nameAr ?? bx.branch?.name_ar ?? bx.branch?.nameEn ?? null;
+                      return name
+                        ? <span className="inline-flex items-center gap-1 text-xs font-bold text-primary"><MapPin className="h-3 w-3" /> {name}</span>
+                        : <span className="text-xs text-muted-foreground">—</span>;
+                    })()}
+                  </InfoBox>
                   <InfoBox label={L("تاريخ الإنشاء", "Created at")}>
                     <span dir="ltr" className="text-xs font-semibold">{b.created_at ? new Date(b.created_at).toLocaleString("en-GB", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) : "—"}</span>
                   </InfoBox>
