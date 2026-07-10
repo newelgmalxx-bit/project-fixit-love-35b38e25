@@ -17,6 +17,9 @@ export type CartItem = {
   bookingDate?: string; // YYYY-MM-DD
   bookingTime?: string; // HH:MM
   commissionPct?: number; // platform commission % = online deposit %
+  // ----- Branch fields -----
+  branchId?: string | null;
+  branchName?: string | null;
 };
 
 const STORAGE_KEY = "saba_cart_v1";
@@ -44,6 +47,8 @@ function normalizeFromApi(line: any): CartItem {
     qty: Math.min(MAX_QTY_PER_ITEM, Number(line.qty) || 1),
     vendorName: line.vendorName ?? line.vendor_name ?? line.offer?.vendorName ?? undefined,
     offerId: offerId ?? undefined,
+    branchId: line.branchId ?? line.branch_id ?? line.branch?.id ?? null,
+    branchName: line.branchName ?? line.branch_name ?? line.branch?.nameAr ?? line.branch?.name_ar ?? null,
   };
 }
 
@@ -166,22 +171,30 @@ export function useCart() {
       bookingDate?: string;
       bookingTime?: string;
       commissionPct?: number;
+      branchId?: string | null;
+      branchName?: string | null;
     }) => {
       const qty = item.qty ?? 1;
       const planId = item.planId || "default";
       // Offer bookings with a date/time are NEVER merged: a customer adding the
       // same offer for a different time must get a separate line. Only merge
       // when no booking metadata is set on EITHER side.
+      // Different branches for the same offer also always split into separate lines.
       const isBooking = Boolean(item.offerId && item.bookingDate);
       const existingIdx = isBooking
         ? cache.items.findIndex(
             (i) =>
               i.offerId === item.offerId &&
               i.bookingDate === item.bookingDate &&
-              i.bookingTime === item.bookingTime,
+              i.bookingTime === item.bookingTime &&
+              (i.branchId ?? null) === (item.branchId ?? null),
           )
         : cache.items.findIndex(
-            (i) => !i.offerId && i.serviceSlug === item.serviceSlug && i.planId === planId,
+            (i) =>
+              !i.offerId &&
+              i.serviceSlug === item.serviceSlug &&
+              i.planId === planId &&
+              (i.branchId ?? null) === (item.branchId ?? null),
           );
       let nextItems: CartItem[];
       let cappedHit = false;
@@ -211,6 +224,8 @@ export function useCart() {
             bookingDate: item.bookingDate,
             bookingTime: item.bookingTime,
             commissionPct: item.commissionPct,
+            branchId: item.branchId ?? null,
+            branchName: item.branchName ?? null,
           },
         ];
       }
@@ -230,6 +245,7 @@ export function useCart() {
           await api.cart.addItem({
             offerId,
             qty: Math.min(MAX_QTY_PER_ITEM, qty),
+            branchId: item.branchId ?? undefined,
           });
           await trySyncFromApi();
         } catch { /* keep local fallback */ }
@@ -238,6 +254,7 @@ export function useCart() {
     },
     [],
   );
+
 
   const remove = useCallback(async (lineId: string) => {
     const nextItems = cache.items.filter((i) => i.id !== lineId);
@@ -256,6 +273,20 @@ export function useCart() {
       try { await api.cart.updateItem(lineId, capped); await trySyncFromApi(); } catch {}
     }
   }, [remove]);
+
+  const updateBranch = useCallback(async (lineId: string, branchId: string, branchName?: string | null) => {
+    const nextItems = cache.items.map((i) =>
+      i.id === lineId ? { ...i, branchId, branchName: branchName ?? i.branchName ?? null } : i,
+    );
+    setCache({ ...cache, items: nextItems, ...computeTotals(nextItems) });
+    if (!lineId.startsWith("local-")) {
+      try {
+        const line = cache.items.find((i) => i.id === lineId);
+        await api.cart.updateItemBranch(lineId, branchId, line?.qty);
+        await trySyncFromApi();
+      } catch { /* keep local update */ }
+    }
+  }, []);
 
   const clear = useCallback(async () => {
     const ids = cache.items.map((i) => i.id);
@@ -281,6 +312,7 @@ export function useCart() {
     add,
     remove,
     updateQty,
+    updateBranch,
     clear,
     refresh,
   };

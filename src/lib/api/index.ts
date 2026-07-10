@@ -72,6 +72,8 @@ export const cart = {
     unwrapCart(cartNew.add(body)),
   updateItem: async (lineId: string, qty: number) =>
     unwrapCart(cartNew.updateQty(lineId, qty)),
+  updateItemBranch: async (lineId: string, branchId: string, qty?: number) =>
+    unwrapCart(cartNew.updateBranch(lineId, branchId, qty)),
   removeItem: async (lineId: string) =>
     unwrapCart(cartNew.remove(lineId)),
 };

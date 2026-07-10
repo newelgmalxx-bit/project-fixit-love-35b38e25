@@ -28,6 +28,7 @@ import {
   Minus,
 } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import type { Branch } from "@/lib/api/types";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { toast } from "sonner";
 import { useOffer, useOffersByCategory, useCategory } from "@/hooks/useCatalog";
@@ -162,6 +163,30 @@ function OfferDetailPage() {
   const [dayOff, setDayOff] = useState(false);
   const [blockedDaysList, setBlockedDaysList] = useState<string[]>([]);
 
+  // ===== Branches =====
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!offer.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await publicApi.getOfferBranches(offer.id);
+        if (cancelled) return;
+        setBranches(list);
+        const def = list.find((b) => b.isDefault) ?? list[0];
+        setSelectedBranchId(def?.id ?? null);
+      } catch {
+        if (!cancelled) { setBranches([]); setSelectedBranchId(null); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [offer.id]);
+  const selectedBranch = useMemo(
+    () => branches.find((b) => b.id === selectedBranchId) ?? null,
+    [branches, selectedBranchId],
+  );
+
   const TIME_SLOTS = availableSlots;
 
   // Fetch availability for the selected date
@@ -174,7 +199,7 @@ function OfferDetailPage() {
     let cancelled = false;
     (async () => {
       try {
-        const data: any = await publicApi.getOfferAvailability(offer.id, date);
+        const data: any = await publicApi.getOfferAvailability(offer.id, date, selectedBranchId);
         if (cancelled || !data) return;
         const slots: any[] = Array.isArray(data.slots) ? data.slots : [];
         const allTimes = slots.map((s) => s.time).filter(Boolean);
@@ -194,7 +219,7 @@ function OfferDetailPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [date, offer.id, FALLBACK_SLOTS]);
+  }, [date, offer.id, FALLBACK_SLOTS, selectedBranchId]);
 
 
   // Fetch 14-day range for the upcoming-days strip
@@ -208,7 +233,7 @@ function OfferDetailPage() {
     let cancelled = false;
     (async () => {
       try {
-        const arr: any[] = await publicApi.getOfferAvailabilityRange(offer.id, from, to);
+        const arr: any[] = await publicApi.getOfferAvailabilityRange(offer.id, from, to, selectedBranchId);
         if (cancelled) return;
         // Only honor "fullyBooked" from the range endpoint — closed-day info
         // is sourced from the partner's workingHours (more reliable).
@@ -219,7 +244,7 @@ function OfferDetailPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [offer.id]);
+  }, [offer.id, selectedBranchId]);
 
 
   // Weekday keys (Sun..Sat) marked closed in the partner's workingHours.
@@ -513,6 +538,8 @@ function OfferDetailPage() {
       bookingDate: date,
       bookingTime: time,
       commissionPct: depositPct ?? undefined,
+      branchId: selectedBranchId ?? undefined,
+      branchName: selectedBranch?.nameAr ?? undefined,
     });
     toast.success(L("تمت إضافة الحجز للسلة", "Booking added to cart"), {
       description: `${offerTitle} — ${date} ${time}`,
@@ -1102,8 +1129,69 @@ function OfferDetailPage() {
 
                 {step === "form" && (
                   <form onSubmit={goToReview} noValidate className="space-y-5 p-5 sm:p-6">
+                    {/* Branch selector */}
+                    {branches.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          <span>{L("اختر الفرع", "Choose branch")}</span>
+                          {branches.length === 1 && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">
+                              {L("الفرع الوحيد", "Only branch")}
+                            </span>
+                          )}
+                        </div>
+                        {branches.length === 1 ? (
+                          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-3">
+                            <div className="text-sm font-extrabold text-foreground">{branches[0].nameAr}</div>
+                            {branches[0].address && (
+                              <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{branches[0].address}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {branches.map((b) => {
+                              const active = b.id === selectedBranchId;
+                              return (
+                                <button
+                                  type="button"
+                                  key={b.id}
+                                  onClick={() => setSelectedBranchId(b.id)}
+                                  className={`text-start rounded-2xl border-2 p-3 transition ${active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                                >
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="text-sm font-extrabold text-foreground">{b.nameAr}</div>
+                                    {b.isDefault && (
+                                      <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+                                        {L("افتراضي", "Default")}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {b.address && (
+                                    <div className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{b.address}</div>
+                                  )}
+                                  {b.mapsUrl && (
+                                    <a
+                                      href={b.mapsUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+                                    >
+                                      <MapPin className="h-3 w-3" /> {L("الخريطة", "Map")}
+                                    </a>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Date + time */}
                     <div className="grid grid-cols-2 gap-3">
+
                       <label className={`group relative flex cursor-pointer flex-col rounded-2xl border-2 bg-card p-3 transition ${date ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
                         <div className="flex items-center gap-2">
                           <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${date ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"}`}>
