@@ -104,7 +104,7 @@ function MyBookings() {
     try {
       const r: any = await account.bookings({ limit: 100 });
       const raw = r?.data?.items ?? r?.items ?? r?.data ?? [];
-      const list: StoredBooking[] = Array.isArray(raw) ? raw.map(normalizeRow) : [];
+      const list: StoredBooking[] = Array.isArray(raw) ? raw.map((row: any) => normalizeRow(row, lang)) : [];
       // Server is the source of truth. Drop any stale local cache from old flows.
       try { localStorage.removeItem("myBookings"); } catch {}
       setItems(list.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
