@@ -693,11 +693,13 @@ function OffersTab({ partner }: { partner: Profile }) {
   // When opening the form: if partner has exactly one branch and none selected, preselect it
   useEffect(() => {
     if (!editing) return;
-    if (!editing.branch_id && branches.length === 1) {
-      setEditing((prev) => prev ? { ...prev, branch_id: branches[0].id } as any : prev);
-    } else if (!editing.branch_id) {
+    const cur = ((editing as any).branch_ids as string[] | undefined) ?? [];
+    if (cur.length) return;
+    if (branches.length === 1) {
+      setEditing((prev) => prev ? ({ ...prev, branch_ids: [branches[0].id] } as any) : prev);
+    } else {
       const def = branches.find((b: any) => b.isDefault || b.is_default);
-      if (def) setEditing((prev) => prev && !prev.branch_id ? { ...prev, branch_id: def.id } as any : prev);
+      if (def) setEditing((prev) => prev ? ({ ...prev, branch_ids: [def.id] } as any) : prev);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing?.id, branches]);
