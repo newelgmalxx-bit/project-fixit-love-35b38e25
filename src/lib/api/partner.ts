@@ -249,6 +249,8 @@ function normalizeOffer(o: any): any {
   return {
     id: o.id,
     partner_id: o.partnerId ?? o.partner_id ?? null,
+    branch_id: o.branchId ?? o.branch_id ?? o.branch?.id ?? null,
+    branch: o.branch ?? null,
     title: o.titleAr ?? o.title_ar ?? o.title ?? "",
     title_en: o.titleEn ?? o.title_en ?? null,
     description: o.descriptionAr ?? o.description_ar ?? o.description ?? null,
@@ -295,6 +297,7 @@ function denormalizeOfferPayload(b: any): any {
   }
   if (b.image_url !== undefined || imgs.length) out.image = imgs[0] || b.image_url || null;
   if (b.category !== undefined) out.categoryId = b.category || null;
+  if (b.branch_id !== undefined) out.branchId = b.branch_id || null;
   if (b.status !== undefined) out.status = b.status;
   if (b.duration_minutes !== undefined) out.durationMinutes = b.duration_minutes;
   if (b.is_featured !== undefined) out.isFeatured = b.is_featured ? 1 : 0;

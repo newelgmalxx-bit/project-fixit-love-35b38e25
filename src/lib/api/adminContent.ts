@@ -62,6 +62,8 @@ export type AdminOffer = {
   id: string;
   partnerId: string;
   partner?: AdminOfferPartner;
+  branchId?: string | null;
+  branch?: { id: string; nameAr?: string; nameEn?: string | null; name_ar?: string; name_en?: string | null; address?: string | null; phone?: string | null } | null;
   categoryId: string | number | null;
   category?: AdminOfferCategory | null;
   /** Arabic title (primary, required). */
@@ -97,6 +99,7 @@ export type AdminOffer = {
 
 export type AdminOfferInput = {
   partnerId: string;
+  branchId?: string | null;
   categoryId: string | number | null;
   title: string;
   titleEn?: string | null;
@@ -319,6 +322,8 @@ function normalizeOffer(raw: any): AdminOffer {
       ownerName: raw.partner.ownerName ?? raw.partner.owner_name ?? raw.partner.contactName,
       city: raw.partner.city ?? raw.partner.cityName ?? raw.partner.city_name,
     } : undefined,
+    branchId: raw?.branchId ?? raw?.branch_id ?? raw?.branch?.id ?? null,
+    branch: raw?.branch ?? null,
     categoryId: raw?.categoryId ?? raw?.category_id ?? null,
     category: raw?.category ? normalizeCategory(raw.category) : null,
     title: raw?.title ?? raw?.titleAr ?? raw?.title_ar ?? "",
@@ -350,6 +355,7 @@ function offerPayload(body: Partial<AdminOfferInput> & { isFeatured?: boolean })
   const out: Record<string, any> = {};
   const set = (k: string, v: any) => { out[k] = v; };
   if (body.partnerId !== undefined) { set("partnerId", body.partnerId); set("partner_id", body.partnerId); }
+  if (body.branchId !== undefined) { set("branchId", body.branchId); set("branch_id", body.branchId); }
   if (body.categoryId !== undefined) { set("categoryId", body.categoryId); set("category_id", body.categoryId); }
   if (body.title !== undefined) { set("titleAr", body.title); set("title_ar", body.title); set("title", body.title); }
   if (body.titleEn !== undefined) { set("titleEn", body.titleEn); set("title_en", body.titleEn); }
