@@ -540,29 +540,53 @@ function OfferDialog({
           </div>
           <div>
             <label className="text-xs font-bold">
-              {L("الفرع", "Branch")}
+              {L("الفروع", "Branches")}
               {branchesLoading && <span className="ms-2 text-muted-foreground">{L("جارٍ التحميل…", "Loading…")}</span>}
             </label>
-            <select
-              value={form.branchId ?? ""}
-              onChange={(e) => setForm({ ...form, branchId: e.target.value || null })}
-              disabled={!form.partnerId || branchesLoading}
-              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm disabled:opacity-60"
-            >
-              <option value="">
-                {!form.partnerId
-                  ? L("— اختر الشريك أولاً —", "— Select a partner first —")
-                  : branches.length === 0
-                  ? L("— لا توجد فروع —", "— No branches —")
-                  : L("— كل الفروع —", "— All branches —")}
-              </option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {(lang === "en" ? (b.nameEn || b.nameAr) : b.nameAr) || b.address || b.id}
-                  {b.isDefault ? ` · ${L("افتراضي", "Default")}` : ""}
-                </option>
-              ))}
-            </select>
+            {!form.partnerId ? (
+              <div className="mt-1 rounded-xl border border-dashed border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                {L("— اختر الشريك أولاً —", "— Select a partner first —")}
+              </div>
+            ) : branches.length === 0 ? (
+              <div className="mt-1 rounded-xl border border-dashed border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                {L("لا توجد فروع لهذا الشريك.", "This partner has no branches.")}
+              </div>
+            ) : (
+              <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-xl border border-border bg-background p-2">
+                {branches.map((b) => {
+                  const checked = (form.branchIds || []).includes(b.id);
+                  return (
+                    <label key={b.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-xs hover:bg-muted/50">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          const cur = new Set(form.branchIds || []);
+                          if (e.target.checked) cur.add(b.id); else cur.delete(b.id);
+                          setForm({ ...form, branchIds: Array.from(cur) });
+                        }}
+                      />
+                      <span className="font-bold">
+                        {(lang === "en" ? (b.nameEn || b.nameAr) : b.nameAr) || b.address || b.id}
+                      </span>
+                      {b.isDefault && <span className="text-[10px] text-amber-600">· {L("افتراضي", "Default")}</span>}
+                    </label>
+                  );
+                })}
+                <div className="flex gap-2 pt-1 text-[11px]">
+                  <button type="button" onClick={() => setForm({ ...form, branchIds: branches.map((b) => b.id) })} className="font-bold text-primary hover:underline">
+                    {L("اختيار الكل", "Select all")}
+                  </button>
+                  <span className="text-muted-foreground">·</span>
+                  <button type="button" onClick={() => setForm({ ...form, branchIds: [] })} className="font-bold text-muted-foreground hover:underline">
+                    {L("مسح", "Clear")}
+                  </button>
+                </div>
+              </div>
+            )}
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {L("اترك فارغًا لربطه بالفرع الافتراضي.", "Leave empty to link with the default branch.")}
+            </p>
           </div>
           <div>
             <label className="text-xs font-bold">{L("التصنيف", "Category")}</label>
