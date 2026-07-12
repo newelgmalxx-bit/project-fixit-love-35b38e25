@@ -76,8 +76,19 @@ export const publicApi = {
     return r.data;
   },
   getOffer: async (id: string) => {
-    const r = await request<ApiResponse<{ offer: any }>>(`/offers/${encodeURIComponent(id)}`);
-    return r.data?.offer ?? null;
+    const r = await request<ApiResponse<{ offer: any; branches?: Branch[]; hasMultipleBranches?: boolean }>>(
+      `/offers/${encodeURIComponent(id)}`,
+    );
+    const offer = r.data?.offer ?? null;
+    if (!offer) return null;
+    // Attach branches metadata onto the offer object so downstream code
+    // (offer detail page, availability calls, cart) can use them without
+    // a second round-trip.
+    const branches = Array.isArray(r.data?.branches) ? r.data!.branches : [];
+    const hasMultipleBranches = typeof r.data?.hasMultipleBranches === "boolean"
+      ? r.data!.hasMultipleBranches
+      : branches.length > 1;
+    return { ...offer, branches, hasMultipleBranches };
   },
 
   /* ───── Categories ───── */
