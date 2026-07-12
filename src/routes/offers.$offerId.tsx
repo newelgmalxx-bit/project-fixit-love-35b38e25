@@ -174,14 +174,22 @@ function OfferDetailPage() {
         const list = await publicApi.getOfferBranches(offer.id);
         if (cancelled) return;
         setBranches(list);
-        const def = list.find((b) => b.isDefault) ?? list[0];
-        setSelectedBranchId(def?.id ?? null);
+        // Auto-select ONLY when there's a single branch. For multi-branch
+        // offers the user MUST pick one — backend enforces this on
+        // /cart/items and /checkout (422 otherwise).
+        if (list.length <= 1) {
+          const def = list.find((b) => b.isDefault) ?? list[0];
+          setSelectedBranchId(def?.id ?? null);
+        } else {
+          setSelectedBranchId(null);
+        }
       } catch {
         if (!cancelled) { setBranches([]); setSelectedBranchId(null); }
       }
     })();
     return () => { cancelled = true; };
   }, [offer.id]);
+
   const selectedBranch = useMemo(
     () => branches.find((b) => b.id === selectedBranchId) ?? null,
     [branches, selectedBranchId],
