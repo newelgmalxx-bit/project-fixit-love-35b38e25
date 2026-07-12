@@ -3959,7 +3959,7 @@ function BranchesTab() {
       mapsUrl: b.mapsUrl || "",
       isDefault: !!b.isDefault,
       status: b.status || "active",
-      workingHours: parseWorkingHours(b.workingHours ?? b.working_hours),
+      workingHours: branchParseHours(b.workingHours ?? b.working_hours),
     });
     setOpen(true);
   }
