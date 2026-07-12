@@ -23,6 +23,7 @@ import {
 
 import { PartnerGuard } from "@/components/auth/PartnerGuard";
 import { useLang } from "@/i18n/LanguageProvider";
+import { BranchHoursEditor, defaultWorkingHours as branchDefaultHours, parseWorkingHours as branchParseHours } from "@/components/branches/BranchHoursEditor";
 
 export const Route = createFileRoute("/partner-dashboard")({
   head: () => ({ meta: [{ title: "Partner Dashboard | Koswmat" }] }),
@@ -692,11 +693,13 @@ function OffersTab({ partner }: { partner: Profile }) {
   // When opening the form: if partner has exactly one branch and none selected, preselect it
   useEffect(() => {
     if (!editing) return;
-    if (!editing.branch_id && branches.length === 1) {
-      setEditing((prev) => prev ? { ...prev, branch_id: branches[0].id } as any : prev);
-    } else if (!editing.branch_id) {
+    const cur = ((editing as any).branch_ids as string[] | undefined) ?? [];
+    if (cur.length) return;
+    if (branches.length === 1) {
+      setEditing((prev) => prev ? ({ ...prev, branch_ids: [branches[0].id] } as any) : prev);
+    } else {
       const def = branches.find((b: any) => b.isDefault || b.is_default);
-      if (def) setEditing((prev) => prev && !prev.branch_id ? { ...prev, branch_id: def.id } as any : prev);
+      if (def) setEditing((prev) => prev ? ({ ...prev, branch_ids: [def.id] } as any) : prev);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing?.id, branches]);
@@ -737,7 +740,7 @@ function OffersTab({ partner }: { partner: Profile }) {
       overview_bullets_en: toArr((editing as any).bullets_text_en ?? editing.overview_bullets_en),
       valid_from: editing.valid_from || null,
       valid_to: editing.valid_to || null,
-      branch_id: (editing as any).branch_id || null,
+      branch_ids: Array.isArray((editing as any).branch_ids) ? (editing as any).branch_ids : [],
 
     };
     try {
@@ -975,22 +978,41 @@ function OffersTab({ partner }: { partner: Profile }) {
                 </div>
                 {branches.length > 0 && (
                   <div>
-                    <label className="mb-1.5 block text-xs font-bold">{L("الفرع", "Branch")}</label>
-                    <select
-                      value={(editing as any).branch_id || ""}
-                      onChange={(e) => setEditing({ ...editing, branch_id: e.target.value || null } as any)}
-                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
-                    >
-                      <option value="">{L("— كل الفروع —", "— All branches —")}</option>
-                      {branches.map((b: any) => (
-                        <option key={b.id} value={b.id}>
-                          {(lang === "en" ? (b.nameEn || b.name_en || b.nameAr || b.name_ar) : (b.nameAr || b.name_ar || b.nameEn || b.name_en)) || b.address || b.id}
-                          {(b.isDefault || b.is_default) ? ` · ${L("افتراضي", "Default")}` : ""}
-                        </option>
-                      ))}
-                    </select>
+                    <label className="mb-1.5 block text-xs font-bold">{L("الفروع", "Branches")}</label>
+                    <div className="max-h-40 space-y-1 overflow-y-auto rounded-xl border border-border bg-background p-2">
+                      {branches.map((b: any) => {
+                        const ids: string[] = (editing as any).branch_ids || [];
+                        const checked = ids.includes(b.id);
+                        return (
+                          <label key={b.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-xs hover:bg-muted/50">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={(e) => {
+                                const cur = new Set(ids);
+                                if (e.target.checked) cur.add(b.id); else cur.delete(b.id);
+                                setEditing({ ...editing, branch_ids: Array.from(cur) } as any);
+                              }}
+                            />
+                            <span className="font-bold">
+                              {(lang === "en" ? (b.nameEn || b.name_en || b.nameAr || b.name_ar) : (b.nameAr || b.name_ar || b.nameEn || b.name_en)) || b.address || b.id}
+                            </span>
+                            {(b.isDefault || b.is_default) && <span className="text-[10px] text-amber-600">· {L("افتراضي", "Default")}</span>}
+                          </label>
+                        );
+                      })}
+                      <div className="flex gap-2 pt-1 text-[11px]">
+                        <button type="button" onClick={() => setEditing({ ...editing, branch_ids: branches.map((b: any) => b.id) } as any)} className="font-bold text-primary hover:underline">
+                          {L("اختيار الكل", "Select all")}
+                        </button>
+                        <span className="text-muted-foreground">·</span>
+                        <button type="button" onClick={() => setEditing({ ...editing, branch_ids: [] } as any)} className="font-bold text-muted-foreground hover:underline">
+                          {L("مسح", "Clear")}
+                        </button>
+                      </div>
+                    </div>
                     <p className="mt-1 text-[11px] text-muted-foreground">
-                      {L("اربط العرض بفرع محدد، أو اتركه للكل.", "Link the offer to a specific branch, or leave for all.")}
+                      {L("حدد الفروع التي يظهر بها العرض، أو اترك فارغًا للربط مع الفرع الافتراضي.", "Pick branches where the offer appears, or leave empty to link to the default branch.")}
                     </p>
                   </div>
                 )}
@@ -3930,7 +3952,7 @@ function BranchesTab() {
   const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const emptyForm = { nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "", isDefault: false, status: "active" };
+  const emptyForm = { nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "", isDefault: false, status: "active", workingHours: branchDefaultHours() };
   const [form, setForm] = useState<any>(emptyForm);
 
   async function load() {
@@ -3958,6 +3980,7 @@ function BranchesTab() {
       mapsUrl: b.mapsUrl || "",
       isDefault: !!b.isDefault,
       status: b.status || "active",
+      workingHours: branchParseHours(b.workingHours ?? b.working_hours),
     });
     setOpen(true);
   }
@@ -3977,6 +4000,7 @@ function BranchesTab() {
         mapsUrl: (form.mapsUrl || "").trim() || null,
         isDefault: !!form.isDefault,
         status: form.status || "active",
+        workingHours: form.workingHours || branchDefaultHours(),
       };
       if (editingId) await partnerApi.updateBranch(editingId, payload);
       else await partnerApi.createBranch(payload);
@@ -4067,7 +4091,7 @@ function BranchesTab() {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setOpen(false)}>
-          <div className="w-full max-w-lg rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-extrabold mb-4">{editingId ? L("تعديل فرع", "Edit branch") : L("فرع جديد", "New branch")}</h3>
             <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
@@ -4113,6 +4137,10 @@ function BranchesTab() {
                   </select>
                 </div>
               </div>
+              <BranchHoursEditor
+                value={form.workingHours || branchDefaultHours()}
+                onChange={(next) => setForm({ ...form, workingHours: next })}
+              />
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button onClick={() => setOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>

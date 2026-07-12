@@ -9,6 +9,7 @@ import {
 import { PartnerSelect } from "@/components/admin/PartnerSelect";
 import { adminBranchesApi, type BranchInput } from "@/lib/api/adminBranches";
 import type { Branch } from "@/lib/api/types";
+import { BranchHoursEditor, defaultWorkingHours, parseWorkingHours, type WorkingHour } from "@/components/branches/BranchHoursEditor";
 import { useLang } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/admin/branches")({
@@ -25,6 +26,7 @@ const empty: BranchInput = {
   mapsUrl: "",
   isDefault: false,
   status: "active",
+  workingHours: defaultWorkingHours(),
 };
 
 function BranchesPage() {
@@ -74,6 +76,7 @@ function BranchesPage() {
       mapsUrl: b.mapsUrl || "",
       isDefault: !!b.isDefault,
       status: b.status || "active",
+      workingHours: parseWorkingHours((b as any).workingHours ?? (b as any).working_hours),
     });
     setOpen(true);
   }
@@ -98,6 +101,7 @@ function BranchesPage() {
         mapsUrl: (editing.mapsUrl || "").trim() || null,
         isDefault: !!editing.isDefault,
         status: editing.status || "active",
+        workingHours: editing.workingHours || defaultWorkingHours(),
       };
       if (editingId) await adminBranchesApi.update(editingId, payload);
       else await adminBranchesApi.create(payload);
@@ -213,7 +217,7 @@ function BranchesPage() {
       </PanelCard>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg" dir={dir}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" dir={dir}>
           <DialogHeader><DialogTitle>{editingId ? L("تعديل فرع", "Edit branch") : L("فرع جديد", "New branch")}</DialogTitle></DialogHeader>
           <div className="grid gap-3">
             <div>
@@ -269,6 +273,10 @@ function BranchesPage() {
                 </select>
               </div>
             </div>
+            <BranchHoursEditor
+              value={(editing.workingHours as WorkingHour[]) || defaultWorkingHours()}
+              onChange={(next) => setEditing({ ...editing, workingHours: next })}
+            />
           </div>
           <DialogFooter>
             <button onClick={() => setOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
