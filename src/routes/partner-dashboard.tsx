@@ -4116,6 +4116,10 @@ function BranchesTab() {
                   </select>
                 </div>
               </div>
+              <BranchHoursEditor
+                value={form.workingHours || branchDefaultHours()}
+                onChange={(next) => setForm({ ...form, workingHours: next })}
+              />
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button onClick={() => setOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
