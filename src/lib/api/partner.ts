@@ -249,6 +249,8 @@ function normalizeOffer(o: any): any {
   return {
     id: o.id,
     partner_id: o.partnerId ?? o.partner_id ?? null,
+    branch_id: o.branchId ?? o.branch_id ?? o.branch?.id ?? null,
+    branch: o.branch ?? null,
     title: o.titleAr ?? o.title_ar ?? o.title ?? "",
     title_en: o.titleEn ?? o.title_en ?? null,
     description: o.descriptionAr ?? o.description_ar ?? o.description ?? null,
