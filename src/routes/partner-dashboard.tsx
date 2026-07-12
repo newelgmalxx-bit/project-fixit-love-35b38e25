@@ -3979,6 +3979,7 @@ function BranchesTab() {
         mapsUrl: (form.mapsUrl || "").trim() || null,
         isDefault: !!form.isDefault,
         status: form.status || "active",
+        workingHours: form.workingHours || branchDefaultHours(),
       };
       if (editingId) await partnerApi.updateBranch(editingId, payload);
       else await partnerApi.createBranch(payload);
