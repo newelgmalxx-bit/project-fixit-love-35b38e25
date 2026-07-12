@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useHomeData } from "@/hooks/useHomeData";
-import { useHomeSliders } from "@/hooks/useHomeSliders";
 import { useCategories } from "@/hooks/useCatalog";
 import { normalizeOffer } from "@/lib/api/catalog";
 import { OfferCard } from "./OfferCard";
@@ -20,49 +19,24 @@ type Props = {
 };
 
 /**
- * Home-page offer slider. Pulls its data from the batched /home-data
- * response (homeSlider1 / homeSlider2). Renders as a swipeable carousel:
- *   mobile   → 1.5 cards visible (so the user knows to swipe)
- *   sm       → 2 cards
- *   md       → 3 cards
- *   lg+      → 4 cards
- * Returns null when the slider has no active offers, so the section
- * disappears cleanly for stores that don't use it yet.
+ * Home-page offer slider. Reads exclusively from the batched /home-data
+ * response (homeSlider1 / homeSlider2). Each row already carries the
+ * embedded vendor/branch fields (vendorName, displayAddress, rating,
+ * reviewsCount, hasMultipleBranches, branch, ...) so we never fire a
+ * per-card GET /offers/:id or GET /partners/:id.
  */
 export function HomeOfferSlider({ sliderKey, titleAr, titleEn, kickerAr, kickerEn, tone = "rose" }: Props) {
   const { lang, dir } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
   const { data } = useHomeData();
-  const { data: slidersData } = useHomeSliders();
   const { categoryIdToSlug } = useCategories();
 
-  // Priority: batched /home-data → dedicated /home-offer-sliders fetch → featured fallback.
-  const fromHomeData: any[] = (data as any)?.[sliderKey === "slider_1" ? "homeSlider1" : "homeSlider2"] ?? [];
-  const fromSlidersFetch: any[] = (slidersData as any)?.[sliderKey] ?? [];
-  const featured: any[] = (data as any)?.featuredOffers ?? [];
-  const fallback = sliderKey === "slider_1"
-    ? featured.slice(0, 8)
-    : featured.slice(8, 16).length > 0 ? featured.slice(8, 16) : featured.slice(0, 8);
-  const raw =
-    fromHomeData.length > 0 ? fromHomeData
-    : fromSlidersFetch.length > 0 ? fromSlidersFetch
-    : fallback;
+  const raw: any[] = (data as any)?.[sliderKey === "slider_1" ? "homeSlider1" : "homeSlider2"] ?? [];
 
-  const offers = useMemo<Offer[]>(() => {
-    return raw
-      .map((r) => {
-        const partner = r?.partnerNameAr || r?.partnerNameEn || r?.partnerCity || r?.partnerLogo
-          ? {
-              id: r.partnerId ?? r.partner_id ?? "",
-              vendorNameAr: r.partnerNameAr,
-              vendorNameEn: r.partnerNameEn,
-              city: r.partnerCity,
-              logo: r.partnerLogo,
-            }
-          : undefined;
-        return normalizeOffer(r, categoryIdToSlug, partner as any);
-      });
-  }, [raw, categoryIdToSlug]);
+  const offers = useMemo<Offer[]>(
+    () => raw.map((r) => normalizeOffer(r, categoryIdToSlug)),
+    [raw, categoryIdToSlug],
+  );
 
 
   const [emblaRef, embla] = useEmblaCarousel({
@@ -92,7 +66,6 @@ export function HomeOfferSlider({ sliderKey, titleAr, titleEn, kickerAr, kickerE
             <h2 className="mt-1 text-2xl font-extrabold text-foreground sm:text-3xl">
               {L(titleAr, titleEn)}
             </h2>
-            {/* Swipe hint for mobile — a partial second card already hints, but a label helps. */}
             <p className="mt-1 text-[11px] font-semibold text-muted-foreground sm:hidden">
               {L("اسحب لعرض المزيد ←", "Swipe for more →")}
             </p>
@@ -134,7 +107,6 @@ export function HomeOfferSlider({ sliderKey, titleAr, titleEn, kickerAr, kickerE
   );
 }
 
-// Named export kept generic; tiny wrappers for the two well-known keys.
 export function HomeOfferSlider1() {
   return (
     <HomeOfferSlider
@@ -161,9 +133,6 @@ export function HomeOfferSlider2() {
   );
 }
 
-// Convenience: render both, and fall back to nothing when the backend
-// hasn't shipped the endpoint yet (caller can keep FeaturedOffers as a
-// separate fallback).
 export function HomeOfferSliders() {
   return (
     <>
@@ -173,8 +142,6 @@ export function HomeOfferSliders() {
   );
 }
 
-// Small helper hook so the home page can decide whether to hide the
-// legacy FeaturedOffers grid when at least one slider has content.
 export function useHasHomeSliders() {
   const { data } = useHomeData();
   const s1: any[] = (data as any)?.homeSlider1 ?? [];
@@ -182,5 +149,4 @@ export function useHasHomeSliders() {
   return s1.length > 0 || s2.length > 0;
 }
 
-// Fallback arrow icons kept for tree-shaking friendliness.
 export { ArrowLeft, ArrowRight };
