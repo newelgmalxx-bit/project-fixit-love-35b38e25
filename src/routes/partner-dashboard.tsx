@@ -737,6 +737,8 @@ function OffersTab({ partner }: { partner: Profile }) {
       overview_bullets_en: toArr((editing as any).bullets_text_en ?? editing.overview_bullets_en),
       valid_from: editing.valid_from || null,
       valid_to: editing.valid_to || null,
+      branch_id: (editing as any).branch_id || null,
+
     };
     try {
       if (editing.id) {
