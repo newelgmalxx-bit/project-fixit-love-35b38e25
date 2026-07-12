@@ -129,9 +129,9 @@ function OfferDetailPage() {
   const termsListEn: string[] = Array.isArray((offer as any).termsEn) ? (offer as any).termsEn : [];
   const termsList: string[] = lang === "en" ? (termsListEn.length ? termsListEn : termsListAr) : (termsListAr.length ? termsListAr : termsListEn);
   const vendorName = pickLang(offer.vendor.name, (offer.vendor as any).nameEn);
-  const vendorAddress = pickLang(offer.vendor.address, (offer.vendor as any).addressEn);
-  const vendorCity = pickLang(offer.vendor.city, (offer.vendor as any).cityEn);
-  const mapsUrl = (offer.vendor as any).mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${vendorName} ${vendorAddress} ${vendorCity}`)}`;
+  const vendorAddressBase = pickLang(offer.vendor.address, (offer.vendor as any).addressEn);
+  const vendorCityBase = pickLang(offer.vendor.city, (offer.vendor as any).cityEn);
+  const vendorMapsBase = (offer.vendor as any).mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${vendorName} ${vendorAddressBase} ${vendorCityBase}`)}`;
 
 
   const [date, setDate] = useState("");
@@ -186,6 +186,17 @@ function OfferDetailPage() {
     () => branches.find((b) => b.id === selectedBranchId) ?? null,
     [branches, selectedBranchId],
   );
+
+  // Prefer the selected branch's address/city/maps link over the partner's HQ.
+  const branchNameLoc = selectedBranch ? pickLang(selectedBranch.nameAr, (selectedBranch as any).nameEn) : "";
+  const branchAddress = selectedBranch ? pickLang((selectedBranch as any).address, (selectedBranch as any).addressEn) : "";
+  const branchCity = selectedBranch ? pickLang((selectedBranch as any).city, (selectedBranch as any).cityEn) : "";
+  const vendorAddress = branchAddress || vendorAddressBase;
+  const vendorCity = branchCity || vendorCityBase;
+  const mapsUrl = (selectedBranch as any)?.mapsUrl
+    || (selectedBranch
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${branchNameLoc || vendorName} ${vendorAddress} ${vendorCity}`)}`
+      : vendorMapsBase);
 
   const TIME_SLOTS = availableSlots;
 
