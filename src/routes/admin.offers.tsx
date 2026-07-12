@@ -473,14 +473,18 @@ function OfferDialog({
     adminOffersApi.get(offer.id)
       .then((fresh) => {
         if (cancel) return;
-        const ids = fresh?.branchIds ?? [];
-        if (ids.length) {
-          setForm((f) => ({ ...f, branchIds: ids }));
-        }
+        const ids: string[] = Array.isArray(fresh?.branchIds) && fresh.branchIds.length
+          ? fresh.branchIds
+          : Array.isArray((fresh as any)?.branches)
+            ? (fresh as any).branches.map((b: any) => b?.id).filter(Boolean)
+            : (fresh?.branchId ? [fresh.branchId] : []);
+        console.log("[admin.offers] hydrate branchIds for", offer.id, ids, fresh);
+        setForm((f) => ({ ...f, branchIds: ids }));
       })
       .catch(() => { /* ignore — keep list-provided data */ });
     return () => { cancel = true; };
   }, [offer?.id]);
+
 
   // When partner changes, drop selected branches that no longer belong to that partner
   useEffect(() => {
