@@ -145,10 +145,20 @@ export const publicApi = {
 
   /* ───── Offer branches ───── */
   getOfferBranches: async (offerId: string): Promise<Branch[]> => {
-    const r = await request<ApiResponse<{ offerId: string; branches: Branch[] }>>(
-      `/checkout/offer-branches/${encodeURIComponent(offerId)}`,
-    );
-    return r.data?.branches ?? [];
+    // Prefer the offer detail endpoint (returns `branches` alongside the offer).
+    try {
+      const r = await request<ApiResponse<{ offer: any; branches?: Branch[] }>>(
+        `/offers/${encodeURIComponent(offerId)}`,
+      );
+      const list = Array.isArray(r.data?.branches) ? r.data!.branches! : [];
+      if (list.length) return list;
+    } catch { /* fall through to legacy endpoint */ }
+    try {
+      const r = await request<ApiResponse<{ offerId: string; branches: Branch[] }>>(
+        `/checkout/offer-branches/${encodeURIComponent(offerId)}`,
+      );
+      return r.data?.branches ?? [];
+    } catch { return []; }
   },
 
 
