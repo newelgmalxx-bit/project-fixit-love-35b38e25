@@ -328,6 +328,13 @@ function normalizeOffer(raw: any): AdminOffer {
     } : undefined,
     branchId: raw?.branchId ?? raw?.branch_id ?? raw?.branch?.id ?? null,
     branch: raw?.branch ?? null,
+    branches: Array.isArray(raw?.branches) ? raw.branches : [],
+    branchIds: Array.isArray(raw?.branchIds)
+      ? raw.branchIds
+      : Array.isArray(raw?.branches)
+      ? raw.branches.map((b: any) => b?.id).filter(Boolean)
+      : [],
+    branchesCount: raw?.branchesCount ?? (Array.isArray(raw?.branches) ? raw.branches.length : 0),
     categoryId: raw?.categoryId ?? raw?.category_id ?? null,
     category: raw?.category ? normalizeCategory(raw.category) : null,
     title: raw?.title ?? raw?.titleAr ?? raw?.title_ar ?? "",
