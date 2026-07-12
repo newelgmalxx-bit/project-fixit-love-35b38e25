@@ -973,6 +973,27 @@ function OffersTab({ partner }: { partner: Profile }) {
                     </select>
                   </div>
                 </div>
+                {branches.length > 0 && (
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold">{L("الفرع", "Branch")}</label>
+                    <select
+                      value={(editing as any).branch_id || ""}
+                      onChange={(e) => setEditing({ ...editing, branch_id: e.target.value || null } as any)}
+                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
+                    >
+                      <option value="">{L("— كل الفروع —", "— All branches —")}</option>
+                      {branches.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {(lang === "en" ? (b.nameEn || b.name_en || b.nameAr || b.name_ar) : (b.nameAr || b.name_ar || b.nameEn || b.name_en)) || b.address || b.id}
+                          {(b.isDefault || b.is_default) ? ` · ${L("افتراضي", "Default")}` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {L("اربط العرض بفرع محدد، أو اتركه للكل.", "Link the offer to a specific branch, or leave for all.")}
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Input label={L("مدة الجلسة (دقيقة)", "Session duration (minutes)")} type="number" value={String((editing.duration_minutes as any) ?? "")} onChange={(v) => setEditing({ ...editing, duration_minutes: v === "" ? null : Number(v) })} />
                   <Input label={L("نسبة الخصم %", "Discount %")} type="number" value={String((editing.discount_percent as any) ?? "")} onChange={(v) => setEditing({ ...editing, discount_percent: v === "" ? null : Number(v) })} />
