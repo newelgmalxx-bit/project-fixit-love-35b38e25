@@ -1434,20 +1434,28 @@ function OfferDetailPage() {
 
 
                     <div className="space-y-2">
+                      {branches.length > 1 && !selectedBranchId && (
+                        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs font-bold text-amber-800">
+                          {L("اختر الفرع أولاً لإتمام الحجز.", "Select a branch first to continue.")}
+                        </div>
+                      )}
                       <button
                         type="submit"
-                        className="w-full rounded-xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] py-4 text-base font-extrabold text-white shadow-lg shadow-primary/30 transition hover:scale-[1.01]"
+                        disabled={branches.length > 1 && !selectedBranchId}
+                        className="w-full rounded-xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] py-4 text-base font-extrabold text-white shadow-lg shadow-primary/30 transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
                         {L("احجز الآن — دفع العربون ←", "Book now — pay deposit →")}
                       </button>
                       <button
                         type="button"
                         onClick={handleAddToCart}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary bg-primary/5 py-3 text-sm font-extrabold text-primary transition hover:bg-primary/10"
+                        disabled={branches.length > 1 && !selectedBranchId}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary bg-primary/5 py-3 text-sm font-extrabold text-primary transition hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <ShoppingCart className="h-4 w-4" />
                         {L("أضف للسلة (طلب جماعي)", "Add to cart (group order)")}
                       </button>
+
                       <p className="text-center text-[11px] text-muted-foreground">
                         {L("أضف عدة عروض من مراكز مختلفة وادفع عربون موحّد مرة واحدة.", "Add multiple offers from different centers and pay a single deposit once.")}
                       </p>
