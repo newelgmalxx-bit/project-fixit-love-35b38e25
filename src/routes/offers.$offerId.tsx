@@ -592,6 +592,14 @@ function OfferDetailPage() {
       return;
     }
 
+    if (branches.length > 1 && !selectedBranchId) {
+      toast.error(L("اختر الفرع", "Choose branch"), {
+        description: L("هذا العرض متاح في أكثر من فرع — يرجى اختيار الفرع أولاً.", "This offer is available at multiple branches — please select one first."),
+      });
+      return;
+    }
+
+
     if (date && dayOff) {
       toast.error(L("هذا اليوم غير متاح", "This day is unavailable"), { description: L("المركز غير متاح في هذا اليوم — يرجى اختيار تاريخ آخر.", "The center is closed on this day — please pick another date.") });
       return;
