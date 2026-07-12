@@ -12,6 +12,8 @@ import {
 import { adminAgreementsApi, type ApiPartnerAgreement } from "@/lib/api/adminAgreements";
 import { adminPartnersApi, partnerLabel, type AdminPartner } from "@/lib/api/adminPartners";
 import { PartnerSelect } from "@/components/admin/PartnerSelect";
+import { adminBranchesApi } from "@/lib/api/adminBranches";
+import type { Branch } from "@/lib/api/types";
 import { useLang } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/admin/offers")({
