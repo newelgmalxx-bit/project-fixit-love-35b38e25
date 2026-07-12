@@ -103,6 +103,7 @@ export type AdminOffer = {
 export type AdminOfferInput = {
   partnerId: string;
   branchId?: string | null;
+  branchIds?: string[];
   categoryId: string | number | null;
   title: string;
   titleEn?: string | null;
