@@ -355,6 +355,7 @@ function offerPayload(body: Partial<AdminOfferInput> & { isFeatured?: boolean })
   const out: Record<string, any> = {};
   const set = (k: string, v: any) => { out[k] = v; };
   if (body.partnerId !== undefined) { set("partnerId", body.partnerId); set("partner_id", body.partnerId); }
+  if (body.branchId !== undefined) { set("branchId", body.branchId); set("branch_id", body.branchId); }
   if (body.categoryId !== undefined) { set("categoryId", body.categoryId); set("category_id", body.categoryId); }
   if (body.title !== undefined) { set("titleAr", body.title); set("title_ar", body.title); set("title", body.title); }
   if (body.titleEn !== undefined) { set("titleEn", body.titleEn); set("title_en", body.titleEn); }
