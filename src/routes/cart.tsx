@@ -160,14 +160,16 @@ function CartPage() {
                                         </span>
                                       ) : (
                                         <span className="text-[11px] font-bold text-rose-600">{L("نسبة عربون هذا المركز غير محددة", "This center's deposit percentage is not set")}</span>
+                                      )}
+                                    </div>
                                   )}
-                                  {(it.branchName || it.branchId) && (
+                                  {it.offerId && (it.branchName || it.branchId) && (
                                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                                       <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 font-bold text-foreground">
                                         <MapPin className="h-3 w-3 text-primary" />
                                         {it.branchName || L("فرع محدد", "Selected branch")}
                                       </span>
-                                      {it.offerId && !isOfferBooking(it) && (
+                                      {(offerBranchCount[it.offerId] ?? 0) > 1 && (
                                         <button
                                           type="button"
                                           onClick={() =>
@@ -184,10 +186,27 @@ function CartPage() {
                                       )}
                                     </div>
                                   )}
-                                </div>
-
+                                  {itemNeedsBranch(it) && (
+                                    <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                      <AlertCircle className="h-4 w-4 shrink-0" />
+                                      <span className="font-bold">{L("يجب اختيار الفرع لهذا العرض قبل المتابعة.", "You must choose a branch for this offer before continuing.")}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setBranchModal({
+                                            lineId: it.id,
+                                            offerId: it.offerId!,
+                                            currentBranchId: it.branchId,
+                                          })
+                                        }
+                                        className="ms-auto rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-amber-700"
+                                      >
+                                        {L("اختر الفرع", "Choose branch")}
+                                      </button>
+                                    </div>
                                   )}
                                 </div>
+
                                 <div className="flex items-center justify-between gap-4 sm:gap-6">
                                   <div className="inline-flex flex-col items-start gap-1">
                                     <input
