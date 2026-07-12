@@ -782,9 +782,29 @@ export const partnerApi = {
   // Branches (partner-scoped CRUD)
   // =========================================
   listBranches: () =>
-    unwrap<{ items: any[] }>(request(`/partner/branches`)).then((d: any) => ({
-      items: (d?.items || d?.branches || d || []) as any[],
-    })),
+    unwrap<{ items: any[] }>(request(`/partner/branches`)).then((d: any) => {
+      const raw = (d?.items || d?.branches || d || []) as any[];
+      const parseWH = (v: any) => {
+        if (v == null) return null;
+        if (typeof v === "string") { try { return JSON.parse(v); } catch { return null; } }
+        return v;
+      };
+      const items = raw.map((b: any) => ({
+        // Keep original keys for any legacy callers…
+        ...b,
+        // …and expose the camelCase shape used across the app / offer.branches.
+        id: b.id,
+        nameAr: b.nameAr ?? b.name_ar ?? "",
+        nameEn: b.nameEn ?? b.name_en ?? null,
+        phone: b.phone ?? null,
+        address: b.address ?? null,
+        mapsUrl: b.mapsUrl ?? b.maps_url ?? null,
+        workingHours: parseWH(b.workingHours ?? b.working_hours),
+        isDefault: !!(b.isDefault ?? b.is_default),
+        status: b.status ?? "active",
+      }));
+      return { items };
+    }),
   createBranch: (body: {
     nameAr: string;
     nameEn?: string | null;
