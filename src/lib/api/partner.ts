@@ -297,6 +297,7 @@ function denormalizeOfferPayload(b: any): any {
   }
   if (b.image_url !== undefined || imgs.length) out.image = imgs[0] || b.image_url || null;
   if (b.category !== undefined) out.categoryId = b.category || null;
+  if (b.branch_id !== undefined) out.branchId = b.branch_id || null;
   if (b.status !== undefined) out.status = b.status;
   if (b.duration_minutes !== undefined) out.durationMinutes = b.duration_minutes;
   if (b.is_featured !== undefined) out.isFeatured = b.is_featured ? 1 : 0;
