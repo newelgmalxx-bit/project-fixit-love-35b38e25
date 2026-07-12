@@ -124,6 +124,8 @@ type Offer = {
   overview_bullets_en?: string[] | null;
   valid_from?: string | null;
   valid_to?: string | null;
+  branch_id?: string | null;
+  branch?: any;
 };
 
 type Booking = {
