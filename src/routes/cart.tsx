@@ -21,6 +21,39 @@ function CartPage() {
   const { t, lang, dir } = useLang();
   const [branchModal, setBranchModal] = useState<{ lineId: string; offerId: string; currentBranchId?: string | null } | null>(null);
 
+  // Fetch branch counts for each offer id in cart so we can enforce
+  // multi-branch selection locally (backend rejects with 422 otherwise).
+  const [offerBranchCount, setOfferBranchCount] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const ids = Array.from(new Set(items.map((it) => it.offerId).filter(Boolean))) as string[];
+    let cancelled = false;
+    (async () => {
+      const missing = ids.filter((id) => !(id in offerBranchCount));
+      if (missing.length === 0) return;
+      const entries = await Promise.all(
+        missing.map(async (id) => {
+          try {
+            const list = await publicApi.getOfferBranches(id);
+            return [id, Array.isArray(list) ? list.length : 0] as const;
+          } catch {
+            return [id, 0] as const;
+          }
+        }),
+      );
+      if (cancelled) return;
+      setOfferBranchCount((prev) => {
+        const next = { ...prev };
+        for (const [id, n] of entries) next[id] = n;
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.map((i) => i.offerId).join(",")]);
+
+  const itemNeedsBranch = (it: typeof items[number]) =>
+    Boolean(it.offerId) && !it.branchId && (offerBranchCount[it.offerId!] ?? 0) > 1;
+  const hasMissingBranch = items.some(itemNeedsBranch);
 
   const L = (a: string, e: string) => (lang === "en" ? e : a);
 
@@ -40,6 +73,7 @@ function CartPage() {
     return s;
   }, 0);
   const hasBookings = items.some(isOfferBooking);
+
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
