@@ -517,6 +517,13 @@ function OfferDetailPage() {
       });
       return;
     }
+    if (branches.length > 1 && !selectedBranchId) {
+      toast.error(L("اختر الفرع", "Choose branch"), {
+        description: L("هذا العرض متاح في أكثر من فرع — يرجى اختيار الفرع أولاً.", "This offer is available at multiple branches — please select one first."),
+      });
+      return;
+    }
+
     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim());
     if (!emailOk) {
       toast.error(L("البريد الإلكتروني غير صحيح", "Invalid email"), {
