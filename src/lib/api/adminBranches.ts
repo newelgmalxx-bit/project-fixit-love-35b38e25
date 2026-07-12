@@ -62,7 +62,7 @@ export const adminBranchesApi = {
       body: JSON.stringify(body),
     }),
   setDefault: (id: string) =>
-    request<ApiResponse<any>>(`/admin/branches/${id}/default`, { method: "PUT" }),
+    request<ApiResponse<any>>(`/admin/branches/${id}/set-default`, { method: "PUT" }),
   remove: (id: string) =>
     request<ApiResponse<any>>(`/admin/branches/${id}`, { method: "DELETE" }),
 };
