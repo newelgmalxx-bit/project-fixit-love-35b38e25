@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { useHomeData } from "@/hooks/useHomeData";
+import { useHomeSliders } from "@/hooks/useHomeSliders";
 import { useCategories } from "@/hooks/useCatalog";
 import { normalizeOffer } from "@/lib/api/catalog";
 import { OfferCard } from "./OfferCard";
@@ -19,19 +19,19 @@ type Props = {
 };
 
 /**
- * Home-page offer slider. Reads exclusively from the batched /home-data
- * response (homeSlider1 / homeSlider2). Each row already carries the
- * embedded vendor/branch fields (vendorName, displayAddress, rating,
- * reviewsCount, hasMultipleBranches, branch, ...) so we never fire a
- * per-card GET /offers/:id or GET /partners/:id.
+ * Home-page offer slider. Reads from GET /home-offer-sliders which is the
+ * canonical source that already carries embedded vendor + branch fields
+ * (vendorName, displayAddress, rating, reviewsCount, hasMultipleBranches,
+ * branchesCount, branch, ...). No per-card GET /offers/:id or
+ * GET /partners/:id is ever fired.
  */
 export function HomeOfferSlider({ sliderKey, titleAr, titleEn, kickerAr, kickerEn, tone = "rose" }: Props) {
   const { lang, dir } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
-  const { data } = useHomeData();
+  const { data } = useHomeSliders();
   const { categoryIdToSlug } = useCategories();
 
-  const raw: any[] = (data as any)?.[sliderKey === "slider_1" ? "homeSlider1" : "homeSlider2"] ?? [];
+  const raw: any[] = (data as any)?.[sliderKey] ?? [];
 
   const offers = useMemo<Offer[]>(
     () => raw.map((r) => normalizeOffer(r, categoryIdToSlug)),
@@ -143,9 +143,9 @@ export function HomeOfferSliders() {
 }
 
 export function useHasHomeSliders() {
-  const { data } = useHomeData();
-  const s1: any[] = (data as any)?.homeSlider1 ?? [];
-  const s2: any[] = (data as any)?.homeSlider2 ?? [];
+  const { data } = useHomeSliders();
+  const s1: any[] = (data as any)?.slider_1 ?? [];
+  const s2: any[] = (data as any)?.slider_2 ?? [];
   return s1.length > 0 || s2.length > 0;
 }
 
