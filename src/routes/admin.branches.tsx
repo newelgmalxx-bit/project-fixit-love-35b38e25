@@ -217,7 +217,7 @@ function BranchesPage() {
       </PanelCard>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg" dir={dir}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" dir={dir}>
           <DialogHeader><DialogTitle>{editingId ? L("تعديل فرع", "Edit branch") : L("فرع جديد", "New branch")}</DialogTitle></DialogHeader>
           <div className="grid gap-3">
             <div>
