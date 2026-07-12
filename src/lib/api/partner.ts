@@ -251,6 +251,12 @@ function normalizeOffer(o: any): any {
     partner_id: o.partnerId ?? o.partner_id ?? null,
     branch_id: o.branchId ?? o.branch_id ?? o.branch?.id ?? null,
     branch: o.branch ?? null,
+    branches: Array.isArray(o.branches) ? o.branches : [],
+    branch_ids: Array.isArray(o.branchIds)
+      ? o.branchIds
+      : Array.isArray(o.branches)
+      ? o.branches.map((b: any) => b?.id).filter(Boolean)
+      : [],
     title: o.titleAr ?? o.title_ar ?? o.title ?? "",
     title_en: o.titleEn ?? o.title_en ?? null,
     description: o.descriptionAr ?? o.description_ar ?? o.description ?? null,
