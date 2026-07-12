@@ -3931,7 +3931,7 @@ function BranchesTab() {
   const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const emptyForm = { nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "", isDefault: false, status: "active", workingHours: defaultWorkingHours() };
+  const emptyForm = { nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "", isDefault: false, status: "active", workingHours: branchDefaultHours() };
   const [form, setForm] = useState<any>(emptyForm);
 
   async function load() {
