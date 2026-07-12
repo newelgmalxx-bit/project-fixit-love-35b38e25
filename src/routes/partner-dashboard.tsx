@@ -653,6 +653,7 @@ function OffersTab({ partner }: { partner: Profile }) {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Offer> | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [branches, setBranches] = useState<any[]>([]);
   const selectedCategoryId = editing?.category
     ? apiCategories.find((c: any) => c.id === editing.category || c.slug === editing.category)?.id || ""
     : "";
@@ -675,6 +676,29 @@ function OffersTab({ partner }: { partner: Profile }) {
     setLoading(false);
   }
   useEffect(() => { load(); }, [partner.id]);
+
+  // Load partner branches once for the offer form
+  useEffect(() => {
+    if (partner.id === DEMO_PARTNER_ID) { setBranches([]); return; }
+    let cancel = false;
+    partnerApi.listBranches()
+      .then((d: any) => { if (!cancel) setBranches(d?.items || []); })
+      .catch(() => { if (!cancel) setBranches([]); });
+    return () => { cancel = true; };
+  }, [partner.id]);
+
+  // When opening the form: if partner has exactly one branch and none selected, preselect it
+  useEffect(() => {
+    if (!editing) return;
+    if (!editing.branch_id && branches.length === 1) {
+      setEditing((prev) => prev ? { ...prev, branch_id: branches[0].id } as any : prev);
+    } else if (!editing.branch_id) {
+      const def = branches.find((b: any) => b.isDefault || b.is_default);
+      if (def) setEditing((prev) => prev && !prev.branch_id ? { ...prev, branch_id: def.id } as any : prev);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing?.id, branches]);
+
 
   async function save() {
     if (!editing?.title || editing.price == null) {
