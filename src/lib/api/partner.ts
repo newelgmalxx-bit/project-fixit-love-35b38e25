@@ -793,6 +793,7 @@ export const partnerApi = {
     mapsUrl?: string | null;
     isDefault?: boolean;
     status?: string;
+    workingHours?: any;
   }) =>
     unwrap<{ branch: any }>(
       request(`/partner/branches`, { method: "POST", body: JSON.stringify(body) }),
