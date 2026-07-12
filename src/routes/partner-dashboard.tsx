@@ -4070,7 +4070,7 @@ function BranchesTab() {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setOpen(false)}>
-          <div className="w-full max-w-lg rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-extrabold mb-4">{editingId ? L("تعديل فرع", "Edit branch") : L("فرع جديد", "New branch")}</h3>
             <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
