@@ -4221,6 +4221,12 @@ function BranchesTab() {
                 value={form.workingHours || branchDefaultHours()}
                 onChange={(next) => setForm({ ...form, workingHours: next })}
               />
+              <BranchAccountFields
+                value={form}
+                onChange={(patch) => setForm({ ...form, ...patch })}
+                editing={!!editingId}
+                hasAccount={editingHasAccount}
+              />
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button onClick={() => setOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
@@ -4231,6 +4237,41 @@ function BranchesTab() {
           </div>
         </div>
       )}
+
+      {credOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setCredOpen(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-extrabold mb-4">{L("إدارة بيانات الدخول", "Manage login")}</h3>
+            <div className="grid gap-3">
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{L("البريد", "Email")}</label>
+                <input value={credForm.email} onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{L("الهاتف", "Phone")}</label>
+                <input value={credForm.phone} onChange={(e) => setCredForm({ ...credForm, phone: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">
+                  {L("كلمة المرور الجديدة (اتركها فارغة لتوليدها)", "New password (blank to auto-generate)")}
+                </label>
+                <input value={credForm.password} onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button onClick={() => setCredOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
+              <button onClick={saveCredentials} disabled={credSaving} className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
+                {credSaving ? L("جارٍ الحفظ…", "Saving…") : L("حفظ", "Save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <TempPasswordDialog open={!!tempPwd} password={tempPwd} onClose={() => setTempPwd(null)} />
     </div>
   );
 }
