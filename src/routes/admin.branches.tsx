@@ -139,7 +139,23 @@ function BranchesPage() {
       const res: any = editingId
         ? await adminBranchesApi.update(editingId, payload)
         : await adminBranchesApi.create(payload);
-      const tp = res?.data?.tempPassword ?? res?.tempPassword;
+      let tp = res?.data?.tempPassword ?? res?.tempPassword;
+
+      // When editing an independent branch, credentials go through a
+      // separate endpoint. Only call it if the user actually changed email
+      // or password.
+      if (editingId && payload.isIndependent && (payload.email || payload.password)) {
+        try {
+          const cr: any = await adminBranchesApi.updateCredentials(editingId, {
+            email: payload.email || null,
+            password: payload.password || null,
+          });
+          tp = cr?.data?.tempPassword ?? cr?.tempPassword ?? tp;
+        } catch (e: any) {
+          toast.error(e?.message || L("فشل حفظ بيانات الدخول", "Failed to save credentials"));
+        }
+      }
+
       toast.success(L("تم الحفظ", "Saved"));
       setOpen(false);
       if (tp) setTempPwd(tp);
