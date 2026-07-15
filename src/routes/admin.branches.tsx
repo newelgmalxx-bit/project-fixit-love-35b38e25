@@ -243,9 +243,6 @@ function BranchesPage() {
                         <Star className="h-4 w-4" />
                       </button>
                     )}
-                    <button onClick={() => openCredentials(b)} className="rounded-lg p-2 hover:bg-muted" title={L("إدارة بيانات الدخول", "Manage login")}>
-                      <KeyRound className="h-4 w-4" />
-                    </button>
                     <button onClick={() => openEdit(b)} className="rounded-lg p-2 hover:bg-muted"><Pencil className="h-4 w-4" /></button>
                     <button onClick={() => remove(b)} className="text-rose-600 hover:bg-rose-50 rounded-lg p-2"><Trash2 className="h-4 w-4" /></button>
                   </div>
