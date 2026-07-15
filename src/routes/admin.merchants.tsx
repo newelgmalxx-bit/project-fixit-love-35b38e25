@@ -42,6 +42,7 @@ type Merchant = {
   termsEn?: string;
   about?: string;
   aboutEn?: string;
+  bookingNote?: string;
   workingHours?: WorkingHour[];
   password?: string;
   packageName?: string;
