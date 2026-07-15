@@ -213,6 +213,7 @@ function mapApiPartner(raw: ApiPartnerProfile | null | undefined): Profile | nul
     terms: p.terms ?? p.termsAr ?? null,
     terms_en: p.termsEn ?? p.terms_en ?? null,
     about_en: p.aboutEn ?? p.about_en ?? null,
+    booking_note: p.bookingNote ?? p.booking_note ?? null,
     category_ids: (() => {
       const src = p.categoryIds ?? p.category_ids ?? p.partner_categories ?? p.categories;
       if (!Array.isArray(src)) return [];
