@@ -601,6 +601,7 @@ function MerchantsPage() {
                                   termsEn: full?.termsEn || full?.terms_en || "",
                                   about: full?.about || full?.aboutAr || "",
                                   aboutEn: full?.aboutEn || full?.about_en || "",
+                                  bookingNote: full?.bookingNote || full?.booking_note || "",
                                   workingHours: parseWorkingHours(full?.workingHours ?? full?.working_hours),
                                   categoryIds: catIds,
                                   packageId: full?.packageId ? String(full.packageId) : (full?.package_id ? String(full.package_id) : (full?.package?.id ? String(full.package.id) : "")),
