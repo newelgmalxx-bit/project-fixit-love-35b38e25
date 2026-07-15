@@ -24,7 +24,7 @@ import {
 import { PartnerGuard } from "@/components/auth/PartnerGuard";
 import { useLang } from "@/i18n/LanguageProvider";
 import { BranchHoursEditor, defaultWorkingHours as branchDefaultHours, parseWorkingHours as branchParseHours } from "@/components/branches/BranchHoursEditor";
-import { BranchAccountFields, BranchStatusBadges, TempPasswordDialog } from "@/components/branches/BranchAccountFields";
+import { BranchAccountFields, BranchStatusBadges, TempPasswordDialog, pickBranchLoginEmail } from "@/components/branches/BranchAccountFields";
 
 export const Route = createFileRoute("/partner-dashboard")({
   head: () => ({ meta: [{ title: "Partner Dashboard | Koswmat" }] }),
@@ -4032,15 +4032,16 @@ function BranchesTab() {
       canManageHours: !!b.canManageHours,
       canEditInfo: !!b.canEditInfo,
       canManageBookings: !!b.canManageBookings,
-      email: b.email || "",
+      email: pickBranchLoginEmail(b),
       password: "",
     });
     setOpen(true);
   }
 
   function openCredentials(b: any) {
+    // Reset form fully to the target branch — never carry state from a previous open.
     setCredTarget(b);
-    setCredForm({ email: b.email || "", phone: b.phone || "", password: "" });
+    setCredForm({ email: pickBranchLoginEmail(b), phone: b.phone || "", password: "" });
     setCredOpen(true);
   }
 
@@ -4255,7 +4256,7 @@ function BranchesTab() {
       )}
 
       {credOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setCredOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => { setCredOpen(false); setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); }}>
           <div className="w-full max-w-md rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-extrabold mb-4">{L("إدارة بيانات الدخول", "Manage login")}</h3>
             <div className="grid gap-3">
@@ -4278,7 +4279,7 @@ function BranchesTab() {
               </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
-              <button onClick={() => setCredOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
+              <button onClick={() => { setCredOpen(false); setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); }} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
               <button onClick={saveCredentials} disabled={credSaving} className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
                 {credSaving ? L("جارٍ الحفظ…", "Saving…") : L("حفظ", "Save")}
               </button>

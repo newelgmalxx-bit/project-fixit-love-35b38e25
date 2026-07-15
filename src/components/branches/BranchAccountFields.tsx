@@ -2,6 +2,26 @@ import { useLang } from "@/i18n/LanguageProvider";
 import { Eye, EyeOff, Sparkles } from "lucide-react";
 import { useState } from "react";
 
+/**
+ * The backend has shipped the branch login email under several different
+ * keys across environments (`email`, `loginEmail`, `login_email`,
+ * `accountEmail`, `account_email`, or nested `account.email`). Pick the
+ * first non-empty value so the "Manage login" and edit dialogs pre-fill
+ * correctly regardless of which shape the API returns for a given branch.
+ */
+export function pickBranchLoginEmail(b: any): string {
+  if (!b) return "";
+  const v =
+    b.loginEmail ??
+    b.login_email ??
+    b.accountEmail ??
+    b.account_email ??
+    b.account?.email ??
+    b.email ??
+    "";
+  return typeof v === "string" ? v : "";
+}
+
 export type BranchAccountForm = {
   isIndependent?: boolean;
   canManageOffers?: boolean;

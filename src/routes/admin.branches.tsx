@@ -10,7 +10,7 @@ import { PartnerSelect } from "@/components/admin/PartnerSelect";
 import { adminBranchesApi, type BranchInput } from "@/lib/api/adminBranches";
 import type { Branch } from "@/lib/api/types";
 import { BranchHoursEditor, defaultWorkingHours, parseWorkingHours, type WorkingHour } from "@/components/branches/BranchHoursEditor";
-import { BranchAccountFields, BranchStatusBadges, TempPasswordDialog } from "@/components/branches/BranchAccountFields";
+import { BranchAccountFields, BranchStatusBadges, TempPasswordDialog, pickBranchLoginEmail } from "@/components/branches/BranchAccountFields";
 import { useLang } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/admin/branches")({
@@ -98,15 +98,16 @@ function BranchesPage() {
       canManageHours: !!b.canManageHours,
       canEditInfo: !!b.canEditInfo,
       canManageBookings: !!b.canManageBookings,
-      email: b.email || "",
+      email: pickBranchLoginEmail(b),
       password: "",
     });
     setOpen(true);
   }
 
   function openCredentials(b: Branch) {
+    // Reset form fully to the target branch — never carry state from a previous open.
     setCredTarget(b);
-    setCredForm({ email: b.email || "", phone: b.phone || "", password: "" });
+    setCredForm({ email: pickBranchLoginEmail(b), phone: b.phone || "", password: "" });
     setCredOpen(true);
   }
 
@@ -364,7 +365,7 @@ function BranchesPage() {
       </Dialog>
 
       {/* Credentials dialog */}
-      <Dialog open={credOpen} onOpenChange={setCredOpen}>
+      <Dialog open={credOpen} onOpenChange={(v) => { setCredOpen(v); if (!v) { setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); } }}>
         <DialogContent className="max-w-md" dir={dir}>
           <DialogHeader><DialogTitle>{L("إدارة بيانات الدخول", "Manage login")}</DialogTitle></DialogHeader>
           <div className="grid gap-3">
