@@ -1642,9 +1642,25 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
           <div>
             <label className="mb-1.5 block text-xs font-bold">Terms (English)</label>
             <textarea dir="ltr" value={f.terms_en || ""} onChange={(e) => upd("terms_en", e.target.value)} rows={4} placeholder="Cancellation policy, prep before appointment..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          <div>
+            <label className="mb-1.5 block text-xs font-bold">Terms (English)</label>
+            <textarea dir="ltr" value={f.terms_en || ""} onChange={(e) => upd("terms_en", e.target.value)} rows={4} placeholder="Cancellation policy, prep before appointment..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 block text-xs font-bold">
+              {L("ملحوظة تظهر للعميل عند الحجز", "Note shown to the customer at booking")}
+            </label>
+            <textarea
+              value={f.booking_note || ""}
+              onChange={(e) => upd("booking_note", e.target.value)}
+              rows={3}
+              placeholder={L("مثلاً: يرجى الحضور قبل الموعد بـ ١٠ دقائق...", "e.g. please arrive 10 minutes before your appointment...")}
+              className="w-full rounded-xl border border-border bg-background p-3 text-sm"
+            />
           </div>
         </div>
       </div>
+
 
       {/* Working hours */}
       <div className="rounded-3xl border border-border bg-card p-6">
