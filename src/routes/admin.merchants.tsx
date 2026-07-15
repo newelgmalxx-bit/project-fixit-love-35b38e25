@@ -742,7 +742,7 @@ function AddCenterDialog({
     name: "", nameEn: "", owner: "", city: "", phone: "", email: "",
     commercialNumber: "", mapsUrl: "", status: "pending" as Status,
     description: "", descriptionEn: "", terms: "", termsEn: "",
-    about: "", aboutEn: "",
+    about: "", aboutEn: "", bookingNote: "",
     workingHours: defaultWorkingHours(),
     password: "",
     categoryIds: [] as CategoryId[],
