@@ -50,7 +50,6 @@ function BranchesPage() {
   const [editingHasAccount, setEditingHasAccount] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tempPwd, setTempPwd] = useState<string | null>(null);
-  const [tempPwd, setTempPwd] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
