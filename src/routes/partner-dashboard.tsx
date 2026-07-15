@@ -1510,6 +1510,7 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
         termsEn: f.terms_en || "",
         aboutEn: f.about_en || "",
         categoryIds: f.category_ids || [],
+        bookingNote: f.booking_note ?? "",
       } as any);
       const raw = (r?.partner || r) as any;
       const mapped = mapApiPartner(raw) || f;
