@@ -7,7 +7,7 @@ import {
   CalendarDays, UserCog, Crown, LifeBuoy, Send, Phone, Mail, Shield,
   Sparkles, ChevronLeft, ChevronRight, Zap, Menu, ExternalLink, Percent, FileText, Eye,
   ShieldCheck, CheckCircle2, XCircle, Search, User as UserIcon, Power, PowerOff,
-  Hash, CreditCard, Building2, MapPin, KeyRound,
+  Hash, CreditCard, Building2, MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { partnerApi, partnerAuth, getStoredPartner, setStoredPartner, type PartnerProfile as ApiPartnerProfile } from "@/lib/api/partner";
@@ -3988,10 +3988,6 @@ function BranchesTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingHasAccount, setEditingHasAccount] = useState(false);
   const [tempPwd, setTempPwd] = useState<string | null>(null);
-  const [credOpen, setCredOpen] = useState(false);
-  const [credTarget, setCredTarget] = useState<any | null>(null);
-  const [credForm, setCredForm] = useState({ email: "", phone: "", password: "" });
-  const [credSaving, setCredSaving] = useState(false);
   const emptyForm: any = {
     nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "",
     isDefault: false, status: "active", workingHours: branchDefaultHours(),
@@ -4038,32 +4034,6 @@ function BranchesTab() {
     setOpen(true);
   }
 
-  function openCredentials(b: any) {
-    // Reset form fully to the target branch — never carry state from a previous open.
-    setCredTarget(b);
-    setCredForm({ email: pickBranchLoginEmail(b), phone: b.phone || "", password: "" });
-    setCredOpen(true);
-  }
-
-  async function saveCredentials() {
-    if (!credTarget) return;
-    setCredSaving(true);
-    try {
-      const r: any = await partnerApi.updateBranchCredentials(credTarget.id, {
-        email: credForm.email.trim() || null,
-        phone: credForm.phone.trim() || null,
-        password: credForm.password.trim() || null,
-      });
-      toast.success(L("تم التحديث", "Updated"));
-      if (r?.tempPassword) setTempPwd(r.tempPassword);
-      setCredOpen(false);
-      load();
-    } catch (e: any) {
-      toast.error(e?.message || L("فشل التحديث", "Update failed"));
-    } finally {
-      setCredSaving(false);
-    }
-  }
 
   async function save() {
     if (!form.nameAr?.trim()) {
@@ -4174,9 +4144,6 @@ function BranchesTab() {
                       <Star className="h-4 w-4" />
                     </button>
                   )}
-                  <button onClick={() => openCredentials(b)} className="rounded-lg p-2 hover:bg-muted" title={L("إدارة بيانات الدخول", "Manage login")}>
-                    <KeyRound className="h-4 w-4" />
-                  </button>
                   <button onClick={() => openEdit(b)} className="rounded-lg p-2 hover:bg-muted"><Edit3 className="h-4 w-4" /></button>
                   <button onClick={() => remove(b)} className="text-rose-600 hover:bg-rose-50 rounded-lg p-2"><Trash2 className="h-4 w-4" /></button>
                 </div>
@@ -4255,38 +4222,6 @@ function BranchesTab() {
         </div>
       )}
 
-      {credOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => { setCredOpen(false); setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); }}>
-          <div className="w-full max-w-md rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-extrabold mb-4">{L("إدارة بيانات الدخول", "Manage login")}</h3>
-            <div className="grid gap-3">
-              <div>
-                <label className="text-xs font-bold text-muted-foreground">{L("البريد", "Email")}</label>
-                <input value={credForm.email} onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-muted-foreground">{L("الهاتف", "Phone")}</label>
-                <input value={credForm.phone} onChange={(e) => setCredForm({ ...credForm, phone: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-muted-foreground">
-                  {L("كلمة المرور الجديدة (اتركها فارغة لتوليدها)", "New password (blank to auto-generate)")}
-                </label>
-                <input value={credForm.password} onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              </div>
-            </div>
-            <div className="mt-5 flex justify-end gap-2">
-              <button onClick={() => { setCredOpen(false); setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); }} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
-              <button onClick={saveCredentials} disabled={credSaving} className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
-                {credSaving ? L("جارٍ الحفظ…", "Saving…") : L("حفظ", "Save")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <TempPasswordDialog open={!!tempPwd} password={tempPwd} onClose={() => setTempPwd(null)} />
     </div>
