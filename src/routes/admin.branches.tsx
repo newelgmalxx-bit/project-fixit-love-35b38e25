@@ -365,7 +365,7 @@ function BranchesPage() {
       </Dialog>
 
       {/* Credentials dialog */}
-      <Dialog open={credOpen} onOpenChange={setCredOpen}>
+      <Dialog open={credOpen} onOpenChange={(v) => { setCredOpen(v); if (!v) { setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); } }}>
         <DialogContent className="max-w-md" dir={dir}>
           <DialogHeader><DialogTitle>{L("إدارة بيانات الدخول", "Manage login")}</DialogTitle></DialogHeader>
           <div className="grid gap-3">
