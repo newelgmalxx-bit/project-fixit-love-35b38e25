@@ -4066,10 +4066,26 @@ function BranchesTab() {
       const res: any = editingId
         ? await partnerApi.updateBranch(editingId, payload)
         : await partnerApi.createBranch(payload);
+      let tp = res?.tempPassword;
+
+      // Credentials are saved through a separate endpoint on edit.
+      if (editingId && payload.isIndependent && (payload.email || payload.password)) {
+        try {
+          const cr: any = await partnerApi.updateBranchCredentials(editingId, {
+            email: payload.email || null,
+            password: payload.password || null,
+          });
+          tp = cr?.tempPassword ?? tp;
+        } catch (e: any) {
+          toast.error(e?.message || L("فشل حفظ بيانات الدخول", "Failed to save credentials"));
+        }
+      }
+
       toast.success(L("تم الحفظ", "Saved"));
       setOpen(false);
-      if (res?.tempPassword) setTempPwd(res.tempPassword);
+      if (tp) setTempPwd(tp);
       load();
+
     } catch (e: any) {
       toast.error(e?.message || L("فشل الحفظ", "Save failed"));
     } finally {
