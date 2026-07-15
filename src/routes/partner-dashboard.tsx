@@ -3998,9 +3998,10 @@ function BranchesTab() {
   }
   useEffect(() => { load(); }, []);
 
-  function openNew() { setEditingId(null); setForm(emptyForm); setOpen(true); }
+  function openNew() { setEditingId(null); setEditingHasAccount(false); setForm(emptyForm); setOpen(true); }
   function openEdit(b: any) {
     setEditingId(b.id);
+    setEditingHasAccount(!!b.hasAccount);
     setForm({
       nameAr: b.nameAr || "",
       nameEn: b.nameEn || "",
@@ -4010,8 +4011,41 @@ function BranchesTab() {
       isDefault: !!b.isDefault,
       status: b.status || "active",
       workingHours: branchParseHours(b.workingHours ?? b.working_hours),
+      isIndependent: !!b.isIndependent,
+      canManageOffers: !!b.canManageOffers,
+      canManageHours: !!b.canManageHours,
+      canEditInfo: !!b.canEditInfo,
+      canManageBookings: !!b.canManageBookings,
+      email: b.email || "",
+      password: "",
     });
     setOpen(true);
+  }
+
+  function openCredentials(b: any) {
+    setCredTarget(b);
+    setCredForm({ email: b.email || "", phone: b.phone || "", password: "" });
+    setCredOpen(true);
+  }
+
+  async function saveCredentials() {
+    if (!credTarget) return;
+    setCredSaving(true);
+    try {
+      const r: any = await partnerApi.updateBranchCredentials(credTarget.id, {
+        email: credForm.email.trim() || null,
+        phone: credForm.phone.trim() || null,
+        password: credForm.password.trim() || null,
+      });
+      toast.success(L("تم التحديث", "Updated"));
+      if (r?.tempPassword) setTempPwd(r.tempPassword);
+      setCredOpen(false);
+      load();
+    } catch (e: any) {
+      toast.error(e?.message || L("فشل التحديث", "Update failed"));
+    } finally {
+      setCredSaving(false);
+    }
   }
 
   async function save() {
@@ -4019,9 +4053,13 @@ function BranchesTab() {
       toast.error(L("اسم الفرع بالعربي مطلوب", "Arabic branch name is required"));
       return;
     }
+    if (form.isIndependent && !editingId && (!form.email?.trim() || !form.password?.trim())) {
+      toast.error(L("لازم إيميل وكلمة مرور للفرع المستقل", "Independent branch needs email and password"));
+      return;
+    }
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         nameAr: form.nameAr.trim(),
         nameEn: (form.nameEn || "").trim() || null,
         phone: (form.phone || "").trim() || null,
@@ -4030,11 +4068,20 @@ function BranchesTab() {
         isDefault: !!form.isDefault,
         status: form.status || "active",
         workingHours: form.workingHours || branchDefaultHours(),
+        isIndependent: !!form.isIndependent,
+        canManageOffers: !!form.canManageOffers,
+        canManageHours: !!form.canManageHours,
+        canEditInfo: !!form.canEditInfo,
+        canManageBookings: !!form.canManageBookings,
+        email: form.email?.trim() || null,
+        password: form.password?.trim() || null,
       };
-      if (editingId) await partnerApi.updateBranch(editingId, payload);
-      else await partnerApi.createBranch(payload);
+      const res: any = editingId
+        ? await partnerApi.updateBranch(editingId, payload)
+        : await partnerApi.createBranch(payload);
       toast.success(L("تم الحفظ", "Saved"));
       setOpen(false);
+      if (res?.tempPassword) setTempPwd(res.tempPassword);
       load();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الحفظ", "Save failed"));
