@@ -4038,32 +4038,6 @@ function BranchesTab() {
     setOpen(true);
   }
 
-  function openCredentials(b: any) {
-    // Reset form fully to the target branch — never carry state from a previous open.
-    setCredTarget(b);
-    setCredForm({ email: pickBranchLoginEmail(b), phone: b.phone || "", password: "" });
-    setCredOpen(true);
-  }
-
-  async function saveCredentials() {
-    if (!credTarget) return;
-    setCredSaving(true);
-    try {
-      const r: any = await partnerApi.updateBranchCredentials(credTarget.id, {
-        email: credForm.email.trim() || null,
-        phone: credForm.phone.trim() || null,
-        password: credForm.password.trim() || null,
-      });
-      toast.success(L("تم التحديث", "Updated"));
-      if (r?.tempPassword) setTempPwd(r.tempPassword);
-      setCredOpen(false);
-      load();
-    } catch (e: any) {
-      toast.error(e?.message || L("فشل التحديث", "Update failed"));
-    } finally {
-      setCredSaving(false);
-    }
-  }
 
   async function save() {
     if (!form.nameAr?.trim()) {
