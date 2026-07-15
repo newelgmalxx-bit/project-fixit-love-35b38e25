@@ -3970,7 +3970,18 @@ function BranchesTab() {
   const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const emptyForm = { nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "", isDefault: false, status: "active", workingHours: branchDefaultHours() };
+  const [editingHasAccount, setEditingHasAccount] = useState(false);
+  const [tempPwd, setTempPwd] = useState<string | null>(null);
+  const [credOpen, setCredOpen] = useState(false);
+  const [credTarget, setCredTarget] = useState<any | null>(null);
+  const [credForm, setCredForm] = useState({ email: "", phone: "", password: "" });
+  const [credSaving, setCredSaving] = useState(false);
+  const emptyForm: any = {
+    nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "",
+    isDefault: false, status: "active", workingHours: branchDefaultHours(),
+    isIndependent: false, canManageOffers: false, canManageHours: false,
+    canEditInfo: false, canManageBookings: false, email: "", password: "",
+  };
   const [form, setForm] = useState<any>(emptyForm);
 
   async function load() {
