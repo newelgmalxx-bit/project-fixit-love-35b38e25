@@ -3988,10 +3988,6 @@ function BranchesTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingHasAccount, setEditingHasAccount] = useState(false);
   const [tempPwd, setTempPwd] = useState<string | null>(null);
-  const [credOpen, setCredOpen] = useState(false);
-  const [credTarget, setCredTarget] = useState<any | null>(null);
-  const [credForm, setCredForm] = useState({ email: "", phone: "", password: "" });
-  const [credSaving, setCredSaving] = useState(false);
   const emptyForm: any = {
     nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "",
     isDefault: false, status: "active", workingHours: branchDefaultHours(),
