@@ -330,38 +330,6 @@ function BranchesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Credentials dialog */}
-      <Dialog open={credOpen} onOpenChange={(v) => { setCredOpen(v); if (!v) { setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); } }}>
-        <DialogContent className="max-w-md" dir={dir}>
-          <DialogHeader><DialogTitle>{L("إدارة بيانات الدخول", "Manage login")}</DialogTitle></DialogHeader>
-          <div className="grid gap-3">
-            <div>
-              <label className="text-xs font-bold text-muted-foreground">{L("البريد", "Email")}</label>
-              <input value={credForm.email} onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
-                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-muted-foreground">{L("الهاتف", "Phone")}</label>
-              <input value={credForm.phone} onChange={(e) => setCredForm({ ...credForm, phone: e.target.value })}
-                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-muted-foreground">
-                {L("كلمة المرور الجديدة (اتركها فارغة لتوليدها)", "New password (blank to auto-generate)")}
-              </label>
-              <input value={credForm.password} onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
-                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-            </div>
-          </div>
-          <DialogFooter>
-            <button onClick={() => setCredOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
-            <button onClick={saveCredentials} disabled={credSaving} className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
-              {credSaving ? L("جارٍ الحفظ…", "Saving…") : L("حفظ", "Save")}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <TempPasswordDialog open={!!tempPwd} password={tempPwd} onClose={() => setTempPwd(null)} />
     </AdminLayout>
   );
