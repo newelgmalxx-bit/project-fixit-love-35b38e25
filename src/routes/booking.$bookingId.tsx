@@ -43,6 +43,7 @@ type Booking = {
   paymentStatus?: string;
   paymentMethod?: string;
   status?: string;
+  partnerNote?: string | null;
 };
 
 type StatusMeta = {
