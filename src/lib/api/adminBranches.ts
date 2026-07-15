@@ -19,6 +19,20 @@ export type BranchInput = {
   isDefault?: boolean;
   workingHours?: any | null;
   status?: string;
+  // Independence
+  isIndependent?: boolean;
+  canManageOffers?: boolean;
+  canManageHours?: boolean;
+  canEditInfo?: boolean;
+  canManageBookings?: boolean;
+  email?: string | null;
+  password?: string | null;
+};
+
+export type BranchCredentialsInput = {
+  email?: string | null;
+  phone?: string | null;
+  password?: string | null;
 };
 
 function qs(params?: Record<string, any>): string {
@@ -63,6 +77,11 @@ export const adminBranchesApi = {
     }),
   setDefault: (id: string) =>
     request<ApiResponse<any>>(`/admin/branches/${id}/set-default`, { method: "PUT" }),
+  updateCredentials: (id: string, body: BranchCredentialsInput) =>
+    request<ApiResponse<any>>(`/admin/branches/${id}/credentials`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
   remove: (id: string) =>
     request<ApiResponse<any>>(`/admin/branches/${id}`, { method: "DELETE" }),
 };

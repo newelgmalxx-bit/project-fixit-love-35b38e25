@@ -78,6 +78,14 @@ export type Branch = {
   isDefault?: boolean;
   workingHours?: any | null;
   status?: string;
+  // Independent branch fields
+  isIndependent?: boolean;
+  hasAccount?: boolean;
+  canManageOffers?: boolean;
+  canManageHours?: boolean;
+  canEditInfo?: boolean;
+  canManageBookings?: boolean;
+  email?: string | null;
 };
 
 export type CartItem = {

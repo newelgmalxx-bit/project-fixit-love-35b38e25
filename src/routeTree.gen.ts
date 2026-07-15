@@ -25,6 +25,8 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as BranchLoginRouteImport } from './routes/branch-login'
+import { Route as BranchRouteImport } from './routes/branch'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -173,6 +175,16 @@ const CategoriesRoute = CategoriesRouteImport.update({
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BranchLoginRoute = BranchLoginRouteImport.update({
+  id: '/branch-login',
+  path: '/branch-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BranchRoute = BranchRouteImport.update({
+  id: '/branch',
+  path: '/branch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -527,6 +539,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/branch': typeof BranchRoute
+  '/branch-login': typeof BranchLoginRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -613,6 +627,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/branch': typeof BranchRoute
+  '/branch-login': typeof BranchLoginRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -701,6 +717,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/branch': typeof BranchRoute
+  '/branch-login': typeof BranchLoginRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -790,6 +808,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/branch'
+    | '/branch-login'
     | '/cart'
     | '/categories'
     | '/checkout'
@@ -876,6 +896,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/branch'
+    | '/branch-login'
     | '/cart'
     | '/categories'
     | '/checkout'
@@ -963,6 +985,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/branch'
+    | '/branch-login'
     | '/cart'
     | '/categories'
     | '/checkout'
@@ -1051,6 +1075,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
+  BranchRoute: typeof BranchRoute
+  BranchLoginRoute: typeof BranchLoginRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
@@ -1203,6 +1229,20 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/branch-login': {
+      id: '/branch-login'
+      path: '/branch-login'
+      fullPath: '/branch-login'
+      preLoaderRoute: typeof BranchLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/branch': {
+      id: '/branch'
+      path: '/branch'
+      fullPath: '/branch'
+      preLoaderRoute: typeof BranchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -1820,6 +1860,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
+  BranchRoute: BranchRoute,
+  BranchLoginRoute: BranchLoginRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
@@ -1862,13 +1904,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
