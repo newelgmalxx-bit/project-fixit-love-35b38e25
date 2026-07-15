@@ -88,6 +88,7 @@ type Profile = {
   terms_en?: string | null;
   about_en?: string | null;
   category_ids?: (string | number)[];
+  booking_note?: string | null;
   working_hours_struct?: WorkingHour[];
 };
 
