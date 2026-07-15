@@ -323,6 +323,7 @@ function MerchantsPage() {
           termsEn: data.termsEn || "",
           about: data.about || "",
           aboutEn: data.aboutEn || "",
+          bookingNote: data.bookingNote || "",
           vendorNameEn: data.nameEn || "",
           nameEn: data.nameEn || "",
           workingHours: data.workingHours || [],
