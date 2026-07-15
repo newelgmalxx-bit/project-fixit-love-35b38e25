@@ -4279,7 +4279,7 @@ function BranchesTab() {
               </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
-              <button onClick={() => setCredOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
+              <button onClick={() => { setCredOpen(false); setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); }} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
               <button onClick={saveCredentials} disabled={credSaving} className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
                 {credSaving ? L("جارٍ الحفظ…", "Saving…") : L("حفظ", "Save")}
               </button>
