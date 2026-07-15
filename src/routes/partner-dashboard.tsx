@@ -4032,15 +4032,16 @@ function BranchesTab() {
       canManageHours: !!b.canManageHours,
       canEditInfo: !!b.canEditInfo,
       canManageBookings: !!b.canManageBookings,
-      email: b.email || "",
+      email: pickBranchLoginEmail(b),
       password: "",
     });
     setOpen(true);
   }
 
   function openCredentials(b: any) {
+    // Reset form fully to the target branch — never carry state from a previous open.
     setCredTarget(b);
-    setCredForm({ email: b.email || "", phone: b.phone || "", password: "" });
+    setCredForm({ email: pickBranchLoginEmail(b), phone: b.phone || "", password: "" });
     setCredOpen(true);
   }
 
