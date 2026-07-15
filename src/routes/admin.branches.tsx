@@ -100,33 +100,6 @@ function BranchesPage() {
     setOpen(true);
   }
 
-  function openCredentials(b: Branch) {
-    // Reset form fully to the target branch — never carry state from a previous open.
-    setCredTarget(b);
-    setCredForm({ email: pickBranchLoginEmail(b), phone: b.phone || "", password: "" });
-    setCredOpen(true);
-  }
-
-  async function saveCredentials() {
-    if (!credTarget) return;
-    setCredSaving(true);
-    try {
-      const r: any = await adminBranchesApi.updateCredentials(credTarget.id, {
-        email: credForm.email.trim() || null,
-        phone: credForm.phone.trim() || null,
-        password: credForm.password.trim() || null,
-      });
-      const tp = r?.data?.tempPassword ?? r?.tempPassword;
-      toast.success(L("تم التحديث", "Updated"));
-      if (tp) setTempPwd(tp);
-      setCredOpen(false);
-      load();
-    } catch (e: any) {
-      toast.error(e?.message || L("فشل التحديث", "Update failed"));
-    } finally {
-      setCredSaving(false);
-    }
-  }
 
   async function save() {
     if (!editing.nameAr?.trim()) {
