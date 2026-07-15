@@ -4256,7 +4256,7 @@ function BranchesTab() {
       )}
 
       {credOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setCredOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => { setCredOpen(false); setCredTarget(null); setCredForm({ email: "", phone: "", password: "" }); }}>
           <div className="w-full max-w-md rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-extrabold mb-4">{L("إدارة بيانات الدخول", "Manage login")}</h3>
             <div className="grid gap-3">
