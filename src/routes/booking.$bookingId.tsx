@@ -195,6 +195,7 @@ function BookingConfirmation() {
           paymentStatus: row.payment_status ?? row.paymentStatus,
           paymentMethod: row.payment_method ?? row.paymentMethod,
           status: row.status,
+          partnerNote: row.partner_note ?? row.partnerNote ?? null,
         };
         setBooking(mapped);
         try { sessionStorage.setItem(`booking:${bookingId}`, JSON.stringify(mapped)); } catch {}
