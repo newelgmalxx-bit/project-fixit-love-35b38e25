@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AdminLayout, PanelCard, PrimaryButton } from "@/components/admin/AdminLayout";
 import { toast } from "sonner";
-import { Plus, Trash2, MapPin, Pencil, Loader2, Search, Phone, Star, ExternalLink } from "lucide-react";
+import { Plus, Trash2, MapPin, Pencil, Loader2, Search, Phone, Star, ExternalLink, KeyRound } from "lucide-react";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -10,6 +10,7 @@ import { PartnerSelect } from "@/components/admin/PartnerSelect";
 import { adminBranchesApi, type BranchInput } from "@/lib/api/adminBranches";
 import type { Branch } from "@/lib/api/types";
 import { BranchHoursEditor, defaultWorkingHours, parseWorkingHours, type WorkingHour } from "@/components/branches/BranchHoursEditor";
+import { BranchAccountFields, BranchStatusBadges, TempPasswordDialog } from "@/components/branches/BranchAccountFields";
 import { useLang } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/admin/branches")({
@@ -27,6 +28,13 @@ const empty: BranchInput = {
   isDefault: false,
   status: "active",
   workingHours: defaultWorkingHours(),
+  isIndependent: false,
+  canManageOffers: false,
+  canManageHours: false,
+  canEditInfo: false,
+  canManageBookings: false,
+  email: "",
+  password: "",
 };
 
 function BranchesPage() {
@@ -39,7 +47,13 @@ function BranchesPage() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editing, setEditing] = useState<BranchInput>(empty);
+  const [editingHasAccount, setEditingHasAccount] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [tempPwd, setTempPwd] = useState<string | null>(null);
+  const [credOpen, setCredOpen] = useState(false);
+  const [credTarget, setCredTarget] = useState<Branch | null>(null);
+  const [credForm, setCredForm] = useState<{ email: string; phone: string; password: string }>({ email: "", phone: "", password: "" });
+  const [credSaving, setCredSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -62,11 +76,13 @@ function BranchesPage() {
 
   function openNew() {
     setEditingId(null);
+    setEditingHasAccount(false);
     setEditing({ ...empty, partnerId: partnerFilter || null });
     setOpen(true);
   }
   function openEdit(b: Branch) {
     setEditingId(b.id);
+    setEditingHasAccount(!!b.hasAccount);
     setEditing({
       partnerId: b.partnerId ?? null,
       nameAr: b.nameAr || "",
@@ -77,8 +93,42 @@ function BranchesPage() {
       isDefault: !!b.isDefault,
       status: b.status || "active",
       workingHours: parseWorkingHours((b as any).workingHours ?? (b as any).working_hours),
+      isIndependent: !!b.isIndependent,
+      canManageOffers: !!b.canManageOffers,
+      canManageHours: !!b.canManageHours,
+      canEditInfo: !!b.canEditInfo,
+      canManageBookings: !!b.canManageBookings,
+      email: b.email || "",
+      password: "",
     });
     setOpen(true);
+  }
+
+  function openCredentials(b: Branch) {
+    setCredTarget(b);
+    setCredForm({ email: b.email || "", phone: b.phone || "", password: "" });
+    setCredOpen(true);
+  }
+
+  async function saveCredentials() {
+    if (!credTarget) return;
+    setCredSaving(true);
+    try {
+      const r: any = await adminBranchesApi.updateCredentials(credTarget.id, {
+        email: credForm.email.trim() || null,
+        phone: credForm.phone.trim() || null,
+        password: credForm.password.trim() || null,
+      });
+      const tp = r?.data?.tempPassword ?? r?.tempPassword;
+      toast.success(L("تم التحديث", "Updated"));
+      if (tp) setTempPwd(tp);
+      setCredOpen(false);
+      load();
+    } catch (e: any) {
+      toast.error(e?.message || L("فشل التحديث", "Update failed"));
+    } finally {
+      setCredSaving(false);
+    }
   }
 
   async function save() {
@@ -89,6 +139,12 @@ function BranchesPage() {
     if (!editing.partnerId) {
       toast.error(L("اختر الشريك", "Select a partner"));
       return;
+    }
+    if (editing.isIndependent && !editingId) {
+      if (!editing.email?.trim() || !editing.password?.trim()) {
+        toast.error(L("لازم إيميل وكلمة مرور للفرع المستقل", "Independent branch needs email and password"));
+        return;
+      }
     }
     setSaving(true);
     try {
@@ -102,11 +158,21 @@ function BranchesPage() {
         isDefault: !!editing.isDefault,
         status: editing.status || "active",
         workingHours: editing.workingHours || defaultWorkingHours(),
+        isIndependent: !!editing.isIndependent,
+        canManageOffers: !!editing.canManageOffers,
+        canManageHours: !!editing.canManageHours,
+        canEditInfo: !!editing.canEditInfo,
+        canManageBookings: !!editing.canManageBookings,
+        email: editing.email?.trim() || null,
+        password: editing.password?.trim() || null,
       };
-      if (editingId) await adminBranchesApi.update(editingId, payload);
-      else await adminBranchesApi.create(payload);
+      const res: any = editingId
+        ? await adminBranchesApi.update(editingId, payload)
+        : await adminBranchesApi.create(payload);
+      const tp = res?.data?.tempPassword ?? res?.tempPassword;
       toast.success(L("تم الحفظ", "Saved"));
       setOpen(false);
+      if (tp) setTempPwd(tp);
       load();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الحفظ", "Save failed"));
@@ -193,6 +259,7 @@ function BranchesPage() {
                           <Phone className="h-3 w-3" /> {b.phone}
                         </div>
                       )}
+                      <BranchStatusBadges isIndependent={b.isIndependent} hasAccount={b.hasAccount} />
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
@@ -206,6 +273,9 @@ function BranchesPage() {
                         <Star className="h-4 w-4" />
                       </button>
                     )}
+                    <button onClick={() => openCredentials(b)} className="rounded-lg p-2 hover:bg-muted" title={L("إدارة بيانات الدخول", "Manage login")}>
+                      <KeyRound className="h-4 w-4" />
+                    </button>
                     <button onClick={() => openEdit(b)} className="rounded-lg p-2 hover:bg-muted"><Pencil className="h-4 w-4" /></button>
                     <button onClick={() => remove(b)} className="text-rose-600 hover:bg-rose-50 rounded-lg p-2"><Trash2 className="h-4 w-4" /></button>
                   </div>
@@ -277,6 +347,12 @@ function BranchesPage() {
               value={(editing.workingHours as WorkingHour[]) || defaultWorkingHours()}
               onChange={(next) => setEditing({ ...editing, workingHours: next })}
             />
+            <BranchAccountFields
+              value={editing}
+              onChange={(patch) => setEditing({ ...editing, ...patch })}
+              editing={!!editingId}
+              hasAccount={editingHasAccount}
+            />
           </div>
           <DialogFooter>
             <button onClick={() => setOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
@@ -286,6 +362,40 @@ function BranchesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Credentials dialog */}
+      <Dialog open={credOpen} onOpenChange={setCredOpen}>
+        <DialogContent className="max-w-md" dir={dir}>
+          <DialogHeader><DialogTitle>{L("إدارة بيانات الدخول", "Manage login")}</DialogTitle></DialogHeader>
+          <div className="grid gap-3">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{L("البريد", "Email")}</label>
+              <input value={credForm.email} onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">{L("الهاتف", "Phone")}</label>
+              <input value={credForm.phone} onChange={(e) => setCredForm({ ...credForm, phone: e.target.value })}
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground">
+                {L("كلمة المرور الجديدة (اتركها فارغة لتوليدها)", "New password (blank to auto-generate)")}
+              </label>
+              <input value={credForm.password} onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <DialogFooter>
+            <button onClick={() => setCredOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
+            <button onClick={saveCredentials} disabled={credSaving} className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
+              {credSaving ? L("جارٍ الحفظ…", "Saving…") : L("حفظ", "Save")}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <TempPasswordDialog open={!!tempPwd} password={tempPwd} onClose={() => setTempPwd(null)} />
     </AdminLayout>
   );
 }

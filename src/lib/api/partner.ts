@@ -805,6 +805,13 @@ export const partnerApi = {
         workingHours: parseWH(b.workingHours ?? b.working_hours),
         isDefault: !!(b.isDefault ?? b.is_default),
         status: b.status ?? "active",
+        isIndependent: !!(b.isIndependent ?? b.is_independent),
+        hasAccount: !!(b.hasAccount ?? b.has_account),
+        canManageOffers: !!(b.canManageOffers ?? b.can_manage_offers),
+        canManageHours: !!(b.canManageHours ?? b.can_manage_hours),
+        canEditInfo: !!(b.canEditInfo ?? b.can_edit_info),
+        canManageBookings: !!(b.canManageBookings ?? b.can_manage_bookings),
+        email: b.email ?? null,
       }));
       return { items };
     }),
@@ -817,16 +824,27 @@ export const partnerApi = {
     isDefault?: boolean;
     status?: string;
     workingHours?: any;
+    isIndependent?: boolean;
+    canManageOffers?: boolean;
+    canManageHours?: boolean;
+    canEditInfo?: boolean;
+    canManageBookings?: boolean;
+    email?: string | null;
+    password?: string | null;
   }) =>
-    unwrap<{ branch: any }>(
+    unwrap<{ branch: any; tempPassword?: string }>(
       request(`/partner/branches`, { method: "POST", body: JSON.stringify(body) }),
     ),
   updateBranch: (id: string, body: any) =>
-    unwrap<{ branch: any }>(
+    unwrap<{ branch: any; tempPassword?: string }>(
       request(`/partner/branches/${id}`, { method: "PUT", body: JSON.stringify(body) }),
     ),
   setDefaultBranch: (id: string) =>
     unwrap<any>(request(`/partner/branches/${id}/default`, { method: "PUT" })),
+  updateBranchCredentials: (id: string, body: { email?: string | null; phone?: string | null; password?: string | null }) =>
+    unwrap<{ tempPassword?: string }>(
+      request(`/partner/branches/${id}/credentials`, { method: "PUT", body: JSON.stringify(body) }),
+    ),
   deleteBranch: (id: string) =>
     request<ApiResponse<any>>(`/partner/branches/${id}`, { method: "DELETE" }),
 };

@@ -43,6 +43,7 @@ type Booking = {
   paymentStatus?: string;
   paymentMethod?: string;
   status?: string;
+  partnerNote?: string | null;
 };
 
 type StatusMeta = {
@@ -194,6 +195,7 @@ function BookingConfirmation() {
           paymentStatus: row.payment_status ?? row.paymentStatus,
           paymentMethod: row.payment_method ?? row.paymentMethod,
           status: row.status,
+          partnerNote: row.partner_note ?? row.partnerNote ?? null,
         };
         setBooking(mapped);
         try { sessionStorage.setItem(`booking:${bookingId}`, JSON.stringify(mapped)); } catch {}
@@ -391,6 +393,15 @@ function BookingConfirmation() {
                   <div className="text-sm font-bold text-foreground">{booking.customerName}</div>
                   <div className="text-xs text-muted-foreground" dir="ltr">{booking.customerPhone}</div>
                 </div>
+
+                {booking.partnerNote && (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-amber-700">
+                      {L("ملحوظة من المركز", "Note from partner")}
+                    </div>
+                    <div className="mt-1 whitespace-pre-line font-semibold leading-6">{booking.partnerNote}</div>
+                  </div>
+                )}
 
                 {hasDeposit ? (
                   <div className="space-y-2 border-t border-dashed border-border pt-4 text-sm">

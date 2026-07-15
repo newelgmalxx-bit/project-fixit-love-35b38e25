@@ -860,6 +860,24 @@ function OfferDetailPage() {
                   )}
                 </div>
 
+                {(() => {
+                  const bookingNote =
+                    (offer as any)?.bookingNote ||
+                    (offer.vendor as any)?.bookingNote ||
+                    (offer as any)?.partner?.bookingNote ||
+                    "";
+                  if (!bookingNote) return null;
+                  return (
+                    <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                      <div className="text-[11px] font-extrabold uppercase tracking-wider text-amber-700">
+                        {L("ملحوظة من المركز", "Note from partner")}
+                      </div>
+                      <div className="mt-1 whitespace-pre-line font-semibold leading-6">{bookingNote}</div>
+                    </div>
+                  );
+                })()}
+
+
 
                 <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {highlights.map((h, i) => (

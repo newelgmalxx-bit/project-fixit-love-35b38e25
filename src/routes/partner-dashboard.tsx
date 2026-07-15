@@ -7,7 +7,7 @@ import {
   CalendarDays, UserCog, Crown, LifeBuoy, Send, Phone, Mail, Shield,
   Sparkles, ChevronLeft, ChevronRight, Zap, Menu, ExternalLink, Percent, FileText, Eye,
   ShieldCheck, CheckCircle2, XCircle, Search, User as UserIcon, Power, PowerOff,
-  Hash, CreditCard, Building2, MapPin,
+  Hash, CreditCard, Building2, MapPin, KeyRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { partnerApi, partnerAuth, getStoredPartner, setStoredPartner, type PartnerProfile as ApiPartnerProfile } from "@/lib/api/partner";
@@ -24,6 +24,7 @@ import {
 import { PartnerGuard } from "@/components/auth/PartnerGuard";
 import { useLang } from "@/i18n/LanguageProvider";
 import { BranchHoursEditor, defaultWorkingHours as branchDefaultHours, parseWorkingHours as branchParseHours } from "@/components/branches/BranchHoursEditor";
+import { BranchAccountFields, BranchStatusBadges, TempPasswordDialog } from "@/components/branches/BranchAccountFields";
 
 export const Route = createFileRoute("/partner-dashboard")({
   head: () => ({ meta: [{ title: "Partner Dashboard | Koswmat" }] }),
@@ -87,6 +88,7 @@ type Profile = {
   terms_en?: string | null;
   about_en?: string | null;
   category_ids?: (string | number)[];
+  booking_note?: string | null;
   working_hours_struct?: WorkingHour[];
 };
 
@@ -211,6 +213,7 @@ function mapApiPartner(raw: ApiPartnerProfile | null | undefined): Profile | nul
     terms: p.terms ?? p.termsAr ?? null,
     terms_en: p.termsEn ?? p.terms_en ?? null,
     about_en: p.aboutEn ?? p.about_en ?? null,
+    booking_note: p.bookingNote ?? p.booking_note ?? null,
     category_ids: (() => {
       const src = p.categoryIds ?? p.category_ids ?? p.partner_categories ?? p.categories;
       if (!Array.isArray(src)) return [];
@@ -1508,6 +1511,7 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
         termsEn: f.terms_en || "",
         aboutEn: f.about_en || "",
         categoryIds: f.category_ids || [],
+        bookingNote: f.booking_note ?? "",
       } as any);
       const raw = (r?.partner || r) as any;
       const mapped = mapApiPartner(raw) || f;
@@ -1640,8 +1644,21 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
             <label className="mb-1.5 block text-xs font-bold">Terms (English)</label>
             <textarea dir="ltr" value={f.terms_en || ""} onChange={(e) => upd("terms_en", e.target.value)} rows={4} placeholder="Cancellation policy, prep before appointment..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
           </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 block text-xs font-bold">
+              {L("ملحوظة تظهر للعميل عند الحجز", "Note shown to the customer at booking")}
+            </label>
+            <textarea
+              value={f.booking_note || ""}
+              onChange={(e) => upd("booking_note", e.target.value)}
+              rows={3}
+              placeholder={L("مثلاً: يرجى الحضور قبل الموعد بـ ١٠ دقائق...", "e.g. please arrive 10 minutes before your appointment...")}
+              className="w-full rounded-xl border border-border bg-background p-3 text-sm"
+            />
+          </div>
         </div>
       </div>
+
 
       {/* Working hours */}
       <div className="rounded-3xl border border-border bg-card p-6">
@@ -3969,7 +3986,18 @@ function BranchesTab() {
   const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const emptyForm = { nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "", isDefault: false, status: "active", workingHours: branchDefaultHours() };
+  const [editingHasAccount, setEditingHasAccount] = useState(false);
+  const [tempPwd, setTempPwd] = useState<string | null>(null);
+  const [credOpen, setCredOpen] = useState(false);
+  const [credTarget, setCredTarget] = useState<any | null>(null);
+  const [credForm, setCredForm] = useState({ email: "", phone: "", password: "" });
+  const [credSaving, setCredSaving] = useState(false);
+  const emptyForm: any = {
+    nameAr: "", nameEn: "", phone: "", address: "", mapsUrl: "",
+    isDefault: false, status: "active", workingHours: branchDefaultHours(),
+    isIndependent: false, canManageOffers: false, canManageHours: false,
+    canEditInfo: false, canManageBookings: false, email: "", password: "",
+  };
   const [form, setForm] = useState<any>(emptyForm);
 
   async function load() {
@@ -3986,9 +4014,10 @@ function BranchesTab() {
   }
   useEffect(() => { load(); }, []);
 
-  function openNew() { setEditingId(null); setForm(emptyForm); setOpen(true); }
+  function openNew() { setEditingId(null); setEditingHasAccount(false); setForm(emptyForm); setOpen(true); }
   function openEdit(b: any) {
     setEditingId(b.id);
+    setEditingHasAccount(!!b.hasAccount);
     setForm({
       nameAr: b.nameAr || "",
       nameEn: b.nameEn || "",
@@ -3998,8 +4027,41 @@ function BranchesTab() {
       isDefault: !!b.isDefault,
       status: b.status || "active",
       workingHours: branchParseHours(b.workingHours ?? b.working_hours),
+      isIndependent: !!b.isIndependent,
+      canManageOffers: !!b.canManageOffers,
+      canManageHours: !!b.canManageHours,
+      canEditInfo: !!b.canEditInfo,
+      canManageBookings: !!b.canManageBookings,
+      email: b.email || "",
+      password: "",
     });
     setOpen(true);
+  }
+
+  function openCredentials(b: any) {
+    setCredTarget(b);
+    setCredForm({ email: b.email || "", phone: b.phone || "", password: "" });
+    setCredOpen(true);
+  }
+
+  async function saveCredentials() {
+    if (!credTarget) return;
+    setCredSaving(true);
+    try {
+      const r: any = await partnerApi.updateBranchCredentials(credTarget.id, {
+        email: credForm.email.trim() || null,
+        phone: credForm.phone.trim() || null,
+        password: credForm.password.trim() || null,
+      });
+      toast.success(L("تم التحديث", "Updated"));
+      if (r?.tempPassword) setTempPwd(r.tempPassword);
+      setCredOpen(false);
+      load();
+    } catch (e: any) {
+      toast.error(e?.message || L("فشل التحديث", "Update failed"));
+    } finally {
+      setCredSaving(false);
+    }
   }
 
   async function save() {
@@ -4007,9 +4069,13 @@ function BranchesTab() {
       toast.error(L("اسم الفرع بالعربي مطلوب", "Arabic branch name is required"));
       return;
     }
+    if (form.isIndependent && !editingId && (!form.email?.trim() || !form.password?.trim())) {
+      toast.error(L("لازم إيميل وكلمة مرور للفرع المستقل", "Independent branch needs email and password"));
+      return;
+    }
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         nameAr: form.nameAr.trim(),
         nameEn: (form.nameEn || "").trim() || null,
         phone: (form.phone || "").trim() || null,
@@ -4018,11 +4084,20 @@ function BranchesTab() {
         isDefault: !!form.isDefault,
         status: form.status || "active",
         workingHours: form.workingHours || branchDefaultHours(),
+        isIndependent: !!form.isIndependent,
+        canManageOffers: !!form.canManageOffers,
+        canManageHours: !!form.canManageHours,
+        canEditInfo: !!form.canEditInfo,
+        canManageBookings: !!form.canManageBookings,
+        email: form.email?.trim() || null,
+        password: form.password?.trim() || null,
       };
-      if (editingId) await partnerApi.updateBranch(editingId, payload);
-      else await partnerApi.createBranch(payload);
+      const res: any = editingId
+        ? await partnerApi.updateBranch(editingId, payload)
+        : await partnerApi.createBranch(payload);
       toast.success(L("تم الحفظ", "Saved"));
       setOpen(false);
+      if (res?.tempPassword) setTempPwd(res.tempPassword);
       load();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الحفظ", "Save failed"));
@@ -4084,6 +4159,7 @@ function BranchesTab() {
                         <Phone className="h-3 w-3" /> {b.phone}
                       </div>
                     )}
+                    <BranchStatusBadges isIndependent={b.isIndependent} hasAccount={b.hasAccount} />
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -4097,6 +4173,9 @@ function BranchesTab() {
                       <Star className="h-4 w-4" />
                     </button>
                   )}
+                  <button onClick={() => openCredentials(b)} className="rounded-lg p-2 hover:bg-muted" title={L("إدارة بيانات الدخول", "Manage login")}>
+                    <KeyRound className="h-4 w-4" />
+                  </button>
                   <button onClick={() => openEdit(b)} className="rounded-lg p-2 hover:bg-muted"><Edit3 className="h-4 w-4" /></button>
                   <button onClick={() => remove(b)} className="text-rose-600 hover:bg-rose-50 rounded-lg p-2"><Trash2 className="h-4 w-4" /></button>
                 </div>
@@ -4158,6 +4237,12 @@ function BranchesTab() {
                 value={form.workingHours || branchDefaultHours()}
                 onChange={(next) => setForm({ ...form, workingHours: next })}
               />
+              <BranchAccountFields
+                value={form}
+                onChange={(patch) => setForm({ ...form, ...patch })}
+                editing={!!editingId}
+                hasAccount={editingHasAccount}
+              />
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button onClick={() => setOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
@@ -4168,6 +4253,41 @@ function BranchesTab() {
           </div>
         </div>
       )}
+
+      {credOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setCredOpen(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-background p-6 shadow-2xl" dir={dir} onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-extrabold mb-4">{L("إدارة بيانات الدخول", "Manage login")}</h3>
+            <div className="grid gap-3">
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{L("البريد", "Email")}</label>
+                <input value={credForm.email} onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">{L("الهاتف", "Phone")}</label>
+                <input value={credForm.phone} onChange={(e) => setCredForm({ ...credForm, phone: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">
+                  {L("كلمة المرور الجديدة (اتركها فارغة لتوليدها)", "New password (blank to auto-generate)")}
+                </label>
+                <input value={credForm.password} onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button onClick={() => setCredOpen(false)} className="rounded-xl border border-border px-4 py-2 text-sm font-bold">{L("إلغاء", "Cancel")}</button>
+              <button onClick={saveCredentials} disabled={credSaving} className="rounded-xl bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
+                {credSaving ? L("جارٍ الحفظ…", "Saving…") : L("حفظ", "Save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <TempPasswordDialog open={!!tempPwd} password={tempPwd} onClose={() => setTempPwd(null)} />
     </div>
   );
 }

@@ -42,6 +42,7 @@ type Merchant = {
   termsEn?: string;
   about?: string;
   aboutEn?: string;
+  bookingNote?: string;
   workingHours?: WorkingHour[];
   password?: string;
   packageName?: string;
@@ -322,6 +323,7 @@ function MerchantsPage() {
           termsEn: data.termsEn || "",
           about: data.about || "",
           aboutEn: data.aboutEn || "",
+          bookingNote: data.bookingNote || "",
           vendorNameEn: data.nameEn || "",
           nameEn: data.nameEn || "",
           workingHours: data.workingHours || [],
@@ -378,6 +380,7 @@ function MerchantsPage() {
           termsEn: data.termsEn || "",
           about: data.about || "",
           aboutEn: data.aboutEn || "",
+          bookingNote: data.bookingNote || "",
           vendorNameEn: data.nameEn || "",
           nameEn: data.nameEn || "",
           workingHours: data.workingHours || [],
@@ -598,6 +601,7 @@ function MerchantsPage() {
                                   termsEn: full?.termsEn || full?.terms_en || "",
                                   about: full?.about || full?.aboutAr || "",
                                   aboutEn: full?.aboutEn || full?.about_en || "",
+                                  bookingNote: full?.bookingNote || full?.booking_note || "",
                                   workingHours: parseWorkingHours(full?.workingHours ?? full?.working_hours),
                                   categoryIds: catIds,
                                   packageId: full?.packageId ? String(full.packageId) : (full?.package_id ? String(full.package_id) : (full?.package?.id ? String(full.package.id) : "")),
@@ -739,7 +743,7 @@ function AddCenterDialog({
     name: "", nameEn: "", owner: "", city: "", phone: "", email: "",
     commercialNumber: "", mapsUrl: "", status: "pending" as Status,
     description: "", descriptionEn: "", terms: "", termsEn: "",
-    about: "", aboutEn: "",
+    about: "", aboutEn: "", bookingNote: "",
     workingHours: defaultWorkingHours(),
     password: "",
     categoryIds: [] as CategoryId[],
@@ -760,6 +764,7 @@ function AddCenterDialog({
       termsEn: initial.termsEn || "",
       about: initial.about || "",
       aboutEn: initial.aboutEn || "",
+      bookingNote: initial.bookingNote || "",
       workingHours: initial.workingHours && initial.workingHours.length ? initial.workingHours : defaultWorkingHours(),
       password: "",
       categoryIds: initial.categoryIds || [],
@@ -904,6 +909,18 @@ function AddCenterDialog({
               className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
             />
           </div>
+
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold">{L("ملحوظة تظهر للعميل عند الحجز", "Note shown to the customer at booking")}</label>
+            <textarea
+              rows={3}
+              value={f.bookingNote}
+              onChange={(e) => up("bookingNote", e.target.value)}
+              placeholder={L("مثلاً: يرجى الحضور قبل الموعد بـ ١٠ دقائق...", "e.g. please arrive 10 minutes before your appointment...")}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+
 
           {/* Working hours */}
           <div className="sm:col-span-2 rounded-2xl border border-border p-3">
