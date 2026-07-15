@@ -763,6 +763,7 @@ function AddCenterDialog({
       termsEn: initial.termsEn || "",
       about: initial.about || "",
       aboutEn: initial.aboutEn || "",
+      bookingNote: initial.bookingNote || "",
       workingHours: initial.workingHours && initial.workingHours.length ? initial.workingHours : defaultWorkingHours(),
       password: "",
       categoryIds: initial.categoryIds || [],
