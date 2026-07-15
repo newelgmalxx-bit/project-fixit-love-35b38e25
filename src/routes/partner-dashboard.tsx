@@ -1642,9 +1642,6 @@ function ProfileTab({ partner, onUpdate }: { partner: Profile; onUpdate: (p: Pro
           <div>
             <label className="mb-1.5 block text-xs font-bold">Terms (English)</label>
             <textarea dir="ltr" value={f.terms_en || ""} onChange={(e) => upd("terms_en", e.target.value)} rows={4} placeholder="Cancellation policy, prep before appointment..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
-          <div>
-            <label className="mb-1.5 block text-xs font-bold">Terms (English)</label>
-            <textarea dir="ltr" value={f.terms_en || ""} onChange={(e) => upd("terms_en", e.target.value)} rows={4} placeholder="Cancellation policy, prep before appointment..." className="w-full rounded-xl border border-border bg-background p-3 text-sm" />
           </div>
           <div className="sm:col-span-2">
             <label className="mb-1.5 block text-xs font-bold">
