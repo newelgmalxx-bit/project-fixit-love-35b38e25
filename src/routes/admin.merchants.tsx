@@ -909,6 +909,18 @@ function AddCenterDialog({
             />
           </div>
 
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold">{L("ملحوظة تظهر للعميل عند الحجز", "Note shown to the customer at booking")}</label>
+            <textarea
+              rows={3}
+              value={f.bookingNote}
+              onChange={(e) => up("bookingNote", e.target.value)}
+              placeholder={L("مثلاً: يرجى الحضور قبل الموعد بـ ١٠ دقائق...", "e.g. please arrive 10 minutes before your appointment...")}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+
+
           {/* Working hours */}
           <div className="sm:col-span-2 rounded-2xl border border-border p-3">
             <div className="mb-2 flex items-center justify-between">
