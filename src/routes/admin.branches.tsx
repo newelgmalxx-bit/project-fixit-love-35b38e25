@@ -50,10 +50,7 @@ function BranchesPage() {
   const [editingHasAccount, setEditingHasAccount] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tempPwd, setTempPwd] = useState<string | null>(null);
-  const [credOpen, setCredOpen] = useState(false);
-  const [credTarget, setCredTarget] = useState<Branch | null>(null);
-  const [credForm, setCredForm] = useState<{ email: string; phone: string; password: string }>({ email: "", phone: "", password: "" });
-  const [credSaving, setCredSaving] = useState(false);
+  const [tempPwd, setTempPwd] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
