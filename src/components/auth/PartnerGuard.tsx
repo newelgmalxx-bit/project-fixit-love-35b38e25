@@ -35,12 +35,15 @@ export function PartnerGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (state !== "denied") return;
     const path = location.pathname;
-    navigate({
-      to: "/partner-login",
-      search: path === "/partner-login" ? undefined : ({ redirect: path } as any),
-      replace: true,
-    });
-  }, [state, location.pathname, navigate]);
+    const target = path === "/partner-login"
+      ? "/partner-login"
+      : `/partner-login?redirect=${encodeURIComponent(path)}`;
+    if (typeof window !== "undefined" && window.location.pathname + window.location.search !== target) {
+      window.location.replace(target);
+    } else if (path !== "/partner-login") {
+      navigate({ to: "/partner-login", replace: true });
+    }
+  }, [state, location.pathname, location.search, navigate]);
 
   if (state === "checking") {
     return (
