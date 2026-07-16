@@ -1,11 +1,12 @@
 import { type ReactNode, useEffect, useState } from "react";
-import { Navigate, useLocation } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { getToken } from "@/lib/api/client";
 import { partnerAuth, getStoredPartner } from "@/lib/api/partner";
 
 export function PartnerGuard({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [state, setState] = useState<"checking" | "ok" | "denied">("checking");
 
   useEffect(() => {
@@ -31,6 +32,16 @@ export function PartnerGuard({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (state !== "denied") return;
+    const path = location.pathname;
+    navigate({
+      to: "/partner-login",
+      search: path === "/partner-login" ? undefined : ({ redirect: path } as any),
+      replace: true,
+    });
+  }, [state, location.pathname, navigate]);
+
   if (state === "checking") {
     return (
       <div className="min-h-[40vh] flex items-center justify-center">
@@ -40,13 +51,7 @@ export function PartnerGuard({ children }: { children: ReactNode }) {
   }
 
   if (state === "denied") {
-    // Use pathname only (not href) to avoid stacking encoded redirect params,
-    // and skip the redirect entirely if we're already on the partner-login page.
-    const path = location.pathname;
-    if (path === "/partner-login") {
-      return <Navigate to="/partner-login" replace />;
-    }
-    return <Navigate to="/partner-login" search={{ redirect: path } as any} replace />;
+    return null;
   }
 
   return <>{children}</>;
