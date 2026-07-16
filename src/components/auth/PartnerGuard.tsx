@@ -43,7 +43,7 @@ export function PartnerGuard({ children }: { children: ReactNode }) {
     } else if (path !== "/partner-login") {
       navigate({ to: "/partner-login", replace: true });
     }
-  }, [state, location.pathname, location.search, navigate]);
+  }, [state, location.pathname, navigate]);
 
   if (state === "checking") {
     return (
