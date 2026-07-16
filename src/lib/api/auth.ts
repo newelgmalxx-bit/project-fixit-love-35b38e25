@@ -86,7 +86,9 @@ export const auth = {
   refresh: async () => {
     const raw = await request<any>('/auth/refresh', { method: 'POST' });
     const res = normalizeAuth(raw);
-    if (res.data?.token) setToken(res.data.token);
+    // Silent token replacement: firing `saba:auth` here re-enters AuthProvider.refresh()
+    // and can create an infinite update loop when the backend rotates tokens.
+    if (res.data?.token) setToken(res.data.token, false);
     if (res.data?.user) setUser(res.data.user);
     return res;
   },

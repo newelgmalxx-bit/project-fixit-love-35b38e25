@@ -4100,7 +4100,20 @@ function BranchesTab() {
   async function remove(b: any) {
     const name = lang === "en" ? (b.nameEn || b.nameAr) : b.nameAr;
     if (!confirm(L(`حذف الفرع "${name}"؟`, `Delete branch "${name}"?`))) return;
-    try { await partnerApi.deleteBranch(b.id); toast.success(L("تم الحذف", "Deleted")); load(); }
+    try {
+      const res: any = await partnerApi.deleteBranch(b.id);
+      const data = res?.data ?? res ?? {};
+      const softDeleted = !!(data.softDeleted ?? data.soft_deleted);
+      const message = data.message || res?.message;
+      if (softDeleted) {
+        toast.warning(message || L("تم تعطيل الفرع لوجود بيانات مرتبطة به", "Branch was deactivated because it has linked data"));
+        setItems((prev) => prev.map((item: any) => item.id === b.id ? { ...item, status: "inactive" } : item));
+      } else {
+        toast.success(message || L("تم حذف الفرع", "Branch deleted"));
+        setItems((prev) => prev.filter((item: any) => item.id !== b.id));
+      }
+      load();
+    }
     catch (e: any) { toast.error(e?.message || L("فشل الحذف", "Delete failed")); }
   }
 
@@ -4145,6 +4158,11 @@ function BranchesTab() {
                       <div className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1">
                         <Phone className="h-3 w-3" /> {b.phone}
                       </div>
+                    )}
+                    {b.status === "inactive" && (
+                      <span className="mt-1 inline-flex rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                        {L("موقوف", "Inactive")}
+                      </span>
                     )}
                     <BranchStatusBadges isIndependent={b.isIndependent} hasAccount={b.hasAccount} />
                   </div>

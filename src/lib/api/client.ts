@@ -4,10 +4,10 @@ function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('saba_token');
 }
-function setToken(t: string) {
+function setToken(t: string, notify = true) {
   if (typeof window === 'undefined') return;
   localStorage.setItem('saba_token', t);
-  window.dispatchEvent(new Event('saba:auth'));
+  if (notify) window.dispatchEvent(new Event('saba:auth'));
 }
 function removeToken() {
   if (typeof window === 'undefined') return;
