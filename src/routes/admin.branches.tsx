@@ -181,17 +181,9 @@ function BranchesPage() {
     const name = lang === "en" ? (b.nameEn || b.nameAr) : b.nameAr;
     if (!confirm(L(`حذف الفرع "${name}"؟`, `Delete branch "${name}"?`))) return;
     try {
-      const res: any = await adminBranchesApi.remove(b.id);
-      const data = res?.data ?? res ?? {};
-      const softDeleted = !!(data.softDeleted ?? data.soft_deleted);
-      const message = data.message || res?.message;
-      if (softDeleted) {
-        toast.warning(message || L("تم تعطيل الفرع لوجود بيانات مرتبطة به", "Branch was deactivated because it has linked data"));
-        setItems((prev) => prev.map((item) => item.id === b.id ? { ...item, status: "inactive" } : item));
-      } else {
-        toast.success(message || L("تم حذف الفرع", "Branch deleted"));
-        setItems((prev) => prev.filter((item) => item.id !== b.id));
-      }
+      await adminBranchesApi.remove(b.id);
+      toast.success(L("تم حذف الفرع", "Branch deleted"));
+      setItems((prev) => prev.filter((item) => item.id !== b.id));
       load();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الحذف", "Delete failed"));
