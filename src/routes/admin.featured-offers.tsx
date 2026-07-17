@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminLayout, PanelCard, PrimaryButton } from "@/components/admin/AdminLayout";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Star, Search, ImageIcon } from "lucide-react";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/admin/featured-offers")({
 function FeaturedOffersPage() {
   const { lang } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const qc = useQueryClient();
   const currency = L("ر.س", "SAR");
   const [items, setItems] = useState<FeaturedOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +55,13 @@ function FeaturedOffersPage() {
 
   const featuredOfferIds = useMemo(() => new Set(items.map((i) => i.offerId)), [items]);
 
+  function invalidateFeaturedCaches() {
+    // Refresh any public/home caches that display featured offers.
+    qc.invalidateQueries({ queryKey: ["offers", "featured"] });
+    qc.invalidateQueries({ queryKey: ["home-data"] });
+    qc.invalidateQueries({ queryKey: ["offers"] });
+  }
+
   async function add(offerId: string) {
     setAdding(offerId);
     try {
@@ -60,6 +69,7 @@ function FeaturedOffersPage() {
       await adminFeaturedOffersApi.create({ offerId, sortOrder, isActive: true });
       toast.success(L("تمت الإضافة", "Added"));
       load();
+      invalidateFeaturedCaches();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الإضافة", "Add failed"));
     } finally {
@@ -73,6 +83,7 @@ function FeaturedOffersPage() {
       await adminFeaturedOffersApi.remove(id);
       toast.success(L("تمت الإزالة", "Removed"));
       load();
+      invalidateFeaturedCaches();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الإزالة", "Remove failed"));
     }
@@ -82,6 +93,7 @@ function FeaturedOffersPage() {
     try {
       await adminFeaturedOffersApi.update(f.id, { sortOrder });
       load();
+      invalidateFeaturedCaches();
     } catch (e: any) {
       toast.error(e?.message || L("تعذّر تحديث الترتيب", "Failed to update order"));
     }

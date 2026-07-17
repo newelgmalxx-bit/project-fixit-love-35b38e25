@@ -262,7 +262,8 @@ export const publicApi = {
     return unwrapItems<SponsoredAd>(r);
   },
 
-  // Featured offers — backend has no /offers/featured route; use /offers?featured=1
+  // Featured offers — backend has no /offers/featured route; use /offers?featured=1.
+  // Backend may not honor ?featured=1, so we ALWAYS re-filter client-side by isFeatured.
   getFeaturedOffers: async (params?: { limit?: number; page?: number; category?: string }): Promise<FeaturedOffer[]> => {
     const sp = new URLSearchParams();
     sp.set('featured', '1');
@@ -270,18 +271,28 @@ export const publicApi = {
     if (params?.page) sp.set('page', String(params.page));
     if (params?.category) sp.set('category', params.category);
     const r = await request<ApiResponse<any>>(`/offers?${sp.toString()}`);
-    return unwrapItems<FeaturedOffer>(r);
+    const items = unwrapItems<any>(r);
+    const onlyFeatured = items.filter((o: any) =>
+      Boolean(o?.isFeatured ?? o?.is_featured ?? o?.featured)
+    );
+    return onlyFeatured as FeaturedOffer[];
   },
 
   // Home daily featured offers — prefer the admin filtered endpoint when the
   // current session is authenticated, then gracefully fall back to the public endpoint.
+  // Always re-filter client-side since the backend flag may not be honored.
   getDailyFeaturedOffers: async (params?: { limit?: number }): Promise<FeaturedOffer[]> => {
+    const limit = params?.limit ?? 100;
     try {
-      const limit = params?.limit ?? 100;
       const r = await request<ApiResponse<any>>(`/admin/offers?featured=1&limit=${limit}`);
-      return unwrapItems<FeaturedOffer>(r);
+      const items = unwrapItems<any>(r);
+      const onlyFeatured = items.filter((o: any) =>
+        Boolean(o?.isFeatured ?? o?.is_featured ?? o?.featured)
+      );
+      if (onlyFeatured.length > 0) return onlyFeatured as FeaturedOffer[];
+      return publicApi.getFeaturedOffers({ limit });
     } catch {
-      return publicApi.getFeaturedOffers({ limit: params?.limit ?? 100 });
+      return publicApi.getFeaturedOffers({ limit });
     }
   },
 
