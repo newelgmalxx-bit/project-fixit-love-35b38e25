@@ -1015,9 +1015,10 @@ function OffersTab({ partner }: { partner: Profile }) {
                               }}
                             />
                             <span className="font-bold">
-                              {(lang === "en" ? (b.nameEn || b.name_en || b.nameAr || b.name_ar) : (b.nameAr || b.name_ar || b.nameEn || b.name_en)) || b.address || b.id}
+                              {(lang === "en" ? (b.nameEn || b.name_en || b.nameAr || b.name_ar) : (b.nameAr || b.name_ar || b.nameEn || b.name_en)) || b.id}
                             </span>
-                            {(b.isDefault || b.is_default) && <span className="text-[10px] text-amber-600">· {L("افتراضي", "Default")}</span>}
+                            {b.address && <span className="text-[11px] text-muted-foreground truncate">— {b.address}</span>}
+                            {(b.isDefault || b.is_default) && <span className="text-[10px] text-amber-600 shrink-0">· {L("افتراضي", "Default")}</span>}
                           </label>
                         );
                       })}

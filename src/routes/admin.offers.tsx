@@ -588,9 +588,10 @@ function OfferDialog({
                         }}
                       />
                       <span className="font-bold">
-                        {(lang === "en" ? (b.nameEn || b.nameAr) : b.nameAr) || b.address || b.id}
+                        {(lang === "en" ? (b.nameEn || b.nameAr) : b.nameAr) || b.id}
                       </span>
-                      {b.isDefault && <span className="text-[10px] text-amber-600">· {L("افتراضي", "Default")}</span>}
+                      {b.address && <span className="text-[11px] text-muted-foreground truncate">— {b.address}</span>}
+                      {b.isDefault && <span className="text-[10px] text-amber-600 shrink-0">· {L("افتراضي", "Default")}</span>}
                     </label>
                   );
                 })}
