@@ -55,6 +55,13 @@ function FeaturedOffersPage() {
 
   const featuredOfferIds = useMemo(() => new Set(items.map((i) => i.offerId)), [items]);
 
+  function invalidateFeaturedCaches() {
+    // Refresh any public/home caches that display featured offers.
+    qc.invalidateQueries({ queryKey: ["offers", "featured"] });
+    qc.invalidateQueries({ queryKey: ["home-data"] });
+    qc.invalidateQueries({ queryKey: ["offers"] });
+  }
+
   async function add(offerId: string) {
     setAdding(offerId);
     try {
@@ -62,6 +69,7 @@ function FeaturedOffersPage() {
       await adminFeaturedOffersApi.create({ offerId, sortOrder, isActive: true });
       toast.success(L("تمت الإضافة", "Added"));
       load();
+      invalidateFeaturedCaches();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الإضافة", "Add failed"));
     } finally {
@@ -75,6 +83,7 @@ function FeaturedOffersPage() {
       await adminFeaturedOffersApi.remove(id);
       toast.success(L("تمت الإزالة", "Removed"));
       load();
+      invalidateFeaturedCaches();
     } catch (e: any) {
       toast.error(e?.message || L("فشل الإزالة", "Remove failed"));
     }
@@ -84,6 +93,7 @@ function FeaturedOffersPage() {
     try {
       await adminFeaturedOffersApi.update(f.id, { sortOrder });
       load();
+      invalidateFeaturedCaches();
     } catch (e: any) {
       toast.error(e?.message || L("تعذّر تحديث الترتيب", "Failed to update order"));
     }
