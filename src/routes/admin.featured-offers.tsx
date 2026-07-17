@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminLayout, PanelCard, PrimaryButton } from "@/components/admin/AdminLayout";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Star, Search, ImageIcon } from "lucide-react";
