@@ -18,6 +18,7 @@ export const Route = createFileRoute("/admin/featured-offers")({
 function FeaturedOffersPage() {
   const { lang } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
+  const qc = useQueryClient();
   const currency = L("ر.س", "SAR");
   const [items, setItems] = useState<FeaturedOffer[]>([]);
   const [loading, setLoading] = useState(true);
