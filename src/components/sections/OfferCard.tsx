@@ -39,6 +39,9 @@ export function OfferCard({ offer }: { offer: Offer }) {
           src={offer.image}
           alt={offerTitle}
           loading="lazy"
+          decoding="async"
+          width={640}
+          height={440}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />

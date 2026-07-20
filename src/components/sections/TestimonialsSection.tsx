@@ -147,7 +147,7 @@ export function TestimonialsSection() {
 
                   <div className="mt-5 flex items-center gap-3 border-t border-border pt-5">
                     {r.userAvatar ? (
-                      <img src={r.userAvatar} alt={r.userName} className="h-10 w-10 rounded-full object-cover ring-2 ring-primary/15" />
+                      <img src={r.userAvatar} alt={r.userName} loading="lazy" decoding="async" width={40} height={40} className="h-10 w-10 rounded-full object-cover ring-2 ring-primary/15" />
                     ) : (
                       <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[#E0254D] text-sm font-bold text-white">
                         {r.userName.slice(0, 1).toUpperCase()}

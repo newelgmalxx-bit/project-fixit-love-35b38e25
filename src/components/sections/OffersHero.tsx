@@ -517,7 +517,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
           alt={useOfferImage ? offerTitle || L("عرض ممول", "Sponsored offer") : L("عرض مميز", "Featured offer")}
           width={896}
           height={1152}
-          loading="lazy"
+          fetchPriority="high"
           decoding="async"
           className="aspect-[5/4] w-full object-cover sm:aspect-[4/5]"
         />

@@ -42,6 +42,12 @@ export function usePageTracking() {
       }
     };
 
-    track();
+    const ric: any = (window as any).requestIdleCallback;
+    const handle = ric ? ric(() => track(), { timeout: 3000 }) : window.setTimeout(track, 1500);
+    return () => {
+      const cic: any = (window as any).cancelIdleCallback;
+      if (ric && cic) cic(handle);
+      else window.clearTimeout(handle as number);
+    };
   }, [path, search]);
 }

@@ -21,19 +21,28 @@ export function useTrackVisit() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (path.startsWith("/admin")) return;
-    const referrer = document.referrer || "";
-    const body = JSON.stringify({
-      path,
-      referrer: referrer || null,
-      source: classifySource(referrer),
-      sessionId: getSid(),
-      userAgent: navigator.userAgent,
-    });
-    fetch(`${BASE}/track`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Session-Id": getSid() },
-      body,
-      keepalive: true,
-    }).catch((e) => console.warn("[track] failed", e?.message));
+    const send = () => {
+      const referrer = document.referrer || "";
+      const body = JSON.stringify({
+        path,
+        referrer: referrer || null,
+        source: classifySource(referrer),
+        sessionId: getSid(),
+        userAgent: navigator.userAgent,
+      });
+      fetch(`${BASE}/track`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Session-Id": getSid() },
+        body,
+        keepalive: true,
+      }).catch((e) => console.warn("[track] failed", e?.message));
+    };
+    const ric: any = (window as any).requestIdleCallback;
+    const handle = ric ? ric(send, { timeout: 3000 }) : window.setTimeout(send, 1500);
+    return () => {
+      const cic: any = (window as any).cancelIdleCallback;
+      if (ric && cic) cic(handle);
+      else window.clearTimeout(handle as number);
+    };
   }, [path]);
 }

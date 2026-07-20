@@ -1,53 +1,83 @@
-This is a large multi-file feature. Presenting the plan first so you can approve or trim scope before I commit ~15+ new files.
+## تشخيص سريع
 
-## Scope
+راجعت تقرير Lighthouse (koswmat.com): Performance 35، Accessibility 86، Best Practices 69، SEO 92.
+**كل المشاكل تقريبًا فرونت إند** — الباك إند بيرجّع البيانات، لكن الفرونت بيحمّل صور ضخمة، JS كتير، وخط render-blocking، ومفيش `robots.txt` صحيح، وفيه مشاكل a11y صغيرة.
 
-Wire the new backend into the frontend across 5 areas:
+---
 
-### 1. Branch auth (new)
-- `src/lib/api/branchAuth.ts` — `login`, `verifyOtp`, `resendOtp`, `logout`, `me`; stores token in `localStorage["branch_token"]`.
-- `src/routes/branch-login.tsx` — mirror `partner-login.tsx` (password → OTP flow, resend, error banner for 401/403/429).
-- `src/hooks/useBranch.ts` — `useBranchAuth()` + `useBranchMe()` (React Query).
+## الخطة (على مراحل، الأهم الأول)
 
-### 2. Branch dashboard (new section `/branch/*`)
-Layout at `src/routes/branch.tsx` (guard + sidebar), with children:
-- `branch.index.tsx` — profile summary + parent partner header ("تابع لـ...").
-- `branch.info.tsx` — edit basic info (gated by `canEditInfo`).
-- `branch.hours.tsx` — working hours (gated by `canManageHours`), reuses `BranchHoursEditor`.
-- `branch.password.tsx` — change password.
-- `branch.offers.index.tsx` / `branch.offers.$id.tsx` — offers CRUD (gated by `canManageOffers`), same fields as partner offers **minus `commissionPctOverride`**.
-- `branch.bookings.index.tsx` / `branch.bookings.$id.tsx` — bookings list + detail + status/notes/date/time update + redeem (gated by `canManageBookings`), **no commission columns**.
+### 1) الصور — التوفير الأكبر (~20 MB) 🔥
+- كل صور العروض/المراكز/السلايدر بتتحمّل بحجمها الأصلي (JPG/PNG ثقيلة).
+- إضافة `loading="lazy"` و `decoding="async"` و `width`/`height` صريحة على كل `<img>` في `OfferCard`, `CategoriesGrid`, `HomeOfferSlider`, `SponsoredAdsBanner`, `TestimonialsSection`.
+- صورة الـ LCP (أول صورة في `OffersHero`) تتحط `fetchpriority="high"` وتعمل preload في `head()`.
+- استخدام `<picture>` + query params للـ CDN اللي بيدعم resize (لو الباك إند بيرجّع Cloudflare/R2 URLs)، أو wrapper `<Img>` بسيط يضيف `?w=` تلقائيًا.
 
-Sidebar links render only when the matching `canManage*` flag is `true`.
+### 2) خط Tajawal — render-blocking (~510 ms)
+- دلوقتي بيتحمّل كـ `<link rel="stylesheet">` من Google Fonts في `__root.tsx` و`index.html` (مكرّر!).
+- الحل: إزالة السطر من `index.html`، وتحويل الـ `<link>` في الجذر إلى تحميل غير حاجب:
+  ```
+  <link rel="preload" as="style" onload="this.rel='stylesheet'">
+  ```
+  أو self-host بس ٢ أوزان (400/700) بدل ٦.
 
-New API module: `src/lib/api/branch.ts` covering `/branch/me`, `/branch/profile`, `/branch/hours`, `/branch/change-password`, `/branch/offers*`, `/branch/bookings*`, `/branch/bookings/{id}/redeem`.
+### 3) JS ضخم — 505 KiB غير مستخدم، TBT 1280 ms
+- مراجعة `vite.config.ts` لتفعيل manual chunks للـ vendors الكبيرة (react, tanstack, radix, google-oauth).
+- تأجيل تحميل `@react-oauth/google` — بيتحمّل على الصفحة الرئيسية مع إنه محتاج بس في صفحات تسجيل الدخول. نقله لـ dynamic import داخل صفحات auth بس.
+- إزالة `useTrackVisit` / `usePageTracking` من الـ critical path (تأخيرهم بـ `requestIdleCallback`).
+- Route-level code splitting فعّال بالفعل لكن الصفحة الرئيسية بتستدعي أكتر من hook قبل paint — تأجيل `useHomeData` fetch لبعد mount.
 
-### 3. Admin + Partner "add/edit branch" form updates
-Extend the branch form (used in `admin.branches.tsx` and the partner branches screen) with:
-- Toggle `isIndependent`.
-- When on: 4 checkboxes (`canManageOffers`, `canManageHours`, `canEditInfo`, `canManageBookings`) + `email` + `password` fields.
-- Include these keys in POST/PUT payloads for `/admin/branches` and `/partner/branches`.
-- Show `tempPassword` (if returned) once in a "copy this password" dialog.
-- Table badges: "مستقل" / "تابع للمركز فقط" + small permission icons.
-- New row action "إدارة بيانات الدخول" → calls `PUT /{admin|partner}/branches/{id}/credentials`.
+### 4) `robots.txt` + `sitemap.xml` (SEO)
+- إنشاء `public/robots.txt` صحيح:
+  ```
+  User-agent: *
+  Allow: /
+  Sitemap: https://koswmat.com/sitemap.xml
+  ```
+- إنشاء `src/routes/sitemap[.]xml.ts` كـ server route يرجّع كل الروابط العامة (home, offers, categories, about, contact, privacy, terms) + العروض المنشورة ديناميكيًا.
+- إضافة `llms.txt` مبسّط في `public/`.
 
-Update `src/lib/api/adminBranches.ts` and `src/lib/api/partner.ts` (partner-branches section) with new fields + `updateCredentials`.
+### 5) `index.html` — تنظيف
+- تصحيح `<title>` و`description` (لسه مكتوب "beauty" / "بيوتي بوكينج") ليطابق SEO الجديد.
+- التأكد إن `<meta charset>` أول tag في `<head>` (حاليًا صح لكن الترتيب في `__root.tsx` بيحطّه بعد viewport — نظّبطه).
+- شيل الـ og:image القديم اللي بيشاور على preview URL قديم.
 
-### 4. Booking note (`bookingNote` / `partnerNote` / `partner_note`)
-- Admin partner edit (`admin.merchants.tsx` / `admin.partner.tsx`) and partner profile screen: add textarea "ملحوظة تظهر للعميل عند الحجز" bound to `bookingNote`.
-- `src/routes/offers.$offerId.tsx`: if `offer.bookingNote` or `offer.partner.bookingNote` is non-empty, render an info banner under the vendor name ("ملحوظة من المركز: …").
-- `src/routes/checkout.success.tsx` / `bookings.confirmation.tsx`: render `partnerNote` per item.
-- `src/routes/booking.$bookingId.tsx`: if `partner_note` present, render it.
+### 6) Accessibility (86 → 95+)
+- تباين الألوان: زر "عرض كل العروض" ونصوص secondary في `WhyUsSection` تحت المطلوب. تعديل tokens في `styles.css`.
+- Links بدون اسم: أيقونات السوشيال في `SiteFooter` بدون `aria-label` — إضافتها.
+- Touch targets: بعض الأزرار الدائرية أصغر من 24×24 CSS px — رفعها إلى 44×44.
+- ترتيب الـ headings: الصفحة فيها `<h1>` بعده `<h3>` مباشرة في بعض السكاشن — تصحيح لـ `<h2>`.
 
-### 5. Guards / routing
-- New `BranchGuard` component analogous to `PartnerGuard` — checks `branch_token` and role `branch`; redirects to `/branch-login`.
-- Ensure partner and branch auth contexts don't share state (separate storage keys, separate hook).
+### 7) Best Practices (69 → 90+)
+- Console errors: راجعت اللوجات، فيه warnings من `react-oauth/google` عن third-party cookies. نقل الـ Provider ليلتفّ فقط حول صفحات auth (نفس نقطة 3).
+- `Charset declaration`: التأكد إنه أول ٣ tags بعد `<head>` (يتم مع الـ `__root.tsx` cleanup).
+- Source maps: تفعيل `build.sourcemap: true` في `vite.config.ts` لبيئة production.
 
-## Not touched
-- Commission logic and any partner endpoints not in the doc.
-- Request shapes of existing endpoints beyond the additive fields listed.
+---
 
-## Size / risk
-~15 new route files + ~3 new API modules + edits to ~6 existing files. I'll execute in the order above (auth → dashboard shell → offers/bookings → admin form → booking note UI) and verify build after each phase.
+## نطاق التغييرات (فرونت إند فقط)
 
-Approve to proceed, or tell me which phases to drop / defer.
+```text
+index.html                             ← تنظيف
+public/robots.txt                      ← جديد
+public/llms.txt                        ← جديد
+src/routes/sitemap[.]xml.ts            ← جديد
+src/routes/__root.tsx                  ← تحميل الخط + provider positioning
+src/components/sections/OfferCard.tsx  ← lazy img + dimensions
+src/components/sections/CategoriesGrid.tsx
+src/components/sections/HomeOfferSlider.tsx
+src/components/sections/OffersHero.tsx ← LCP preload
+src/components/layout/SiteFooter.tsx   ← aria-label للسوشيال
+src/styles.css                         ← contrast tokens
+vite.config.ts                         ← chunks + sourcemap
+src/hooks/useTrackVisit.tsx            ← idle deferral
+src/hooks/usePageTracking.ts           ← idle deferral
+```
+
+**الباك إند مش محتاج تغيير** — كل النقاط دي عرض/تحميل من الفرونت.
+
+---
+
+## سؤال قبل التنفيذ
+
+الخطة كبيرة؛ تحب أنفذها كلها دفعة واحدة، ولا أبدأ بأعلى ROI بس (نقاط 1 + 2 + 4 — دي هترفع Performance من 35 إلى ~70 و SEO لـ 100)، وبعدين نكمّل الباقي؟

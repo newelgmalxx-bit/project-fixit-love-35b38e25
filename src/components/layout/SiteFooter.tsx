@@ -24,10 +24,10 @@ export function SiteFooter() {
   const L = (a: string, e: string) => (lang === "en" ? e : a);
 
   const socials = ([
-    [site.instagram, Instagram],
-    [site.tiktok, Music2],
-    [site.snapchat, Ghost],
-    [site.whatsapp ? (waHref(site.whatsapp) || site.whatsapp) : undefined, MessageCircle],
+    [site.instagram, Instagram, "Instagram"],
+    [site.tiktok, Music2, "TikTok"],
+    [site.snapchat, Ghost, "Snapchat"],
+    [site.whatsapp ? (waHref(site.whatsapp) || site.whatsapp) : undefined, MessageCircle, "WhatsApp"],
   ] as const).filter(([u]) => !!u);
 
   const quickLinks: { label: string; to: any; hash?: string }[] = [
@@ -55,15 +55,17 @@ export function SiteFooter() {
             {site.footerDescription || site.descriptionAr || defaultDesc}
           </p>
           <div className="mt-6 flex items-center gap-3">
-            {socials.map(([url, Icon], i) => (
+            {socials.map(([url, Icon, label], i) => (
               <a
                 key={i}
                 href={url as string}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
+                aria-label={label as string}
+                title={label as string}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden="true" />
               </a>
             ))}
           </div>
@@ -141,7 +143,7 @@ export function SiteFooter() {
                 key={p.alt}
                 className="flex h-8 items-center justify-center rounded-md bg-white px-2 shadow-sm ring-1 ring-black/5"
               >
-                <img src={p.src} alt={p.alt} className="h-5 w-auto object-contain" loading="lazy" />
+                <img src={p.src} alt={p.alt} className="h-5 w-auto object-contain" loading="lazy" decoding="async" width={60} height={20} />
               </div>
             ))}
           </div>
