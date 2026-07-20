@@ -55,7 +55,7 @@ export function CategoriesGrid() {
                   params={{ slug: c.slug }}
                   className={`group relative flex h-56 min-w-[85vw] snap-start flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/20 lg:min-w-0 ${colSpan} ${isFeatured ? "lg:h-64 lg:p-6" : "lg:h-48 lg:p-4"}`}
                 >
-                  <img src={c.cover} alt={name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img src={c.cover} alt={name} loading="lazy" decoding="async" width={400} height={400} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <div className="relative z-10 flex items-start justify-between">
                     <div className={`flex items-center justify-center overflow-hidden rounded-2xl bg-white/15 backdrop-blur-md ring-1 ring-white/30 ${isFeatured ? "h-12 w-12 text-2xl" : "h-11 w-11 text-xl"}`}>

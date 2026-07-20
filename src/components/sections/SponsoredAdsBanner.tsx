@@ -70,7 +70,7 @@ export function SponsoredAdsBanner() {
                 <div className="relative flex items-center gap-3 p-3 sm:gap-5 sm:p-4">
                   {ad.image_url && (
                     <div className="h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-white/10 sm:h-20 sm:w-32">
-                      <img src={ad.image_url} alt={ad.title} className="h-full w-full object-cover" />
+                      <img src={ad.image_url} alt={ad.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     </div>
                   )}
                   <div className="min-w-0 flex-1 text-white">
