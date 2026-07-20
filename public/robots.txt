@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /account
+Disallow: /account/
+Disallow: /partner
+Disallow: /branch
+Disallow: /checkout
+Disallow: /cart
+Disallow: /api/
+
+Sitemap: https://koswmat.com/sitemap.xml
