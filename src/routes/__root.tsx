@@ -7,7 +7,7 @@ import "../styles.css";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { AuthProvider } from "@/hooks/useAuth";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import { LazyGoogleOAuth } from "@/components/LazyGoogleOAuth";
 import { useTrackVisit } from "@/hooks/useTrackVisit";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
@@ -105,7 +105,7 @@ function RootComponent() {
   return (
     <RootDocument>
       <QueryClientProvider client={queryClient}>
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <LazyGoogleOAuth clientId={GOOGLE_CLIENT_ID}>
           <LanguageProvider>
             <AuthProvider>
               <MaintenanceGate>
@@ -114,7 +114,7 @@ function RootComponent() {
               <Toaster position="top-center" richColors closeButton />
             </AuthProvider>
           </LanguageProvider>
-        </GoogleOAuthProvider>
+        </LazyGoogleOAuth>
       </QueryClientProvider>
     </RootDocument>
   );
