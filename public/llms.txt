@@ -1,0 +1,14 @@
+# koswmat — خصومات
+
+> منصة سعودية لأفضل عروض وخصومات الصالونات، مراكز التجميل، العيادات، والسبا. احجز وادفع أونلاين بأمان.
+
+## Main pages
+- [الرئيسية](https://koswmat.com/): استعراض العروض المميزة والأقسام.
+- [كل العروض](https://koswmat.com/offers): كاتالوج كامل بالعروض النشطة.
+- [الأقسام](https://koswmat.com/categories): تصفح حسب الفئة.
+- [من نحن](https://koswmat.com/about): عن المنصة.
+- [تواصل معنا](https://koswmat.com/contact): الدعم والتواصل.
+
+## Policies
+- [الخصوصية](https://koswmat.com/privacy)
+- [الشروط والأحكام](https://koswmat.com/terms)
