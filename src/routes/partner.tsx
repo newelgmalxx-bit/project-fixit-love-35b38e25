@@ -13,6 +13,7 @@ import { partnerPackagesPublic, type PartnerPackage } from "@/lib/api/partnerPac
 import { fmtSAR } from "@/data/admin";
 import { useLang } from "@/i18n/LanguageProvider";
 import partnerHero from "@/assets/partner-hero.webp";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export const Route = createFileRoute("/partner")({
   head: () => ({
