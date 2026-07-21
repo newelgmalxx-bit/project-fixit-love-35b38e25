@@ -577,7 +577,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
               <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-amber-700">
                 <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                 <span className="font-extrabold">{rating > 0 ? rating : "0.0"}</span>
-                <span className="text-amber-600/70">({reviewsCount})</span>
+                <span className="text-amber-700">({reviewsCount})</span>
               </span>
               {city && (
                 <span className="inline-flex items-center gap-0.5 text-muted-foreground">
