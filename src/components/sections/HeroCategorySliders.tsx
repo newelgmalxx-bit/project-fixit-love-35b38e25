@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronLeft, MapPin, Stethoscope, Dumbbell } from "lucide-react";
-import medical1 from "@/assets/hero-medical-1.jpg";
-import medical2 from "@/assets/hero-medical-2.jpg";
-import fitness1 from "@/assets/hero-fitness-1.jpg";
-import fitness2 from "@/assets/hero-fitness-2.jpg";
+import medical1 from "@/assets/hero-medical-1.webp";
+import medical2 from "@/assets/hero-medical-2.webp";
+import fitness1 from "@/assets/hero-fitness-1.webp";
+import fitness2 from "@/assets/hero-fitness-2.webp";
 import { useLang } from "@/i18n/LanguageProvider";
 
 type Slide = { img: string; title: string; city: string; discount: string };

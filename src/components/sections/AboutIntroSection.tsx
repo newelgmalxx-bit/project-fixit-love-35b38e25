@@ -1,7 +1,7 @@
 import { ArrowLeft, Play } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import mainImg from "@/assets/hero-facial.jpg";
-import accentImg from "@/assets/hero-hair-blonde.jpg";
+import mainImg from "@/assets/hero-facial.webp";
+import accentImg from "@/assets/hero-hair-blonde.webp";
 import { useLang } from "@/i18n/LanguageProvider";
 
 export function AboutIntroSection() {

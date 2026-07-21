@@ -18,14 +18,14 @@ import { useCategories } from "@/hooks/useCatalog";
 import { useSponsoredAdsBundle } from "@/hooks/useSponsoredAds";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import { SarIcon } from "@/components/ui/SarIcon";
-import heroFacial from "@/assets/hero-facial.jpg";
-import heroHairBlonde from "@/assets/hero-hair-blonde.jpg";
-import heroHairCurl from "@/assets/hero-hair-curl.jpg";
-import heroHairwash from "@/assets/hero-hairwash.jpg";
-import heroBlowdry from "@/assets/hero-blowdry.jpg";
-import heroMedical from "@/assets/hero-medical-1.jpg";
-import heroFitness from "@/assets/hero-fitness-1.jpg";
-import heroCoffee from "@/assets/hero-coffee.jpg";
+import heroFacial from "@/assets/hero-facial.webp";
+import heroHairBlonde from "@/assets/hero-hair-blonde.webp";
+import heroHairCurl from "@/assets/hero-hair-curl.webp";
+import heroHairwash from "@/assets/hero-hairwash.webp";
+import heroBlowdry from "@/assets/hero-blowdry.webp";
+import heroMedical from "@/assets/hero-medical-1.webp";
+import heroFitness from "@/assets/hero-fitness-1.webp";
+import heroCoffee from "@/assets/hero-coffee.webp";
 import heroTinting from "@/assets/hero-tinting.webp";
 
 type Slide = {
@@ -517,7 +517,8 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
           alt={useOfferImage ? offerTitle || L("عرض ممول", "Sponsored offer") : L("عرض مميز", "Featured offer")}
           width={896}
           height={1152}
-          fetchPriority="high"
+          fetchPriority={slideIndex === 0 ? "high" : "auto"}
+          loading={slideIndex === 0 ? "eager" : "lazy"}
           decoding="async"
           className="aspect-[5/4] w-full object-cover sm:aspect-[4/5]"
         />
@@ -577,7 +578,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
               <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-amber-700">
                 <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                 <span className="font-extrabold">{rating > 0 ? rating : "0.0"}</span>
-                <span className="text-amber-600/70">({reviewsCount})</span>
+                <span className="text-amber-700">({reviewsCount})</span>
               </span>
               {city && (
                 <span className="inline-flex items-center gap-0.5 text-muted-foreground">
