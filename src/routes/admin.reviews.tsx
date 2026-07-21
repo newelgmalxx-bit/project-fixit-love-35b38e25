@@ -282,7 +282,7 @@ function AdminReviewsPage() {
                                 className={`h-4 w-4 ${
                                   i < Math.round(r.rating)
                                     ? "fill-amber-400 text-amber-400"
-                                    : "text-muted-foreground/30"
+                                    : "text-muted-foreground/70"
                                 }`}
                               />
                             ))}

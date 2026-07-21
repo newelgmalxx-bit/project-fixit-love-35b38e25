@@ -2400,7 +2400,7 @@ function ReviewsTab() {
               </div>
               <div className="flex text-amber-500">
                 {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} className={`h-3.5 w-3.5 ${j < rv.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                  <Star key={j} className={`h-3.5 w-3.5 ${j < rv.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/70"}`} />
                 ))}
               </div>
             </div>
@@ -3581,7 +3581,7 @@ function AgreementTab({ partner, onPartnerUpdate }: { partner: Profile; onPartne
             <Percent className="h-4 w-4" /> {L("نسبة العمولة / العربون", "Commission / deposit rate")}
           </div>
           <div className="mt-3 flex items-end gap-3">
-            <div className="text-5xl font-black tracking-tight text-muted-foreground/60">—</div>
+            <div className="text-5xl font-black tracking-tight text-muted-foreground/80">—</div>
             <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-800 border border-amber-200">
               <Clock className="h-3.5 w-3.5" /> {L("بانتظار تحديدها من الإدارة", "Awaiting admin assignment")}
             </span>

@@ -223,7 +223,7 @@ export function SiteHeader() {
           <LangSwitch lang={lang} onClick={toggleLang} compact label={t("nav.toggleLang")} />
           <Link
             to={"/account/favorites" as any}
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-foreground/70"
+            className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-foreground/70"
             aria-label="favorites"
           >
             <Heart className="h-4 w-4" />
@@ -235,7 +235,7 @@ export function SiteHeader() {
           </Link>
           <Link
             to={"/cart" as any}
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-foreground/70"
+            className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-foreground/70"
             aria-label={t("nav.cart")}
           >
             <ShoppingCart className="h-4 w-4" />
@@ -246,7 +246,7 @@ export function SiteHeader() {
             )}
           </Link>
           <button
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-foreground"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-foreground"
             onClick={() => setOpen((v) => !v)}
             aria-label={t("nav.menu")}
           >

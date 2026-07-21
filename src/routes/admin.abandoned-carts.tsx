@@ -140,7 +140,7 @@ function AbandonedCartsPage() {
           </div>
         ) : carts.length === 0 ? (
           <div className="py-16 text-center">
-            <Inbox className="mx-auto h-12 w-12 text-muted-foreground/40" />
+            <Inbox className="mx-auto h-12 w-12 text-muted-foreground/70" />
             <div className="mt-3 text-sm text-muted-foreground">{L("لا توجد سلات متروكة حتى الآن", "No abandoned carts yet")}</div>
           </div>
         ) : (
