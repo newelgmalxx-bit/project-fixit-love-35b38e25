@@ -28,6 +28,7 @@ type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "loading"> & {
 };
 
 const DEFAULT_WIDTHS = [320, 480, 640, 800, 1024, 1280, 1600];
+const DEFAULT_SIZES = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
 
 function isRemote(src: string): boolean {
   return /^https?:\/\//i.test(src);
@@ -49,7 +50,7 @@ export const SmartImage = forwardRef<HTMLImageElement, Props>(function SmartImag
     src,
     alt,
     widths = DEFAULT_WIDTHS,
-    sizes = "100vw",
+    sizes = DEFAULT_SIZES,
     priority = false,
     quality = 78,
     loading,

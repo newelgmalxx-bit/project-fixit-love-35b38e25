@@ -65,6 +65,20 @@ export default defineConfig({
       port: 8080,
       strictPort: true,
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            // Client-only bundling: bucket all lucide icons into one chunk
+            // to avoid ~40 tiny 1KiB requests on mobile.
+            if (id.includes("node_modules/lucide-react")) {
+              return "lucide-icons";
+            }
+            return undefined;
+          },
+        },
+      },
+    },
   },
 
 });
