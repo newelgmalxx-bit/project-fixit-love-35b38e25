@@ -513,14 +513,15 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
         className={`absolute -inset-4 hidden rounded-[2rem] bg-gradient-to-tr ${slide.gradient} opacity-30 blur-2xl sm:block`}
       />
       <div className="relative overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-xl shadow-primary/20 sm:rounded-[2rem] sm:shadow-2xl">
-        <img
+        <SmartImage
           src={imgSrc}
           alt={useOfferImage ? offerTitle || L("عرض ممول", "Sponsored offer") : L("عرض مميز", "Featured offer")}
           width={896}
           height={1152}
-          fetchPriority={slideIndex === 0 ? "high" : "auto"}
+          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
+          widths={[320, 480, 640, 800, 1024]}
+          priority={slideIndex === 0}
           loading={slideIndex === 0 ? "eager" : "lazy"}
-          decoding="async"
           className="aspect-[5/4] w-full object-cover sm:aspect-[4/5]"
         />
 
