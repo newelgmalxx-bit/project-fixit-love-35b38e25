@@ -75,19 +75,10 @@ export const Route = createRootRoute({
         ...seo.links,
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-        // Non-blocking font load: fetch as preload, then swap to stylesheet.
-        {
-          rel: "preload",
-          as: "style",
-          href: "https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap",
-          onLoad: "this.onload=null;this.rel='stylesheet'",
-        } as any,
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap",
-          media: "print",
-          onLoad: "this.media='all'",
-        } as any,
+        },
       ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(organizationJsonLd()) },
