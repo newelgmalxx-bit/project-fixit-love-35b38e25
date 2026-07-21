@@ -5,6 +5,7 @@ import { AccountLayout } from "@/components/account/AccountLayout";
 import { useLang } from "@/i18n/LanguageProvider";
 import { favorites as favApi } from "@/lib/api/services";
 import { toast } from "sonner";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 type FavItem = {
   id: string;
