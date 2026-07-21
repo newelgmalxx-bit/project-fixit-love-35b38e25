@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, Mail, MapPin, Instagram, Music2, Ghost, MessageCircle } from "lucide-react";
-import logo from "@/assets/booking-logo.png";
+import logo from "@/assets/booking-logo.webp";
 import visaMc from "@/assets/payments/visa-mastercard.png";
 import applePay from "@/assets/payments/apple-pay.jpg";
 import mada from "@/assets/payments/mada.png";
