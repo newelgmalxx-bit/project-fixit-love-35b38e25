@@ -18,6 +18,7 @@ import { useCategories } from "@/hooks/useCatalog";
 import { useSponsoredAdsBundle } from "@/hooks/useSponsoredAds";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import { SarIcon } from "@/components/ui/SarIcon";
+import { SmartImage } from "@/components/ui/SmartImage";
 import heroFacial from "@/assets/hero-facial.webp";
 import heroHairBlonde from "@/assets/hero-hair-blonde.webp";
 import heroHairCurl from "@/assets/hero-hair-curl.webp";
