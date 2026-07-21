@@ -4,6 +4,7 @@ import { Megaphone, ArrowLeft, CalendarCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useSponsoredAdsBundle } from "@/hooks/useSponsoredAds";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 type Ad = {
   id: string;
