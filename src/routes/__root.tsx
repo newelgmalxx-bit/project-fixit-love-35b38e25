@@ -73,6 +73,14 @@ export const Route = createRootRoute({
       meta: seo.meta,
       links: [
         ...seo.links,
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "preload",
+          as: "font",
+          type: "font/woff2",
+          href: "https://fonts.gstatic.com/s/tajawal/v12/Iura6YBj_oCad4k1nzSBC45I.woff2",
+          crossOrigin: "anonymous",
+        },
       ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(organizationJsonLd()) },
