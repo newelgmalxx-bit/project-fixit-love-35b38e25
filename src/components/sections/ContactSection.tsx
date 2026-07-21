@@ -85,19 +85,21 @@ export function ContactSection() {
                 <p className="text-[11px] text-white/70">{t("contactForm.info.follow")}</p>
                 <div className="mt-3 flex items-center gap-2">
                   {([
-                    [site.instagram, Instagram],
-                    [site.tiktok, Music2],
-                    [site.snapchat, Ghost],
-                    [site.whatsapp ? (waHref(site.whatsapp) || site.whatsapp) : undefined, MessageCircle],
-                  ] as const).filter(([u]) => !!u).map(([u, Icon], i) => (
+                    [site.instagram, Instagram, "Instagram"],
+                    [site.tiktok, Music2, "TikTok"],
+                    [site.snapchat, Ghost, "Snapchat"],
+                    [site.whatsapp ? (waHref(site.whatsapp) || site.whatsapp) : undefined, MessageCircle, "WhatsApp"],
+                  ] as const).filter(([u]) => !!u).map(([u, Icon, label], i) => (
                     <a
                       key={i}
                       href={u as string}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={label as string}
+                      title={label as string}
                       className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20 hover:scale-110"
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-4 w-4" aria-hidden="true" />
                     </a>
                   ))}
                 </div>
