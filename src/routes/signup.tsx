@@ -210,7 +210,7 @@ function Field({ label, type, placeholder, icon, dirCtx, value, onChange }: { la
       <label className="mb-1.5 block text-xs font-bold text-foreground">{label}</label>
       <div className="relative">
         <span className={`pointer-events-none absolute inset-y-0 ${d === "rtl" ? "left-3" : "right-3"} flex items-center text-muted-foreground`}>{icon}</span>
-        <input type={type} dir={isPhone ? "ltr" : undefined} inputMode={isPhone ? "tel" : undefined} placeholder={placeholder} value={value} onChange={onChange ? (e) => onChange(e.target.value) : undefined} className={`w-full rounded-xl border border-border bg-white px-10 py-3 text-sm placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 ${isPhone ? "text-left placeholder:text-left" : "text-start"}`} />
+        <input type={type} dir={isPhone ? "ltr" : undefined} inputMode={isPhone ? "tel" : undefined} placeholder={placeholder} value={value} onChange={onChange ? (e) => onChange(e.target.value) : undefined} className={`w-full rounded-xl border border-border bg-white px-10 py-3 text-sm placeholder:text-muted-foreground/80 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 ${isPhone ? "text-left placeholder:text-left" : "text-start"}`} />
       </div>
     </div>
   );
@@ -260,7 +260,7 @@ function PasswordField({ label, show, onToggle, dirCtx, ph, value, onChange }: {
         <button type="button" onClick={onToggle} className={`absolute inset-y-0 ${dirCtx === "rtl" ? "right-3" : "left-3"} flex items-center text-muted-foreground transition hover:text-primary`}>
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
-        <input type={show ? "text" : "password"} placeholder={ph} value={value} onChange={onChange ? (e) => onChange(e.target.value) : undefined} className="w-full rounded-xl border border-border bg-white px-10 py-3 text-start text-sm placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+        <input type={show ? "text" : "password"} placeholder={ph} value={value} onChange={onChange ? (e) => onChange(e.target.value) : undefined} className="w-full rounded-xl border border-border bg-white px-10 py-3 text-start text-sm placeholder:text-muted-foreground/80 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
       </div>
     </div>
   );

@@ -1010,7 +1010,7 @@ function OfferDetailPage() {
                               {Array.from({ length: 5 }).map((_, i) => {
                                 const filled = displayCount > 0 && i < Math.round(displayAvg);
                                 return (
-                                  <Star key={i} className={`h-4 w-4 ${filled ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                                  <Star key={i} className={`h-4 w-4 ${filled ? "fill-amber-400 text-amber-400" : "text-muted-foreground/70"}`} />
                                 );
                               })}
                             </div>
@@ -1071,7 +1071,7 @@ function OfferDetailPage() {
                               >
                                 <Star
                                   className={`h-7 w-7 ${
-                                    filled ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"
+                                    filled ? "fill-amber-400 text-amber-400" : "text-muted-foreground/70"
                                   }`}
                                 />
                               </button>
@@ -1123,7 +1123,7 @@ function OfferDetailPage() {
                                 <Star
                                   key={j}
                                   className={`h-3.5 w-3.5 ${
-                                    j < rv.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"
+                                    j < rv.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/70"
                                   }`}
                                 />
                               ))}
