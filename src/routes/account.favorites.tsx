@@ -5,6 +5,7 @@ import { AccountLayout } from "@/components/account/AccountLayout";
 import { useLang } from "@/i18n/LanguageProvider";
 import { favorites as favApi } from "@/lib/api/services";
 import { toast } from "sonner";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 type FavItem = {
   id: string;
@@ -105,7 +106,7 @@ function FavCard({
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-secondary/40">
-        {banner ? <img src={banner} alt={title} loading="lazy" className="h-full w-full object-cover" /> : null}
+        {banner ? <SmartImage src={banner} alt={title} widths={[320, 480, 640]} sizes="(max-width: 640px) 100vw, 400px" className="h-full w-full object-cover" /> : null}
         <button
           onClick={(e) => { e.preventDefault(); onRemove(); }}
           className="absolute left-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow-sm"

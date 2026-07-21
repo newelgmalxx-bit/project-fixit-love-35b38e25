@@ -13,6 +13,7 @@ import { partnerPackagesPublic, type PartnerPackage } from "@/lib/api/partnerPac
 import { fmtSAR } from "@/data/admin";
 import { useLang } from "@/i18n/LanguageProvider";
 import partnerHero from "@/assets/partner-hero.webp";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export const Route = createFileRoute("/partner")({
   head: () => ({
@@ -170,7 +171,7 @@ function PartnerPage() {
                     const name = lang === "en" ? ((c as any).nameEn || c.nameAr) : c.nameAr;
                     return (
                       <div key={c.slug} className="group relative overflow-hidden rounded-2xl border border-white/15 bg-white/5">
-                        <img src={c.cover} alt={name} className="h-20 w-full object-cover opacity-80 transition group-hover:scale-110 group-hover:opacity-100" />
+                        <SmartImage src={c.cover} alt={name} widths={[240, 320, 480]} sizes="240px" className="h-20 w-full object-cover opacity-80 transition group-hover:scale-110 group-hover:opacity-100" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-2">
                           <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-white">

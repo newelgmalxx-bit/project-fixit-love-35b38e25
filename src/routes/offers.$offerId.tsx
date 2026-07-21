@@ -28,6 +28,7 @@ import {
   Minus,
 } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SmartImage } from "@/components/ui/SmartImage";
 import type { Branch } from "@/lib/api/types";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { toast } from "sonner";
@@ -767,11 +768,15 @@ function OfferDetailPage() {
               {/* Gallery */}
               <div>
                 <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-lg">
-                  <img
+                  <SmartImage
                     src={gallery[activeImg]}
                     alt={offerTitle}
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 800px"
+                    widths={[480, 640, 800, 1024, 1280]}
                     className="h-56 w-full object-cover sm:h-80 md:h-[28rem]"
                   />
+
                   {/* gradient overlay */}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                   {/* Discount badge */}
@@ -826,7 +831,7 @@ function OfferDetailPage() {
                           activeImg === i ? "border-primary shadow-md" : "border-transparent opacity-70 hover:opacity-100"
                         }`}
                       >
-                        <img src={src} alt="" className="h-full w-full object-cover" />
+                        <SmartImage src={src} alt="" widths={[120, 200, 280]} sizes="160px" className="h-full w-full object-cover" />
                       </button>
                     ))}
                   </div>

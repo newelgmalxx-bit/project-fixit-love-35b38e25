@@ -7,6 +7,7 @@ import { useCategory, useOffersByCategory } from "@/hooks/useCatalog";
 import { buildSeo } from "@/lib/seo";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import { useLang } from "@/i18n/LanguageProvider";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export const Route = createFileRoute("/offers/category/$slug")({
   head: ({ params }) => {
@@ -45,7 +46,7 @@ function CategoryPage() {
       <main className="flex-1">
         {category && (
           <section className={`relative overflow-hidden bg-gradient-to-br ${category.color} py-16 text-white`}>
-            <img src={category.cover} alt={lang === "en" ? (category as any).nameEn || category.nameAr : category.nameAr} className="absolute inset-0 h-full w-full object-cover opacity-20" />
+            <SmartImage src={category.cover} alt={lang === "en" ? (category as any).nameEn || category.nameAr : category.nameAr} priority widths={[640, 1024, 1280, 1600]} sizes="100vw" className="absolute inset-0 h-full w-full object-cover opacity-20" />
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <Link to="/" className="inline-flex items-center gap-1 text-xs font-bold text-white/80 hover:text-white">
                 <ChevronLeft className={`h-4 w-4 ${dir === "ltr" ? "rotate-180" : ""}`} /> {L("الرئيسية", "Home")}
