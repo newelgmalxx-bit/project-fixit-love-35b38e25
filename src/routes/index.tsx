@@ -15,6 +15,8 @@ import { buildSeo, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useHomeData } from "@/hooks/useHomeData";
+import heroFacial from "@/assets/hero-facial.webp";
+
 
 export const Route = createFileRoute("/")({
   head: () => {
@@ -27,7 +29,10 @@ export const Route = createFileRoute("/")({
     });
     return {
       meta: seo.meta,
-      links: seo.links,
+      links: [
+        ...seo.links,
+        { rel: "preload", as: "image", href: heroFacial, fetchpriority: "high" } as any,
+      ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(organizationJsonLd()) },
         { type: "application/ld+json", children: JSON.stringify(websiteJsonLd()) },
