@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { useCategories } from "@/hooks/useCatalog";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import { useLang } from "@/i18n/LanguageProvider";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export function CategoriesGrid() {
   const { categories, apiCategories, isLoading } = useCategories();
