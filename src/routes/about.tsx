@@ -2,15 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import heroImage from "@/assets/hero-medical-1.jpg";
-import quoteImage from "@/assets/hero-carwash.jpg";
-import imgSalon from "@/assets/hero-hair-blonde.jpg";
-import imgSpa from "@/assets/hero-facial.jpg";
-import imgFitness from "@/assets/hero-fitness-1.jpg";
-import imgCarwash from "@/assets/hero-carwash.jpg";
-import imgMedical from "@/assets/hero-medical-1.jpg";
-import imgLab from "@/assets/hero-hairwash.jpg";
-import imgCupping from "@/assets/hero-blowdry.jpg";
+import heroImage from "@/assets/hero-medical-1.webp";
+import quoteImage from "@/assets/hero-carwash.webp";
+import imgSalon from "@/assets/hero-hair-blonde.webp";
+import imgSpa from "@/assets/hero-facial.webp";
+import imgFitness from "@/assets/hero-fitness-1.webp";
+import imgCarwash from "@/assets/hero-carwash.webp";
+import imgMedical from "@/assets/hero-medical-1.webp";
+import imgLab from "@/assets/hero-hairwash.webp";
+import imgCupping from "@/assets/hero-blowdry.webp";
 import {
   Target, Eye, Heart, Award, Users, Globe2,
   Lightbulb, ShieldCheck, Handshake, TrendingUp, ArrowLeft, Quote,

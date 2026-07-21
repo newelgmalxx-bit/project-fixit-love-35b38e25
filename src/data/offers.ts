@@ -7,7 +7,7 @@
 // IMPORTANT: Do NOT add new mock data here. Components should use the
 // hooks from `useCatalog` to read real data.
 
-import heroCarwash from "@/assets/hero-carwash.jpg";
+import heroCarwash from "@/assets/hero-carwash.webp";
 
 export type CategorySlug =
   | "medical-centers"

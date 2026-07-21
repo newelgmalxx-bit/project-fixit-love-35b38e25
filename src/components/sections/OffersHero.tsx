@@ -18,14 +18,14 @@ import { useCategories } from "@/hooks/useCatalog";
 import { useSponsoredAdsBundle } from "@/hooks/useSponsoredAds";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import { SarIcon } from "@/components/ui/SarIcon";
-import heroFacial from "@/assets/hero-facial.jpg";
-import heroHairBlonde from "@/assets/hero-hair-blonde.jpg";
-import heroHairCurl from "@/assets/hero-hair-curl.jpg";
-import heroHairwash from "@/assets/hero-hairwash.jpg";
-import heroBlowdry from "@/assets/hero-blowdry.jpg";
-import heroMedical from "@/assets/hero-medical-1.jpg";
-import heroFitness from "@/assets/hero-fitness-1.jpg";
-import heroCoffee from "@/assets/hero-coffee.jpg";
+import heroFacial from "@/assets/hero-facial.webp";
+import heroHairBlonde from "@/assets/hero-hair-blonde.webp";
+import heroHairCurl from "@/assets/hero-hair-curl.webp";
+import heroHairwash from "@/assets/hero-hairwash.webp";
+import heroBlowdry from "@/assets/hero-blowdry.webp";
+import heroMedical from "@/assets/hero-medical-1.webp";
+import heroFitness from "@/assets/hero-fitness-1.webp";
+import heroCoffee from "@/assets/hero-coffee.webp";
 import heroTinting from "@/assets/hero-tinting.webp";
 
 type Slide = {

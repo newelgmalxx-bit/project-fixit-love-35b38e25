@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ContactSection } from "@/components/sections/ContactSection";
-import heroImg from "@/assets/hero-hairwash.jpg";
+import heroImg from "@/assets/hero-hairwash.webp";
 import {
   Sparkles, MessageCircle, Phone, Mail, MapPin, Clock,
   Headphones, Zap, ShieldCheck, ChevronDown, ArrowLeft,

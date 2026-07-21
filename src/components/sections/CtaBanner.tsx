@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Sparkles, CheckCircle2, BadgePercent } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero-hair-curl.jpg";
+import heroImg from "@/assets/hero-hair-curl.webp";
 import { useLang } from "@/i18n/LanguageProvider";
 import { publicApi } from "@/lib/api/public";
 import type { TKey } from "@/i18n/translations";
