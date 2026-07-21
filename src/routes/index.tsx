@@ -29,7 +29,10 @@ export const Route = createFileRoute("/")({
     });
     return {
       meta: seo.meta,
-      links: seo.links,
+      links: [
+        ...seo.links,
+        { rel: "preload", as: "image", href: heroFacial, fetchpriority: "high" } as any,
+      ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(organizationJsonLd()) },
         { type: "application/ld+json", children: JSON.stringify(websiteJsonLd()) },
