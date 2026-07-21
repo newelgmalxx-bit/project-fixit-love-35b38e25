@@ -7,6 +7,7 @@ import { useCategory, useOffersByCategory } from "@/hooks/useCatalog";
 import { buildSeo } from "@/lib/seo";
 import { renderCategoryIcon } from "@/lib/categoryIcon";
 import { useLang } from "@/i18n/LanguageProvider";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export const Route = createFileRoute("/offers/category/$slug")({
   head: ({ params }) => {
