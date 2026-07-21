@@ -4,6 +4,7 @@ import type { Offer } from "@/data/offers";
 import { useFavorite } from "@/hooks/useFavorite";
 import { useLang } from "@/i18n/LanguageProvider";
 import { SarIcon } from "@/components/ui/SarIcon";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export function OfferCard({ offer }: { offer: Offer }) {
   const { lang, dir } = useLang();
