@@ -28,6 +28,7 @@ import {
   Minus,
 } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SmartImage } from "@/components/ui/SmartImage";
 import type { Branch } from "@/lib/api/types";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { toast } from "sonner";
