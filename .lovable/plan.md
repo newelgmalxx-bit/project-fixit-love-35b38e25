@@ -1,83 +1,54 @@
-## تشخيص سريع
+## قرأت التقرير الجديد (Mobile) — النتائج الحقيقية
 
-راجعت تقرير Lighthouse (koswmat.com): Performance 35، Accessibility 86، Best Practices 69، SEO 92.
-**كل المشاكل تقريبًا فرونت إند** — الباك إند بيرجّع البيانات، لكن الفرونت بيحمّل صور ضخمة، JS كتير، وخط render-blocking، ومفيش `robots.txt` صحيح، وفيه مشاكل a11y صغيرة.
+- **Performance 60 → 64** — لسه أقل حاجة، والسبب الرئيسي: `Enormous network payload 14,958 KiB` + `Image savings 12,964 KiB`.
+- **Accessibility 86** — عيب واحد ظاهر: تباين `text-amber-600/70` على `bg-amber-50`.
+- **Best Practices 92** — Charset declaration late.
+- **SEO 92** — أغلبه مسائل يحلها الرفع الفعلي بعد التعديلات.
 
----
-
-## الخطة (على مراحل، الأهم الأول)
-
-### 1) الصور — التوفير الأكبر (~20 MB) 🔥
-- كل صور العروض/المراكز/السلايدر بتتحمّل بحجمها الأصلي (JPG/PNG ثقيلة).
-- إضافة `loading="lazy"` و `decoding="async"` و `width`/`height` صريحة على كل `<img>` في `OfferCard`, `CategoriesGrid`, `HomeOfferSlider`, `SponsoredAdsBanner`, `TestimonialsSection`.
-- صورة الـ LCP (أول صورة في `OffersHero`) تتحط `fetchpriority="high"` وتعمل preload في `head()`.
-- استخدام `<picture>` + query params للـ CDN اللي بيدعم resize (لو الباك إند بيرجّع Cloudflare/R2 URLs)، أو wrapper `<Img>` بسيط يضيف `?w=` تلقائيًا.
-
-### 2) خط Tajawal — render-blocking (~510 ms)
-- دلوقتي بيتحمّل كـ `<link rel="stylesheet">` من Google Fonts في `__root.tsx` و`index.html` (مكرّر!).
-- الحل: إزالة السطر من `index.html`، وتحويل الـ `<link>` في الجذر إلى تحميل غير حاجب:
-  ```
-  <link rel="preload" as="style" onload="this.rel='stylesheet'">
-  ```
-  أو self-host بس ٢ أوزان (400/700) بدل ٦.
-
-### 3) JS ضخم — 505 KiB غير مستخدم، TBT 1280 ms
-- مراجعة `vite.config.ts` لتفعيل manual chunks للـ vendors الكبيرة (react, tanstack, radix, google-oauth).
-- تأجيل تحميل `@react-oauth/google` — بيتحمّل على الصفحة الرئيسية مع إنه محتاج بس في صفحات تسجيل الدخول. نقله لـ dynamic import داخل صفحات auth بس.
-- إزالة `useTrackVisit` / `usePageTracking` من الـ critical path (تأخيرهم بـ `requestIdleCallback`).
-- Route-level code splitting فعّال بالفعل لكن الصفحة الرئيسية بتستدعي أكتر من hook قبل paint — تأجيل `useHomeData` fetch لبعد mount.
-
-### 4) `robots.txt` + `sitemap.xml` (SEO)
-- إنشاء `public/robots.txt` صحيح:
-  ```
-  User-agent: *
-  Allow: /
-  Sitemap: https://koswmat.com/sitemap.xml
-  ```
-- إنشاء `src/routes/sitemap[.]xml.ts` كـ server route يرجّع كل الروابط العامة (home, offers, categories, about, contact, privacy, terms) + العروض المنشورة ديناميكيًا.
-- إضافة `llms.txt` مبسّط في `public/`.
-
-### 5) `index.html` — تنظيف
-- تصحيح `<title>` و`description` (لسه مكتوب "beauty" / "بيوتي بوكينج") ليطابق SEO الجديد.
-- التأكد إن `<meta charset>` أول tag في `<head>` (حاليًا صح لكن الترتيب في `__root.tsx` بيحطّه بعد viewport — نظّبطه).
-- شيل الـ og:image القديم اللي بيشاور على preview URL قديم.
-
-### 6) Accessibility (86 → 95+)
-- تباين الألوان: زر "عرض كل العروض" ونصوص secondary في `WhyUsSection` تحت المطلوب. تعديل tokens في `styles.css`.
-- Links بدون اسم: أيقونات السوشيال في `SiteFooter` بدون `aria-label` — إضافتها.
-- Touch targets: بعض الأزرار الدائرية أصغر من 24×24 CSS px — رفعها إلى 44×44.
-- ترتيب الـ headings: الصفحة فيها `<h1>` بعده `<h3>` مباشرة في بعض السكاشن — تصحيح لـ `<h2>`.
-
-### 7) Best Practices (69 → 90+)
-- Console errors: راجعت اللوجات، فيه warnings من `react-oauth/google` عن third-party cookies. نقل الـ Provider ليلتفّ فقط حول صفحات auth (نفس نقطة 3).
-- `Charset declaration`: التأكد إنه أول ٣ tags بعد `<head>` (يتم مع الـ `__root.tsx` cleanup).
-- Source maps: تفعيل `build.sourcemap: true` في `vite.config.ts` لبيئة production.
+المشاكل الحقيقية في الصور — **صنفين**:
+1. **صور مرفوعة `koswmat.com/uploads/...`**: `SmartImage` مطبّق بالفعل على `OfferCard/CategoriesGrid/SponsoredAds/…`، بس التقرير الحالي جاي من بناء أقدم من آخر تعديل. بعد الـ publish الجاية دي هتتحسّن لوحدها عن طريق wsrv.nl.
+2. **صور مبنية مع الـ bundle في `src/assets/hero-*.jpg`** — الحجم دلوقتي **~3.9 MB** لـ 7 صور بس (hero-mock.png = 695 KB، hero-tinting.webp = 786 KB، hero-hair-curl.jpg = 594 KB، hero-hairwash.jpg = 533 KB، hero-blowdry.jpg = 462 KB، hero-facial.jpg = 393 KB، hero-hair-blonde.jpg = 338 KB). دي بتتقدم من الـ CDN بتاعنا مباشرة و**مش بتمر على wsrv.nl** لأنها relative — `SmartImage` بيسيبها زي ما هي عمداً. الحل الوحيد: ضغطها في المصدر.
 
 ---
 
-## نطاق التغييرات (فرونت إند فقط)
+## الخطة (5 نقاط)
+
+### 1) ضغط صور الـ hero المبنية داخل الـ bundle 🔥 (أعلى ROI)
+تحويل كل صور `src/assets/hero-*` إلى WebP بجودة 72 و max-width 1400px باستخدام `magick`، ثم تحديث كل الـ imports (`OffersHero.tsx`, `about.tsx`, `contact.tsx`, `CtaBanner.tsx`, `AboutIntroSection.tsx`) من `.jpg`/`.png` إلى `.webp`.
+
+**التوفير المتوقع**: من ~3.9 MB لـ ~800 KB لكل الصور مجتمعة (~78% تقليل). ده يقلل الـ LCP من 7.6s لحوالي 3-4s على الموبايل.
+
+### 2) تصحيح تباين الـ badge الأصفر
+`text-amber-600/70` على `bg-amber-50` راسب في التقرير — تغييرها إلى `text-amber-700` (تباين WCAG AA).
+
+### 3) تأكيد أن `<meta charset>` أول tag
+مراجعة SSR output الفعلي والتأكد إنه فعلاً في أول 1024 بايت — يظهر إنه لسه بيحصل reorder بعد `<HeadContent />`. الحل: نقل الـ `<meta charSet>` قبل `<HeadContent />` مباشرة داخل `RootDocument` (شكله كذا حالياً، محتاج تأكيد بـ view-source بعد الرفع).
+
+### 4) Preload لصورة الـ hero LCP
+في `__root.tsx` أو route index: `<link rel="preload" as="image" href={heroFacialWebp} fetchpriority="high">` عشان الشريحة الأولى تظهر أسرع.
+
+### 5) LazyGoogleOAuth already applied — تأكيد الفصل
+مراجعة إن الـ `@react-oauth/google` مش بيتحمّل على الصفحة الرئيسية (باين في التقرير `accounts.google.com/gsi/client 95.8 KiB`). لو لسه بيتحمّل، هنعمل audit للـ imports.
+
+---
+
+## نطاق التغييرات
 
 ```text
-index.html                             ← تنظيف
-public/robots.txt                      ← جديد
-public/llms.txt                        ← جديد
-src/routes/sitemap[.]xml.ts            ← جديد
-src/routes/__root.tsx                  ← تحميل الخط + provider positioning
-src/components/sections/OfferCard.tsx  ← lazy img + dimensions
-src/components/sections/CategoriesGrid.tsx
-src/components/sections/HomeOfferSlider.tsx
-src/components/sections/OffersHero.tsx ← LCP preload
-src/components/layout/SiteFooter.tsx   ← aria-label للسوشيال
-src/styles.css                         ← contrast tokens
-vite.config.ts                         ← chunks + sourcemap
-src/hooks/useTrackVisit.tsx            ← idle deferral
-src/hooks/usePageTracking.ts           ← idle deferral
+src/assets/hero-*.webp                 ← جديد (بديل .jpg / .png)
+src/components/sections/OffersHero.tsx ← imports webp
+src/components/sections/AboutIntroSection.tsx
+src/components/sections/CtaBanner.tsx
+src/routes/about.tsx
+src/routes/contact.tsx
+src/routes/__root.tsx                  ← preload LCP + charset audit
+<كل مكان بيستعمل text-amber-600/70>    ← text-amber-700
 ```
 
-**الباك إند مش محتاج تغيير** — كل النقاط دي عرض/تحميل من الفرونت.
+الباك إند مش محتاج تغيير.
 
 ---
 
-## سؤال قبل التنفيذ
+**ملاحظة**: التقرير الحالي (60/86/92/92) جاي على الأغلب من بناء قبل ما نطبّق `SmartImage` على كل الصور اللي جاية من `koswmat.com/uploads`. حتى من غير أي تعديل جديد، مجرد Publish + قياس تاني هيرفع الرقم بشكل ملحوظ لأن صور الـ CDN هتعدّي على wsrv.nl WebP. الخطة دي فوق ده — بتاكل الـ **3.9 MB** المتبقية من الصور الـ bundled، اللي هي دلوقتي أكبر مصدر للتأخير.
 
-الخطة كبيرة؛ تحب أنفذها كلها دفعة واحدة، ولا أبدأ بأعلى ROI بس (نقاط 1 + 2 + 4 — دي هترفع Performance من 35 إلى ~70 و SEO لـ 100)، وبعدين نكمّل الباقي؟
+هل نمشي؟ (لو موافق بروح على build mode وأنفّذها كلها).
