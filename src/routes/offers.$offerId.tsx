@@ -831,7 +831,7 @@ function OfferDetailPage() {
                           activeImg === i ? "border-primary shadow-md" : "border-transparent opacity-70 hover:opacity-100"
                         }`}
                       >
-                        <img src={src} alt="" className="h-full w-full object-cover" />
+                        <SmartImage src={src} alt="" widths={[120, 200, 280]} sizes="160px" className="h-full w-full object-cover" />
                       </button>
                     ))}
                   </div>
