@@ -4,6 +4,7 @@ import type { Offer } from "@/data/offers";
 import { useFavorite } from "@/hooks/useFavorite";
 import { useLang } from "@/i18n/LanguageProvider";
 import { SarIcon } from "@/components/ui/SarIcon";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export function OfferCard({ offer }: { offer: Offer }) {
   const { lang, dir } = useLang();
@@ -35,15 +36,16 @@ export function OfferCard({ offer }: { offer: Offer }) {
     >
       {/* Image */}
       <div className="relative aspect-[16/11] overflow-hidden bg-muted">
-        <img
+        <SmartImage
           src={offer.image}
           alt={offerTitle}
-          loading="lazy"
-          decoding="async"
           width={640}
           height={440}
+          sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 400px"
+          widths={[320, 480, 640, 800]}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
         <div className="absolute inset-x-3 top-3 flex items-start justify-between">
