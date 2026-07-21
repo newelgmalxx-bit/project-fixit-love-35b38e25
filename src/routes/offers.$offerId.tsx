@@ -768,11 +768,15 @@ function OfferDetailPage() {
               {/* Gallery */}
               <div>
                 <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-lg">
-                  <img
+                  <SmartImage
                     src={gallery[activeImg]}
                     alt={offerTitle}
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 800px"
+                    widths={[480, 640, 800, 1024, 1280]}
                     className="h-56 w-full object-cover sm:h-80 md:h-[28rem]"
                   />
+
                   {/* gradient overlay */}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                   {/* Discount badge */}
