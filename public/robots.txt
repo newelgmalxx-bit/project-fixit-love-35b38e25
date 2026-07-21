@@ -4,10 +4,14 @@ Disallow: /admin
 Disallow: /admin/
 Disallow: /account
 Disallow: /account/
-Disallow: /partner
+Disallow: /partner-dashboard
+Disallow: /partner-login
 Disallow: /branch
+Disallow: /branch-login
 Disallow: /checkout
 Disallow: /cart
 Disallow: /api/
+Disallow: /verify-otp
+Disallow: /reset-password
 
 Sitemap: https://koswmat.com/sitemap.xml
