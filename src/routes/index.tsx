@@ -15,6 +15,8 @@ import { buildSeo, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useHomeData } from "@/hooks/useHomeData";
+import heroFacial from "@/assets/hero-facial.webp";
+
 
 export const Route = createFileRoute("/")({
   head: () => {
