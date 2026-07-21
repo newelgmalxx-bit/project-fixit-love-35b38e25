@@ -196,7 +196,7 @@ function VerifyOtpPage() {
           </form>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            <Link to="/login" className="font-bold text-primary hover:underline">
+            <Link to="/login" search={{ redirect: undefined }} className="font-bold text-primary hover:underline">
               {t("auth.backToLogin")}
             </Link>
           </p>
