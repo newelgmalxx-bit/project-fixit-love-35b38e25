@@ -68,7 +68,7 @@ export default defineConfig({
     build: {
       rollupOptions: {
         output: {
-          manualChunks(id) {
+          manualChunks(id: string) {
             // Client-only bundling: bucket all lucide icons into one chunk
             // to avoid ~40 tiny 1KiB requests on mobile.
             if (id.includes("node_modules/lucide-react")) {
