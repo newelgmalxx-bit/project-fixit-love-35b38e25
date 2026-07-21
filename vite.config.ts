@@ -65,24 +65,6 @@ export default defineConfig({
       port: 8080,
       strictPort: true,
     },
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            "react-vendor": ["react", "react-dom"],
-            "router-vendor": ["@tanstack/react-router", "@tanstack/react-query"],
-            "google-oauth": ["@react-oauth/google"],
-            "radix-vendor": [
-              "@radix-ui/react-dialog",
-              "@radix-ui/react-dropdown-menu",
-              "@radix-ui/react-popover",
-              "@radix-ui/react-select",
-              "@radix-ui/react-tabs",
-            ],
-            "icons-vendor": ["lucide-react"],
-          },
-        },
-      },
-    },
   },
+
 });
