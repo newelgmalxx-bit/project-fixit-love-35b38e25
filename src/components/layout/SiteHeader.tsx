@@ -6,7 +6,7 @@ import { usePartner } from "@/hooks/usePartner";
 
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { toast } from "sonner";
-import logo from "@/assets/booking-logo.png";
+import logo from "@/assets/booking-logo.webp";
 import flagSA from "@/assets/flag-sa.jpg";
 import flagUS from "@/assets/flag-us.jpg";
 import { useCart } from "@/hooks/useCart";
