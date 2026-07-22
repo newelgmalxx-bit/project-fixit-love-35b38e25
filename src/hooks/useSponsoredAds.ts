@@ -1,8 +1,9 @@
 // Deduped fetcher for sponsored ads + their linked offers + partners.
-// All 9 hero slides + the SponsoredAdsBanner share these queries via
-// react-query keys (`['sponsored-ads']`, `['offer', id]`, `['partner', id]`)
-// — so the whole bundle is at most 1 + N(ads) + N(partners) requests,
-// and when useHomeData has already seeded the caches it's zero extra calls.
+//
+// Backend now embeds a fully-enriched `offer` (with vendor/partner mini
+// fields) inside each ad. We prefer that inline data and only fall back
+// to per-id fetches for ads that came without it (older payloads, or
+// standalone `/sponsored-ads` responses).
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { publicApi } from "@/lib/api/public";
 
@@ -15,6 +16,7 @@ export type SponsoredAdShape = {
   cta_label: string | null;
   slide_index: number | null;
   offer_id: string | null;
+  offer: any | null;
 };
 
 function mapAd(a: any): SponsoredAdShape {
@@ -27,6 +29,7 @@ function mapAd(a: any): SponsoredAdShape {
     cta_label: a.ctaLabel ?? null,
     slide_index: a.slideIndex ?? null,
     offer_id: a.offerId ?? a.offer_id ?? null,
+    offer: a.offer ?? null,
   };
 }
 
@@ -45,10 +48,42 @@ export function useSponsoredAds(options: { fetch?: boolean } = {}): SponsoredAdS
 export function useSponsoredAdsBundle(options: { fetch?: boolean } = {}) {
   const { fetch = true } = options;
   const ads = useSponsoredAds({ fetch });
-  const offerIds = Array.from(new Set(ads.map((a) => a.offer_id).filter(Boolean))) as string[];
+
+  // Seed offers/partners from inline `ad.offer` when the backend enriched it.
+  const inlineOffers: Record<string, any> = {};
+  const inlinePartners: Record<string, any> = {};
+  for (const a of ads) {
+    if (a.offer && (a.offer.id || a.offer_id)) {
+      const oid = String(a.offer.id ?? a.offer_id);
+      inlineOffers[oid] = a.offer;
+      const pid = a.offer.partnerId ?? a.offer.partner_id;
+      if (pid) {
+        inlinePartners[String(pid)] = a.offer.partner ?? {
+          id: String(pid),
+          nameAr: a.offer.partnerNameAr,
+          nameEn: a.offer.partnerNameEn,
+          city: a.offer.partnerCity,
+          address: a.offer.partnerAddress,
+          logo: a.offer.partnerLogo,
+          vendorName: a.offer.vendorName,
+          rating: a.offer.rating,
+          reviewsCount: a.offer.reviewsCount,
+        };
+      }
+    }
+  }
+
+  // Only fetch offers we DIDN'T get inline.
+  const missingOfferIds = Array.from(
+    new Set(
+      ads
+        .map((a) => a.offer_id)
+        .filter((id): id is string => !!id && !inlineOffers[id]),
+    ),
+  );
 
   const offerQueries = useQueries({
-    queries: offerIds.map((id) => ({
+    queries: missingOfferIds.map((id) => ({
       queryKey: ["offer", id],
       queryFn: () => publicApi.getOffer(id),
       enabled: fetch,
@@ -56,18 +91,23 @@ export function useSponsoredAdsBundle(options: { fetch?: boolean } = {}) {
     })),
   });
 
-  const offers: Record<string, any> = {};
-  offerIds.forEach((id, i) => {
+  const offers: Record<string, any> = { ...inlineOffers };
+  missingOfferIds.forEach((id, i) => {
     const o = offerQueries[i]?.data;
     if (o) offers[id] = o;
   });
 
-  const partnerIds = Array.from(
-    new Set(Object.values(offers).map((o: any) => o?.partnerId).filter(Boolean))
-  ) as string[];
+  const missingPartnerIds = Array.from(
+    new Set(
+      Object.values(offers)
+        .map((o: any) => o?.partnerId ?? o?.partner_id)
+        .filter((id: any): id is string => !!id && !inlinePartners[String(id)])
+        .map(String),
+    ),
+  );
 
   const partnerQueries = useQueries({
-    queries: partnerIds.map((id) => ({
+    queries: missingPartnerIds.map((id) => ({
       queryKey: ["partner", id],
       queryFn: () => publicApi.getPartner(id),
       enabled: fetch,
@@ -75,8 +115,8 @@ export function useSponsoredAdsBundle(options: { fetch?: boolean } = {}) {
     })),
   });
 
-  const partners: Record<string, any> = {};
-  partnerIds.forEach((id, i) => {
+  const partners: Record<string, any> = { ...inlinePartners };
+  missingPartnerIds.forEach((id, i) => {
     const p = partnerQueries[i]?.data;
     if (p) partners[id] = p;
   });

@@ -584,7 +584,7 @@ function SlideVisual({
           </div>
         )}
 
-        {ad?.offer_id ? (
+        {ad?.offer_id && offer ? (
           <Link
             to="/offers/$offerId"
             params={{ offerId: ad.offer_id }}
