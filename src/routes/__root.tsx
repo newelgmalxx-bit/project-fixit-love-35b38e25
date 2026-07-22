@@ -74,6 +74,8 @@ export const Route = createRootRoute({
       links: [
         ...seo.links,
         { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        { rel: "preconnect", href: "https://wsrv.nl", crossOrigin: "anonymous" },
+        { rel: "dns-prefetch", href: "https://koswmat.com" },
         {
           rel: "preload",
           as: "font",
