@@ -109,7 +109,7 @@ export function SiteFooter() {
 
         {/* Contact */}
         <div>
-          <h4 className="mb-5 text-lg font-bold">{L("تواصل معنا", "Contact us")}</h4>
+          <h3 className="mb-5 text-lg font-bold">{L("تواصل معنا", "Contact us")}</h3>
           <ul className="space-y-3">
             {([
               site.phone ? { Icon: Phone, text: site.phone } : null,
