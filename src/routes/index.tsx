@@ -4,10 +4,17 @@ import { lazy, Suspense } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { OffersHero } from "@/components/sections/OffersHero";
-import { CategoriesGrid } from "@/components/sections/CategoriesGrid";
-import { HomeOfferSlider1, HomeOfferSlider2 } from "@/components/sections/HomeOfferSlider";
 
 // Below-the-fold sections lazy-loaded to trim initial JS payload.
+const CategoriesGrid = lazy(() =>
+  import("@/components/sections/CategoriesGrid").then((m) => ({ default: m.CategoriesGrid }))
+);
+const HomeOfferSlider1 = lazy(() =>
+  import("@/components/sections/HomeOfferSlider").then((m) => ({ default: m.HomeOfferSlider1 }))
+);
+const HomeOfferSlider2 = lazy(() =>
+  import("@/components/sections/HomeOfferSlider").then((m) => ({ default: m.HomeOfferSlider2 }))
+);
 const AboutIntroSection = lazy(() =>
   import("@/components/sections/AboutIntroSection").then((m) => ({ default: m.AboutIntroSection }))
 );
@@ -41,7 +48,7 @@ export const Route = createFileRoute("/")({
       meta: seo.meta,
       links: [
         ...seo.links,
-        { rel: "preload", as: "image", href: heroFacial, fetchpriority: "high" } as any,
+        { rel: "preload", as: "image", href: heroFacial, fetchPriority: "high" } as any,
       ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(organizationJsonLd()) },
@@ -62,22 +69,21 @@ function Index() {
       <SiteHeader />
       <main className="flex-1">
         <OffersHero />
-        <Reveal variant="up"><CategoriesGrid /></Reveal>
-        <Reveal variant="up" delay={80}><HomeOfferSlider1 /></Reveal>
-        <Reveal variant="up" delay={80}><HomeOfferSlider2 /></Reveal>
-        <Reveal variant="up" delay={120}>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 flex justify-center">
-            <Link
-              to="/offers"
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] px-8 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
-            >
-              {lang === "en" ? "View all offers" : "عرض كل العروض"}
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Link>
-          </div>
-        </Reveal>
-
         <Suspense fallback={null}>
+          <Reveal variant="up"><CategoriesGrid /></Reveal>
+          <Reveal variant="up" delay={80}><HomeOfferSlider1 /></Reveal>
+          <Reveal variant="up" delay={80}><HomeOfferSlider2 /></Reveal>
+          <Reveal variant="up" delay={120}>
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 flex justify-center">
+              <Link
+                to="/offers"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#3F2A6B] to-[#E0254D] px-8 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                {lang === "en" ? "View all offers" : "عرض كل العروض"}
+                <ArrowLeftIcon className="h-4 w-4" />
+              </Link>
+            </div>
+          </Reveal>
           <Reveal variant="up"><WhyUsSection /></Reveal>
           <Reveal variant="up"><AboutIntroSection /></Reveal>
           <Reveal variant="up"><TestimonialsSection /></Reveal>

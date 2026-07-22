@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Search,
@@ -39,6 +38,8 @@ type Slide = {
   gradient: string;
   ambient: string;
 };
+
+type SponsoredAdsBundle = ReturnType<typeof useSponsoredAdsBundle>;
 
 function buildSlides(L: (a: string, e: string) => string): Slide[] {
   return [
@@ -169,10 +170,11 @@ export function OffersHero() {
   const { lang, dir } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
   const slides = useMemo(() => buildSlides(L), [lang]);
+  const { categories } = useCategories(false);
+  const sponsoredBundle = useSponsoredAdsBundle({ fetch: false });
   const [q, setQ] = useState("");
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, direction: dir, align: "start" },
-    [Autoplay({ delay: 6000, stopOnInteraction: false, stopOnMouseEnter: true, stopOnFocusIn: true })]
+    { loop: true, direction: dir, align: "start" }
   );
   const [selected, setSelected] = useState(0);
 
@@ -231,6 +233,8 @@ export function OffersHero() {
                 active={selected === i}
                 offers={allOffers}
                 onSearchFocus={ensureOffersLoaded}
+                categories={categories}
+                sponsoredBundle={sponsoredBundle}
               />
             </div>
           ))}
@@ -272,6 +276,8 @@ function SlideContent({
   active,
   offers,
   onSearchFocus,
+  categories,
+  sponsoredBundle,
 }: {
   slide: Slide;
   slideIndex: number;
@@ -281,12 +287,14 @@ function SlideContent({
   active: boolean;
   offers: any[];
   onSearchFocus: () => void;
+  categories: any[];
+  sponsoredBundle: SponsoredAdsBundle;
 }) {
   const { lang } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
-  const { categories } = useCategories();
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  const HeadingTag = slideIndex === 0 ? "h1" : "h2";
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -332,7 +340,7 @@ function SlideContent({
             <Sparkles className="h-3.5 w-3.5" /> {slide.kicker}
           </span>
 
-          <h1 className="mt-3 text-2xl font-extrabold leading-[1.2] tracking-tight text-foreground sm:mt-5 sm:text-5xl lg:text-6xl">
+          <HeadingTag className="mt-3 text-2xl font-extrabold leading-[1.2] tracking-tight text-foreground sm:mt-5 sm:text-5xl lg:text-6xl">
             {slide.titleLine1}
             <br />
             <span
@@ -340,7 +348,7 @@ function SlideContent({
             >
               {slide.titleLine2}
             </span>
-          </h1>
+          </HeadingTag>
 
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">
             {slide.description}
@@ -438,7 +446,13 @@ function SlideContent({
             active ? "opacity-100 scale-100" : "opacity-0 scale-95"
           }`}
         >
-          <SlideVisual slide={slide} slideIndex={slideIndex} />
+          <SlideVisual
+            slide={slide}
+            slideIndex={slideIndex}
+            active={active}
+            categories={categories}
+            sponsoredBundle={sponsoredBundle}
+          />
         </div>
 
       </div>
@@ -446,21 +460,36 @@ function SlideContent({
   );
 }
 
-function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }) {
+function SlideVisual({
+  slide,
+  slideIndex,
+  active,
+  categories,
+  sponsoredBundle,
+}: {
+  slide: Slide;
+  slideIndex: number;
+  active: boolean;
+  categories: any[];
+  sponsoredBundle: SponsoredAdsBundle;
+}) {
   const { lang, dir } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
-  const { ads, offers, partners } = useSponsoredAdsBundle();
+  const { ads, offers, partners } = sponsoredBundle;
+  const allowDynamicAdImage = active && slideIndex !== 0;
   const ad =
-    ads.find((a) => Number(a.slide_index) === slideIndex + 1) ||
-    ads.find((a) => a.slide_index == null || Number(a.slide_index) === 0) ||
-    null;
+    active
+      ? ads.find((a) => Number(a.slide_index) === slideIndex + 1) ||
+        ads.find((a) => a.slide_index == null || Number(a.slide_index) === 0) ||
+        null
+      : null;
   const offer = ad?.offer_id ? offers[ad.offer_id] ?? null : null;
   const partner = offer?.partnerId ? partners[offer.partnerId] ?? null : null;
 
 
 
   const offerImage = offer?.image || offer?.imageUrl || offer?.coverImage || ad?.image_url || null;
-  const useOfferImage = !!offerImage && (!!ad?.offer_id || !!ad?.image_url);
+  const useOfferImage = allowDynamicAdImage && !!offerImage && (!!ad?.offer_id || !!ad?.image_url);
   const imgSrc = useOfferImage ? offerImage : slide.image;
 
   const priceBefore = Number(offer?.priceBefore ?? 0) || 0;
@@ -493,7 +522,6 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
     ad?.subtitle ||
     null;
 
-  const { categories } = useCategories();
   const categoryId = offer?.categoryId || offer?.category_id;
   const cat = categoryId
     ? (categories as any[]).find((c) => c.id === categoryId || c.slug === categoryId)
@@ -523,9 +551,10 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
           width={896}
           height={1152}
           sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-          widths={[320, 480, 640, 800, 1024]}
+          widths={[320, 480, 640, 800]}
           priority={slideIndex === 0}
           loading={slideIndex === 0 ? "eager" : "lazy"}
+          quality={68}
           className="aspect-[5/4] w-full object-cover sm:aspect-[4/5]"
         />
 
@@ -661,7 +690,7 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
             );
           })()
         ) : (
-          <SponsoredAdOverlay slideIndex={slideIndex} />
+          active ? <SponsoredAdOverlay slideIndex={slideIndex} sponsoredBundle={sponsoredBundle} /> : null
         )}
 
       </div>
@@ -684,10 +713,16 @@ type SponsoredAd = {
 };
 
 
-function SponsoredAdOverlay({ slideIndex }: { slideIndex: number }) {
+function SponsoredAdOverlay({
+  slideIndex,
+  sponsoredBundle,
+}: {
+  slideIndex: number;
+  sponsoredBundle: SponsoredAdsBundle;
+}) {
   const { lang } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
-  const { ads, offers, partners } = useSponsoredAdsBundle();
+  const { ads, offers, partners } = sponsoredBundle;
 
   const getPartnerName = (partner: any) => {
     return (

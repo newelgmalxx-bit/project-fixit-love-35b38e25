@@ -15,7 +15,7 @@ import {
 import type { Category, Offer } from "@/data/offers";
 
 /* ─────────────── Categories ─────────────── */
-export function useCategoriesQuery() {
+export function useCategoriesQuery(enabled = true) {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -25,17 +25,18 @@ export function useCategoriesQuery() {
         ?? [];
       return items;
     },
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 }
 
-export function useCategories(): {
+export function useCategories(enabled = true): {
   categories: Category[];
   apiCategories: ApiCategory[];
   categoryIdToSlug: Map<string, string>;
   isLoading: boolean;
 } {
-  const { data, isLoading } = useCategoriesQuery();
+  const { data, isLoading } = useCategoriesQuery(enabled);
   const apiCategories = data ?? [];
   const categories = useMemo(() => apiCategories.map(normalizeCategory), [apiCategories]);
   const categoryIdToSlug = useMemo(() => {

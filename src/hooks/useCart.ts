@@ -133,7 +133,8 @@ async function trySyncFromApi(initial = false): Promise<void> {
   }
 }
 
-export function useCart() {
+export function useCart(options: { syncOnMount?: boolean } = {}) {
+  const { syncOnMount = true } = options;
   // Start with empty state to match SSR; hydrate from localStorage after mount.
   const [state, setState] = useState<State>({ items: [], subtotal: 0, discount: 0, vat: 0, total: 0, loading: false, error: null });
   const mounted = useRef(true);
@@ -150,12 +151,12 @@ export function useCart() {
     setState(cache);
     const fn = (s: State) => mounted.current && setState(s);
     listeners.add(fn);
-    if (!didInitialSync) {
+    if (syncOnMount && !didInitialSync) {
       didInitialSync = true;
       trySyncFromApi(true);
     }
     return () => { mounted.current = false; listeners.delete(fn); };
-  }, []);
+  }, [syncOnMount]);
 
   const add = useCallback(
     async (item: {

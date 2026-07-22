@@ -28,7 +28,7 @@ const navLinks: { to: any; hash?: string; key: TKey }[] = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { count } = useCart();
+  const { count } = useCart({ syncOnMount: false });
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { isPartner, partner, partnerLogout } = usePartner();
   const { lang, toggle: toggleLang, t } = useLang();
@@ -52,7 +52,8 @@ export function SiteHeader() {
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
     let cancelled = false;
-    import("@/hooks/useFavorite").then(({ readFavs, loadFavorites }) => {
+    let cleanup: (() => void) | undefined;
+    const timer = window.setTimeout(() => import("@/hooks/useFavorite").then(({ readFavs, loadFavorites }) => {
       const sync = () => {
         if (cancelled) return;
         try { setFavCount(Object.values(readFavs()).filter(Boolean).length); }
@@ -62,12 +63,12 @@ export function SiteHeader() {
       loadFavorites().then(sync).catch(() => {});
       window.addEventListener("saba:favorites", sync);
       window.addEventListener("storage", sync);
-      return () => {
+      cleanup = () => {
         window.removeEventListener("saba:favorites", sync);
         window.removeEventListener("storage", sync);
       };
-    });
-    return () => { cancelled = true; };
+    }), 1500);
+    return () => { cancelled = true; window.clearTimeout(timer); cleanup?.(); };
   }, [isAuthenticated]);
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
@@ -348,7 +349,7 @@ export function SiteHeader() {
 
 function CategoriesDropdown({ label }: { label: string }) {
   const [open, setOpen] = useState(false);
-  const { categories } = useCategories();
+  const { categories } = useCategories(open);
   const ref = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
