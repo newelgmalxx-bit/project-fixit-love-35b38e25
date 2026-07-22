@@ -566,7 +566,7 @@ function LangToggle() {
   const code = lang === "ar" ? "AR" : "EN";
   return (
     <button onClick={toggle} title="تبديل اللغة / Toggle language" className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-2 hover:bg-muted">
-      <img src={flag} alt={code} className="h-4 w-6 object-cover rounded-sm" />
+      <img src={flag} alt={code} width={24} height={16} loading="lazy" decoding="async" className="h-4 w-6 object-cover rounded-sm" />
       <span className="text-[11px] font-bold">{code}</span>
     </button>
   );
