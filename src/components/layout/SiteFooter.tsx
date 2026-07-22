@@ -73,7 +73,7 @@ export function SiteFooter() {
 
         {/* Quick Links */}
         <div>
-          <h4 className="mb-5 text-lg font-bold">{L("روابط سريعة", "Quick links")}</h4>
+          <h3 className="mb-5 text-lg font-bold">{L("روابط سريعة", "Quick links")}</h3>
           <ul className="space-y-3 text-base text-white/85">
             {quickLinks.map((l) => (
               <li key={l.label}>
