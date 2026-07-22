@@ -45,6 +45,19 @@ export function useHomeData(limit: number = 20) {
 
     if (data.sponsoredAds) {
       qc.setQueryData(["sponsored-ads"], data.sponsoredAds);
+      // Seed offer + partner caches for any ad that came enriched from the
+      // backend, so the hero card can render vendor/price/rating without
+      // an extra per-offer request.
+      for (const ad of data.sponsoredAds as any[]) {
+        const offer = ad?.offer;
+        if (offer?.id) {
+          qc.setQueryData(["offer", String(offer.id)], offer);
+          const partnerId = offer.partnerId ?? offer.partner_id;
+          if (partnerId && offer.partner) {
+            qc.setQueryData(["partner", String(partnerId)], offer.partner);
+          }
+        }
+      }
     }
 
     if (data.homeSlider1 || data.homeSlider2) {
