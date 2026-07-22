@@ -464,6 +464,10 @@ export function LangSwitch({ lang, onClick, compact, label }: { lang: "ar" | "en
         key={code}
         src={flagSrc}
         alt=""
+        width={24}
+        height={16}
+        loading="lazy"
+        decoding="async"
         aria-hidden
         className="h-4 w-6 rounded-[2px] object-cover ring-1 ring-border/60 transition-transform duration-300 group-hover:scale-110"
       />
