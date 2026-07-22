@@ -87,7 +87,7 @@ export function SiteFooter() {
 
         {/* Categories */}
         <div>
-          <h4 className="mb-5 text-lg font-bold">{L("تصنيفات الخدمات", "Service categories")}</h4>
+          <h3 className="mb-5 text-lg font-bold">{L("تصنيفات الخدمات", "Service categories")}</h3>
           <ul className="space-y-3 text-base text-white/85">
             {categories.map((c: any) => {
               const name = lang === "en" ? (c.nameEn || c.nameAr) : (c.nameAr || c.nameEn);
