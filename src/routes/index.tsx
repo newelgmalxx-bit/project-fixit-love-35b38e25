@@ -77,11 +77,12 @@ function Index() {
           </div>
         </Reveal>
 
-        <Reveal variant="up"><WhyUsSection /></Reveal>
-        {/* Legacy / secondary content kept below */}
-        <Reveal variant="up"><AboutIntroSection /></Reveal>
-        <Reveal variant="up"><TestimonialsSection /></Reveal>
-        <Reveal variant="zoom"><CtaBanner /></Reveal>
+        <Suspense fallback={null}>
+          <Reveal variant="up"><WhyUsSection /></Reveal>
+          <Reveal variant="up"><AboutIntroSection /></Reveal>
+          <Reveal variant="up"><TestimonialsSection /></Reveal>
+          <Reveal variant="zoom"><CtaBanner /></Reveal>
+        </Suspense>
       </main>
       <SiteFooter />
     </div>
