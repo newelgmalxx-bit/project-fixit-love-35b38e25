@@ -28,7 +28,7 @@ const navLinks: { to: any; hash?: string; key: TKey }[] = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { count } = useCart();
+  const { count } = useCart({ syncOnMount: false });
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { isPartner, partner, partnerLogout } = usePartner();
   const { lang, toggle: toggleLang, t } = useLang();

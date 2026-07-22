@@ -47,6 +47,13 @@ export function useHomeData(limit: number = 20) {
       qc.setQueryData(["sponsored-ads"], data.sponsoredAds);
     }
 
+    if (data.homeSlider1 || data.homeSlider2) {
+      qc.setQueryData(["home-offer-sliders"], {
+        slider_1: data.homeSlider1 ?? [],
+        slider_2: data.homeSlider2 ?? [],
+      });
+    }
+
     if (data.reviews) {
       for (const [offerId, items] of Object.entries(data.reviews)) {
         if (!offerId || !Array.isArray(items)) continue;

@@ -73,14 +73,20 @@ export const Route = createRootRoute({
       meta: seo.meta,
       links: [
         ...seo.links,
-        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
         { rel: "preconnect", href: "https://wsrv.nl", crossOrigin: "anonymous" },
         { rel: "dns-prefetch", href: "https://koswmat.com" },
         {
           rel: "preload",
           as: "font",
           type: "font/woff2",
-          href: "https://fonts.gstatic.com/s/tajawal/v12/Iura6YBj_oCad4k1nzSBC45I.woff2",
+          href: "/fonts/tajawal-ar-400.woff2",
+          crossOrigin: "anonymous",
+        },
+        {
+          rel: "preload",
+          as: "font",
+          type: "font/woff2",
+          href: "/fonts/tajawal-ar-700.woff2",
           crossOrigin: "anonymous",
         },
       ],

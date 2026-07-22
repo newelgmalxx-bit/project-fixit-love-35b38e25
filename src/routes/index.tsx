@@ -4,10 +4,17 @@ import { lazy, Suspense } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { OffersHero } from "@/components/sections/OffersHero";
-import { CategoriesGrid } from "@/components/sections/CategoriesGrid";
-import { HomeOfferSlider1, HomeOfferSlider2 } from "@/components/sections/HomeOfferSlider";
 
 // Below-the-fold sections lazy-loaded to trim initial JS payload.
+const CategoriesGrid = lazy(() =>
+  import("@/components/sections/CategoriesGrid").then((m) => ({ default: m.CategoriesGrid }))
+);
+const HomeOfferSlider1 = lazy(() =>
+  import("@/components/sections/HomeOfferSlider").then((m) => ({ default: m.HomeOfferSlider1 }))
+);
+const HomeOfferSlider2 = lazy(() =>
+  import("@/components/sections/HomeOfferSlider").then((m) => ({ default: m.HomeOfferSlider2 }))
+);
 const AboutIntroSection = lazy(() =>
   import("@/components/sections/AboutIntroSection").then((m) => ({ default: m.AboutIntroSection }))
 );

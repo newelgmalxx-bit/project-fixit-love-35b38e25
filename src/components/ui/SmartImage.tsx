@@ -5,7 +5,7 @@ import { forwardRef, ImgHTMLAttributes, useMemo } from "react";
  *
  * Behavior:
  * - For absolute http(s) URLs: rewrites through https://wsrv.nl/?url=... with
- *   automatic WebP (`output=webp`), quality, width, and DPR-aware srcSet.
+ *   automatic WebP (`output=webp`), quality, width, and responsive srcSet.
  * - For local / relative / data / blob URLs: passes through unchanged
  *   (bundled assets are already optimized by Vite).
  * - Sets sensible perf defaults: loading="lazy", decoding="async".
@@ -21,13 +21,13 @@ type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "loading"> & {
   sizes?: string;
   /** LCP hint — disables lazy + adds fetchpriority=high. */
   priority?: boolean;
-  /** WebP quality 1–100. Default 78. */
+  /** WebP quality 1–100. Default 70. */
   quality?: number;
   /** Force loading strategy. */
   loading?: "lazy" | "eager";
 };
 
-const DEFAULT_WIDTHS = [320, 480, 640, 800, 1024, 1280, 1600];
+const DEFAULT_WIDTHS = [240, 320, 480, 640, 800, 1024];
 const DEFAULT_SIZES = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
 
 function isRemote(src: string): boolean {
@@ -40,6 +40,7 @@ function proxied(src: string, w: number, q: number): string {
   u.searchParams.set("w", String(w));
   u.searchParams.set("output", "webp");
   u.searchParams.set("q", String(q));
+  u.searchParams.set("fit", "cover");
   u.searchParams.set("we", ""); // without-enlargement
   u.searchParams.set("il", ""); // interlace/progressive
   return u.toString();
@@ -52,7 +53,7 @@ export const SmartImage = forwardRef<HTMLImageElement, Props>(function SmartImag
     widths = DEFAULT_WIDTHS,
     sizes = DEFAULT_SIZES,
     priority = false,
-    quality = 78,
+    quality = 70,
     loading,
     width,
     height,
@@ -65,7 +66,7 @@ export const SmartImage = forwardRef<HTMLImageElement, Props>(function SmartImag
       return { finalSrc: src, srcSet: undefined as string | undefined };
     }
     const set = widths.map((w) => `${proxied(src, w, quality)} ${w}w`).join(", ");
-    const fallbackW = widths[Math.floor(widths.length / 2)] ?? 800;
+    const fallbackW = widths.find((w) => w >= 480) ?? widths[0] ?? 480;
     return { finalSrc: proxied(src, fallbackW, quality), srcSet: set };
   }, [src, widths, quality]);
 
