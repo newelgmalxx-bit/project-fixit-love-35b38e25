@@ -5,6 +5,10 @@ export function SarIcon({ className = "" }: { className?: string }) {
     <img
       src={sarLogo}
       alt="SAR"
+      width={60}
+      height={67}
+      loading="lazy"
+      decoding="async"
       className={`inline-block h-[0.9em] w-auto align-[-0.08em] mx-1 ${className}`}
       draggable={false}
     />
