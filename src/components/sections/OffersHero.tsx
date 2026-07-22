@@ -240,19 +240,23 @@ export function OffersHero() {
       {/* Arrows hidden — dots-only navigation */}
 
       {/* Dots */}
-      <div className="relative z-20 flex items-center justify-center gap-2 pb-6 pt-1 sm:absolute sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:p-0">
+      <div className="relative z-20 flex items-center justify-center gap-1 pb-3 pt-0 sm:absolute sm:bottom-4 sm:left-1/2 sm:-translate-x-1/2 sm:p-0">
         {slides.map((_, i) => (
           <button
             key={i}
             type="button"
             onClick={() => scrollTo(i)}
             aria-label={L(`الشريحة ${i + 1}`, `Slide ${i + 1}`)}
-            className={`h-2 rounded-full transition-all ${
-              selected === i
-                ? "w-8 bg-primary"
-                : "w-2 bg-foreground/30 hover:bg-foreground/50"
-            }`}
-          />
+            className="grid h-11 w-11 place-items-center"
+          >
+            <span
+              className={`h-2 rounded-full transition-all ${
+                selected === i
+                  ? "w-8 bg-primary"
+                  : "w-2 bg-foreground/30 hover:bg-foreground/50"
+              }`}
+            />
+          </button>
         ))}
       </div>
     </section>
