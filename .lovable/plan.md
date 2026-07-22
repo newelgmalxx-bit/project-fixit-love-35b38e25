@@ -1,73 +1,65 @@
-## قراءة التقرير الجديد (Mobile)
+## خطة رفع أداء الموبايل فوق 90
 
-- **Performance 71** (كان 60) — تحسّن، بس اللي فاضل:
-  - **FCP 3.9s / LCP 4.4s** — الخطوط بتاعة Tajawal بتتحمّل بعد الـ CSS في سلسلة (chain) طولها 2.3s.
-  - **Render-blocking**: Google Fonts CSS 1.3KB يوقف الرسم 750ms + CSS داخلي 25.9KB يوقف 860ms.
-  - **Improve image delivery — 5,907 KiB savings** — لسه صور من `koswmat.com/uploads` بتتقدم بمقاسات أكبر مما يعرض (SmartImage بيحدد width بس بدون `sizes`).
-  - **Reduce unused JS — 139 KiB** — Google Fonts CSS تحت نظر Lighthouse كـ unused + شويّة كود لسه بيتحمّل من غير داعي.
-  - **Enormous network payload — 7,442 KiB** (كان 14.9MB) — نص المشكلة اتحل، الباقي في الصور المرفوعة.
-  - **Forced reflow — 189ms** من `index-zhykee0y.js` (بيقرأ offsetWidth بعد mutation).
-  - **~40 JS chunk حجم كل واحد ~1KiB** لأيقونات lucide مقسّمة بشكل مفرط.
-- **Accessibility 94** — Touch targets صغيرة على عناصر معيّنة + heading order.
-- **Best Practices 96** — 3 requests 404 على `/offers/aa36a7d6-...` + missing source maps.
-- **SEO 100** ✅
+حسب تقرير PageSpeed المرفوع، الموبايل حالياً **Performance 73**، وأكبر مشاكل واضحة هي:
+- **LCP 5.1s** و **FCP 3.0s**.
+- **Render-blocking CSS**: ملف CSS حجمه ~26KB بيوقف الرسم ~640ms.
+- **LCP image discovery**: صورة الـ LCP جاية من `wsrv.nl` لكنها مش مكتشفة مباشرة من الـ HTML، رغم إنها eager/high priority.
+- **Network dependency tree**: الخط العربي بيتأخر في السلسلة الحرجة لحد ~1s.
+- **Improve image delivery**: توفير محتمل ~4.46MB.
+- **Unused JS**: توفير ~137KB، خصوصاً chunk كبير ~212KB + flags chunk ~28KB.
+- **Forced reflow**: ~138ms.
+- **Accessibility**: باقي مشكلة heading order.
 
-الديسكتوب المفروض أعلى بشكل تلقائي من نفس الإصلاحات.
+## التنفيذ المقترح
 
----
+1. **تثبيت صورة LCP بدل صورة dynamic من الإعلانات**
+   - على الموبايل أول hero slide هي أكبر عنصر LCP.
+   - هنخلي أول تحميل على الموبايل يستخدم الصورة المحلية `hero-facial.webp` كـ LCP ثابت ومسبق التحميل، بدل ما أول paint يعتمد على صورة إعلان dynamic من `koswmat.com` عبر `wsrv.nl`.
+   - الإعلانات تفضل موجودة، لكن مش تتحكم في صورة الـ LCP لأول render.
 
-## الخطة (7 نقاط، Frontend فقط)
+2. **إضافة preload مباشر لصورة LCP النهائية**
+   - بدل preload للصورة المحلية فقط، نضيف preload لصورة الـ LCP التي المتصفح فعلاً سيستخدمها على الموبايل بالمقاس المناسب.
+   - الهدف: حل ملاحظة “LCP request is discoverable in initial document” وتقليل LCP.
 
-### 1) تسريع الخطوط 🔥 (أكبر أثر على LCP/FCP)
-حالياً `<link rel="stylesheet">` من Google Fonts بيولّد سلسلة: HTML → CSS → 8 ملفات woff2. الحل:
-- إزالة الـ stylesheet link من `__root.tsx` والاعتماد على `@font-face` مباشرة في `src/styles.css` بـ 2 وزن فقط (400 + 700) subset Arabic.
-- إضافة `<link rel="preload" as="font" type="font/woff2" crossorigin>` لملف Tajawal-400 Arabic في `__root.tsx` عشان يبدأ التحميل بالتوازي مع الـ HTML.
-- استخدام `font-display: swap` وسحب الـ woff2 من `fonts.gstatic.com` مباشرة (URL ثابت).
+3. **تقليل تحميل hero JS فوق الطية**
+   - حالياً `OffersHero` بيرندر 9 slides كاملة وفي كل slide hooks لبيانات sponsored ads/categories، وده يزيد JS/render work.
+   - هنخلي بيانات sponsored/category للـ hero تتحسب مرة واحدة في parent وتتوزع على slides، بدل تكرار hooks داخل كل slide.
+   - هنخفف render أولي للموبايل: slide active فقط ياخد overlays/data الثقيلة، وباقي slides تبقى أخف لحد التفاعل.
 
-**التوفير المتوقع**: -1.5s على FCP، -1s على LCP.
+4. **إيقاف autoplay/Embla الثقيل على أول لحظة في الموبايل**
+   - الـ forced reflow غالباً من carousel initialization.
+   - هنأخر تشغيل autoplay أو نستخدم carousel أبسط على الموبايل خلال أول paint لتقليل reflow وmain-thread work بدون تغيير الشكل.
 
-### 2) إضافة `sizes` لـ SmartImage
-دلوقتي `SmartImage` بيمرّر `w=...` لـ wsrv.nl بس بدون `sizes` HTML attribute، فالمتصفح بيحمل نسخة أكبر من اللازم. تعديل `SmartImage.tsx` إنه ياخد prop `sizes` ويستعمله + يوفر default مناسب (`"(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"`)، والـ srcSet بمقاسات متعددة (`w=320 640 960 1280`).
+5. **ضغط/تصغير الصور المحلية الكبيرة غير الضرورية**
+   - في `src/assets` فيه صور كبيرة جداً 1.5–2.7MB مرتبطة بواجهات أخرى وقد تدخل chunks.
+   - هنحوّل الصور الكبيرة المستخدمة فعلاً إلى WebP/AVIF أصغر أو نتأكد إنها lazy ومقسمة route-wise.
+   - لن نلمس صور غير مستخدمة إلا لو ظهر إنها داخلة في bundle.
 
-**التوفير المتوقع**: من الـ 5.9MB savings ياكل ~3-4MB.
+6. **تحسين `SmartImage` للموبايل**
+   - تقليل widths الافتراضية للموبايل، وتخفيض quality لصورة LCP/hero إلى نطاق مناسب.
+   - إضافة `fit=cover`/أبعاد صريحة عند الحاجة حتى لا يطلب CDN صور أكبر من المعروض.
 
-### 3) دمج أيقونات lucide في chunk واحد
-الـ 40 ملف JS × 1KiB بيسبب 40 HTTP request إضافية على 4G بطيء. تعديل `vite.config.ts` بـ `manualChunks` بسيط (للـ client build فقط) يجمع كل `lucide-react` في chunk واحد. لازم أتجنّب الغلطة السابقة اللي كسرت الـ SSR build — الحل: استعمال `build.rollupOptions.output.manualChunks` كـ function وتفعيله فقط للـ client environment.
+7. **تقليل unused JS من homepage**
+   - مراجعة imports في home/header التي تسحب chunks كبيرة.
+   - فصل أجزاء غير لازمة لأول render مثل الحساب/المفضلة/القوائم الثقيلة أو lazy import لها بعد hydration.
+   - الهدف تقليل chunk `index-*.js` والـ unused JS المذكور في التقرير.
 
-### 4) إصلاح Forced Reflow (189ms)
-هحدد المصدر بالضبط في build mode (`index-zhykee0y.js` هو المدخل الرئيسي). المشتبه فيه: `Reveal.tsx` أو `useIsMobile` أو `SiteHeader`. الحل الشائع: نقل قراءة `offsetWidth` جوّه `requestAnimationFrame` أو `useLayoutEffect` بعد mutations.
+8. **حل heading order المتبقي**
+   - مراجعة العناصر التي ما زالت تظهر في تقرير Accessibility وتعديل التسلسل بدون تغيير التصميم.
 
-### 5) إصلاح 404s
-3 requests فاشلة على offer id `aa36a7d6-8aac-427d-a3e0-9fd51584e78b:1:0`. ده على الأرجح `useHomeData` أو `useSponsoredAds` بيطلب endpoint مش موجود، أو Featured slot فاضي. هعمل audit للـ network requests في preview وأصلح المصدر.
+9. **تحقق بعد التنفيذ**
+   - تشغيل فحص مرئي محلي للموبايل للتأكد أن الصفحة لم تتكسر.
+   - مراجعة network/DOM للـ LCP image والـ chunks.
+   - بعدها ترفع وتقيس PageSpeed مرة ثانية؛ الهدف الواقعي من هذا batch هو **90+** أو الاقتراب منها جداً، مع ملاحظة أن أرقام PageSpeed تتأثر بسرعة سيرفر الصور والـ API وقت القياس.
 
-### 6) رفع Touch Targets
-Lighthouse بيشير لعناصر مش 44×44. راجع pagination arrows + close buttons + رقم reviews في `OffersHero`.
-
-### 7) الـ meta preload الحالي على `heroFacial`
-دلوقتي في `index.tsx` بنعمل preload لـ hero-facial.webp — ده صحيح، بس المفروض بس على mobile viewport (لو ظهر desktop hero مختلف). تأكيد إن ده فعلاً صورة الـ LCP على الموبايل عن طريق الـ screenshot في التقرير.
-
----
-
-## نطاق الملفات
+## الملفات المتوقعة
 
 ```text
-src/routes/__root.tsx              ← إزالة Google Fonts CSS، إضافة preload
-src/styles.css                     ← @font-face inline لـ Tajawal 400/700
-src/components/ui/SmartImage.tsx   ← srcSet + sizes prop
-src/components/sections/*.tsx      ← تمرير sizes لـ SmartImage في الأماكن الرئيسية
-vite.config.ts                     ← manualChunks لأيقونات lucide (client only)
-src/components/Reveal.tsx (؟)      ← فحص forced reflow
-src/hooks/useHomeData.ts (؟)       ← فحص الـ 404
+src/routes/index.tsx
+src/routes/__root.tsx
+src/components/sections/OffersHero.tsx
+src/components/ui/SmartImage.tsx
+src/components/layout/SiteHeader.tsx
+src/styles.css
+vite.config.ts عند الحاجة فقط
 ```
-
-باك إند مش محتاج تغيير.
-
----
-
-**النتيجة المتوقعة بعد التنفيذ**:
-- Mobile Performance: **71 → 88-92**
-- LCP: **4.4s → ~2.5s**
-- FCP: **3.9s → ~2.0s**
-- Desktop Performance: **يفضل يوصل 95-99**
-
-أوافق أروح build mode وأنفّذ؟
