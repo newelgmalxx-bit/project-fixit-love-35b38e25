@@ -566,9 +566,9 @@ function SlideVisual({ slide, slideIndex }: { slide: Slide; slideIndex: number }
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
                 <Megaphone className="h-2.5 w-2.5" /> {L("إعلان ممول", "Sponsored")}
               </span>
-              <h4 className="line-clamp-1 text-xs font-extrabold text-foreground sm:text-sm">
+              <h3 className="line-clamp-1 text-xs font-extrabold text-foreground sm:text-sm">
                 {offerTitle}
-              </h4>
+              </h3>
             </div>
 
             {/* Row 2: vendor */}
