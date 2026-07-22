@@ -76,14 +76,20 @@ export const publicApi = {
     return r.data;
   },
   getOffer: async (id: string) => {
-    const r = await request<ApiResponse<{ offer: any; branches?: Branch[]; hasMultipleBranches?: boolean }>>(
-      `/offers/${encodeURIComponent(id)}`,
-    );
+    let r;
+    try {
+      r = await request<ApiResponse<{ offer: any; branches?: Branch[]; hasMultipleBranches?: boolean }>>(
+        `/offers/${encodeURIComponent(id)}`,
+      );
+    } catch (e: any) {
+      // Sponsored ads may reference an offer that was later deleted. Treat
+      // 404 as "gone" and let callers filter it out instead of spamming
+      // failed network requests in the console.
+      if (e?.status === 404) return null;
+      throw e;
+    }
     const offer = r.data?.offer ?? null;
     if (!offer) return null;
-    // Attach branches metadata onto the offer object so downstream code
-    // (offer detail page, availability calls, cart) can use them without
-    // a second round-trip.
     const branches = Array.isArray(r.data?.branches) ? r.data!.branches : [];
     const hasMultipleBranches = typeof r.data?.hasMultipleBranches === "boolean"
       ? r.data!.hasMultipleBranches
