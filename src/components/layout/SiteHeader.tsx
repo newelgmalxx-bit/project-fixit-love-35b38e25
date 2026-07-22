@@ -349,7 +349,7 @@ export function SiteHeader() {
 
 function CategoriesDropdown({ label }: { label: string }) {
   const [open, setOpen] = useState(false);
-  const { categories } = useCategories();
+  const { categories } = useCategories(open);
   const ref = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

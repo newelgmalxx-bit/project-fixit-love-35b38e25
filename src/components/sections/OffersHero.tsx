@@ -170,7 +170,7 @@ export function OffersHero() {
   const { lang, dir } = useLang();
   const L = (a: string, e: string) => (lang === "en" ? e : a);
   const slides = useMemo(() => buildSlides(L), [lang]);
-  const { categories } = useCategories();
+  const { categories } = useCategories(false);
   const sponsoredBundle = useSponsoredAdsBundle({ fetch: false });
   const [q, setQ] = useState("");
   const [emblaRef, emblaApi] = useEmblaCarousel(
