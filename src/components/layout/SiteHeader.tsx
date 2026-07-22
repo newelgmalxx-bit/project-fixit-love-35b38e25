@@ -52,7 +52,8 @@ export function SiteHeader() {
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
     let cancelled = false;
-    import("@/hooks/useFavorite").then(({ readFavs, loadFavorites }) => {
+    let cleanup: (() => void) | undefined;
+    const timer = window.setTimeout(() => import("@/hooks/useFavorite").then(({ readFavs, loadFavorites }) => {
       const sync = () => {
         if (cancelled) return;
         try { setFavCount(Object.values(readFavs()).filter(Boolean).length); }
@@ -62,12 +63,12 @@ export function SiteHeader() {
       loadFavorites().then(sync).catch(() => {});
       window.addEventListener("saba:favorites", sync);
       window.addEventListener("storage", sync);
-      return () => {
+      cleanup = () => {
         window.removeEventListener("saba:favorites", sync);
         window.removeEventListener("storage", sync);
       };
-    });
-    return () => { cancelled = true; };
+    }), 1500);
+    return () => { cancelled = true; window.clearTimeout(timer); cleanup?.(); };
   }, [isAuthenticated]);
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";

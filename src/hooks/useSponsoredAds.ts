@@ -30,24 +30,28 @@ function mapAd(a: any): SponsoredAdShape {
   };
 }
 
-export function useSponsoredAds(): SponsoredAdShape[] {
+export function useSponsoredAds(options: { fetch?: boolean } = {}): SponsoredAdShape[] {
+  const { fetch = true } = options;
   const { data } = useQuery({
     queryKey: ["sponsored-ads"],
     queryFn: () => publicApi.getSponsoredAds(),
+    enabled: fetch,
     staleTime: 30_000,
   });
   if (!data) return [];
   return (data as any[]).map(mapAd);
 }
 
-export function useSponsoredAdsBundle() {
-  const ads = useSponsoredAds();
+export function useSponsoredAdsBundle(options: { fetch?: boolean } = {}) {
+  const { fetch = true } = options;
+  const ads = useSponsoredAds({ fetch });
   const offerIds = Array.from(new Set(ads.map((a) => a.offer_id).filter(Boolean))) as string[];
 
   const offerQueries = useQueries({
     queries: offerIds.map((id) => ({
       queryKey: ["offer", id],
       queryFn: () => publicApi.getOffer(id),
+      enabled: fetch,
       staleTime: 60_000,
     })),
   });
@@ -66,6 +70,7 @@ export function useSponsoredAdsBundle() {
     queries: partnerIds.map((id) => ({
       queryKey: ["partner", id],
       queryFn: () => publicApi.getPartner(id),
+      enabled: fetch,
       staleTime: 5 * 60_000,
     })),
   });
