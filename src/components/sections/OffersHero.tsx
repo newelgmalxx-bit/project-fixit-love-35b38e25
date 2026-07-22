@@ -294,6 +294,7 @@ function SlideContent({
   const L = (a: string, e: string) => (lang === "en" ? e : a);
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  const HeadingTag = slideIndex === 0 ? "h1" : "h2";
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -339,7 +340,7 @@ function SlideContent({
             <Sparkles className="h-3.5 w-3.5" /> {slide.kicker}
           </span>
 
-          <h1 className="mt-3 text-2xl font-extrabold leading-[1.2] tracking-tight text-foreground sm:mt-5 sm:text-5xl lg:text-6xl">
+          <HeadingTag className="mt-3 text-2xl font-extrabold leading-[1.2] tracking-tight text-foreground sm:mt-5 sm:text-5xl lg:text-6xl">
             {slide.titleLine1}
             <br />
             <span
@@ -347,7 +348,7 @@ function SlideContent({
             >
               {slide.titleLine2}
             </span>
-          </h1>
+          </HeadingTag>
 
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">
             {slide.description}

@@ -48,7 +48,7 @@ export const Route = createFileRoute("/")({
       meta: seo.meta,
       links: [
         ...seo.links,
-        { rel: "preload", as: "image", href: heroFacial, fetchpriority: "high" } as any,
+        { rel: "preload", as: "image", href: heroFacial, fetchPriority: "high" } as any,
       ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(organizationJsonLd()) },
