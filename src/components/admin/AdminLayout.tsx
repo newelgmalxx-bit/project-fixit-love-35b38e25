@@ -11,8 +11,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import logoImg from "@/assets/booking-logo.png";
 import { useLang } from "@/i18n/LanguageProvider";
-import flagSa from "@/assets/flag-sa.jpg";
-import flagUs from "@/assets/flag-us.jpg";
+import { flagSA as flagSa, flagUS as flagUs } from "@/lib/flags";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { toast } from "sonner";

@@ -73,7 +73,7 @@ export function SiteFooter() {
 
         {/* Quick Links */}
         <div>
-          <h4 className="mb-5 text-lg font-bold">{L("روابط سريعة", "Quick links")}</h4>
+          <h3 className="mb-5 text-lg font-bold">{L("روابط سريعة", "Quick links")}</h3>
           <ul className="space-y-3 text-base text-white/85">
             {quickLinks.map((l) => (
               <li key={l.label}>
@@ -87,7 +87,7 @@ export function SiteFooter() {
 
         {/* Categories */}
         <div>
-          <h4 className="mb-5 text-lg font-bold">{L("تصنيفات الخدمات", "Service categories")}</h4>
+          <h3 className="mb-5 text-lg font-bold">{L("تصنيفات الخدمات", "Service categories")}</h3>
           <ul className="space-y-3 text-base text-white/85">
             {categories.map((c: any) => {
               const name = lang === "en" ? (c.nameEn || c.nameAr) : (c.nameAr || c.nameEn);
@@ -109,7 +109,7 @@ export function SiteFooter() {
 
         {/* Contact */}
         <div>
-          <h4 className="mb-5 text-lg font-bold">{L("تواصل معنا", "Contact us")}</h4>
+          <h3 className="mb-5 text-lg font-bold">{L("تواصل معنا", "Contact us")}</h3>
           <ul className="space-y-3">
             {([
               site.phone ? { Icon: Phone, text: site.phone } : null,
