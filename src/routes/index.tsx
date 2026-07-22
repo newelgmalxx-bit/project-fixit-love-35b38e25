@@ -1,15 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft as ArrowLeftIcon } from "lucide-react";
+import { lazy, Suspense } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { OffersHero } from "@/components/sections/OffersHero";
 import { CategoriesGrid } from "@/components/sections/CategoriesGrid";
 import { HomeOfferSlider1, HomeOfferSlider2 } from "@/components/sections/HomeOfferSlider";
 
-import { AboutIntroSection } from "@/components/sections/AboutIntroSection";
-import { WhyUsSection } from "@/components/sections/WhyUsSection";
-import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { CtaBanner } from "@/components/sections/CtaBanner";
+// Below-the-fold sections lazy-loaded to trim initial JS payload.
+const AboutIntroSection = lazy(() =>
+  import("@/components/sections/AboutIntroSection").then((m) => ({ default: m.AboutIntroSection }))
+);
+const WhyUsSection = lazy(() =>
+  import("@/components/sections/WhyUsSection").then((m) => ({ default: m.WhyUsSection }))
+);
+const TestimonialsSection = lazy(() =>
+  import("@/components/sections/TestimonialsSection").then((m) => ({ default: m.TestimonialsSection }))
+);
+const CtaBanner = lazy(() =>
+  import("@/components/sections/CtaBanner").then((m) => ({ default: m.CtaBanner }))
+);
 
 import { buildSeo, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
